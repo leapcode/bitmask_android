@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SWAGGER_MENSHEN_COMMIT=d50eef262620f58c9e3b39a4e5f0cdb7797357a1
+SWAGGER_MENSHEN_COMMIT=96a46de146df7af32ec6525143e4994c02c9e0d4
 SCRIPT_DIR=$(dirname "$0")
 BASE_DIR="$SCRIPT_DIR/.."
 
@@ -11,7 +11,11 @@ echo -e "${GREEN}Creating swagger build directory${NC}"
 mkdir -p ${BASE_DIR}/app/build/swagger
 
 echo -e "${GREEN}Fetching swagger specification for menshen commit ${SWAGGER_MENSHEN_COMMIT}${NC}"
-curl https://0xacab.org/leap/menshen/-/raw/${SWAGGER_MENSHEN_COMMIT}/api/swagger.yaml > ${BASE_DIR}/app/build/swagger/swagger.yaml
+if [[ -z $MENSHEN_SWAGGER_YAML ]]; then
+    curl https://0xacab.org/leap/menshen/-/raw/${SWAGGER_MENSHEN_COMMIT}/api/swagger.yaml > ${BASE_DIR}/app/build/swagger/swagger.yaml
+else
+    cp $MENSHEN_SWAGGER_YAML ${BASE_DIR}/app/build/swagger/swagger.yaml
+fi
 
 echo -e "${GREEN}Pulling swagger-codegen docker image${NC}"
 docker pull swaggerapi/swagger-codegen-cli
@@ -30,4 +34,4 @@ cp -r app/build/swagger/src/main/java/io/swagger/client/model/* app/src/main/jav
 cp app/build/swagger/src/main/java/io/swagger/client/JSON.java app/src/main/java/io/swagger/client/.
 
 echo -e "${GREEN}Cleanup${NC}"
-#rm -r app/build/swagger/
+rm -r app/build/swagger/
