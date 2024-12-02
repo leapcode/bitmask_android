@@ -32,6 +32,7 @@ import io.swagger.client.model.*;
 import io.swagger.client.model.*;
 import io.swagger.client.model.*;
 import io.swagger.client.model.*;
+import io.swagger.client.model.*;
 import okio.ByteString;
 
 import java.io.IOException;

@@ -15,7 +15,14 @@ package io.swagger.client.model;
 
 import java.util.Objects;
 import java.util.Arrays;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import java.io.IOException;
 
 /**
  * Operational properties which describe how the provider offers the service
@@ -23,6 +30,48 @@ import io.swagger.annotations.ApiModel;
 @ApiModel(description = "Operational properties which describe how the provider offers the service")
 
 public class ModelsProviderService {
+  @SerializedName("allow_anonymous")
+  private Boolean allowAnonymous = null;
+
+  @SerializedName("allow_registration")
+  private Boolean allowRegistration = null;
+
+  public ModelsProviderService allowAnonymous(Boolean allowAnonymous) {
+    this.allowAnonymous = allowAnonymous;
+    return this;
+  }
+
+   /**
+   * Flag indicating if anonymous usage without registration is allowed deprecated: kept for backwards compatibility
+   * @return allowAnonymous
+  **/
+  @ApiModelProperty(value = "Flag indicating if anonymous usage without registration is allowed deprecated: kept for backwards compatibility")
+  public Boolean isAllowAnonymous() {
+    return allowAnonymous;
+  }
+
+  public void setAllowAnonymous(Boolean allowAnonymous) {
+    this.allowAnonymous = allowAnonymous;
+  }
+
+  public ModelsProviderService allowRegistration(Boolean allowRegistration) {
+    this.allowRegistration = allowRegistration;
+    return this;
+  }
+
+   /**
+   * Flag indicating if the provider supports user registration deprecated: kept for backwards compatibility
+   * @return allowRegistration
+  **/
+  @ApiModelProperty(value = "Flag indicating if the provider supports user registration deprecated: kept for backwards compatibility")
+  public Boolean isAllowRegistration() {
+    return allowRegistration;
+  }
+
+  public void setAllowRegistration(Boolean allowRegistration) {
+    this.allowRegistration = allowRegistration;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -32,12 +81,14 @@ public class ModelsProviderService {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    return true;
+    ModelsProviderService modelsProviderService = (ModelsProviderService) o;
+    return Objects.equals(this.allowAnonymous, modelsProviderService.allowAnonymous) &&
+        Objects.equals(this.allowRegistration, modelsProviderService.allowRegistration);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash();
+    return Objects.hash(allowAnonymous, allowRegistration);
   }
 
 
@@ -46,6 +97,8 @@ public class ModelsProviderService {
     StringBuilder sb = new StringBuilder();
     sb.append("class ModelsProviderService {\n");
     
+    sb.append("    allowAnonymous: ").append(toIndentedString(allowAnonymous)).append("\n");
+    sb.append("    allowRegistration: ").append(toIndentedString(allowRegistration)).append("\n");
     sb.append("}");
     return sb.toString();
   }

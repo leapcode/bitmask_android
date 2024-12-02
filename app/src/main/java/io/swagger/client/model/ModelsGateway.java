@@ -48,6 +48,9 @@ public class ModelsGateway {
   @SerializedName("ip6_addr")
   private String ip6Addr = null;
 
+  @SerializedName("last_seen_millis")
+  private Long lastSeenMillis = null;
+
   @SerializedName("load")
   private BigDecimal load = null;
 
@@ -174,6 +177,24 @@ public class ModelsGateway {
     this.ip6Addr = ip6Addr;
   }
 
+  public ModelsGateway lastSeenMillis(Long lastSeenMillis) {
+    this.lastSeenMillis = lastSeenMillis;
+    return this;
+  }
+
+   /**
+   * LastSeenMillis is a unix time in milliseconds representing the last time we received a heartbeat update from this gateway
+   * @return lastSeenMillis
+  **/
+  @ApiModelProperty(value = "LastSeenMillis is a unix time in milliseconds representing the last time we received a heartbeat update from this gateway")
+  public Long getLastSeenMillis() {
+    return lastSeenMillis;
+  }
+
+  public void setLastSeenMillis(Long lastSeenMillis) {
+    this.lastSeenMillis = lastSeenMillis;
+  }
+
   public ModelsGateway load(BigDecimal load) {
     this.load = load;
     return this;
@@ -298,6 +319,7 @@ public class ModelsGateway {
         Objects.equals(this.host, modelsGateway.host) &&
         Objects.equals(this.ipAddr, modelsGateway.ipAddr) &&
         Objects.equals(this.ip6Addr, modelsGateway.ip6Addr) &&
+        Objects.equals(this.lastSeenMillis, modelsGateway.lastSeenMillis) &&
         Objects.equals(this.load, modelsGateway.load) &&
         Objects.equals(this.location, modelsGateway.location) &&
         Objects.equals(this.overloaded, modelsGateway.overloaded) &&
@@ -308,7 +330,7 @@ public class ModelsGateway {
 
   @Override
   public int hashCode() {
-    return Objects.hash(bucket, experimental, healthy, host, ipAddr, ip6Addr, load, location, overloaded, port, transport, type);
+    return Objects.hash(bucket, experimental, healthy, host, ipAddr, ip6Addr, lastSeenMillis, load, location, overloaded, port, transport, type);
   }
 
 
@@ -323,6 +345,7 @@ public class ModelsGateway {
     sb.append("    host: ").append(toIndentedString(host)).append("\n");
     sb.append("    ipAddr: ").append(toIndentedString(ipAddr)).append("\n");
     sb.append("    ip6Addr: ").append(toIndentedString(ip6Addr)).append("\n");
+    sb.append("    lastSeenMillis: ").append(toIndentedString(lastSeenMillis)).append("\n");
     sb.append("    load: ").append(toIndentedString(load)).append("\n");
     sb.append("    location: ").append(toIndentedString(location)).append("\n");
     sb.append("    overloaded: ").append(toIndentedString(overloaded)).append("\n");

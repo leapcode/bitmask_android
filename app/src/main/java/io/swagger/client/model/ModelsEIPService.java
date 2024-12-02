@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.client.model.ModelsLocation;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,7 @@ public class ModelsEIPService {
   private String auth = null;
 
   @SerializedName("locations")
-  private Object locations = null;
+  private Map<String, ModelsLocation> locations = null;
 
   @SerializedName("openvpn_configuration")
   private Map<String, Object> openvpnConfiguration = null;
@@ -65,8 +66,16 @@ public class ModelsEIPService {
     this.auth = auth;
   }
 
-  public ModelsEIPService locations(Object locations) {
+  public ModelsEIPService locations(Map<String, ModelsLocation> locations) {
     this.locations = locations;
+    return this;
+  }
+
+  public ModelsEIPService putLocationsItem(String key, ModelsLocation locationsItem) {
+    if (this.locations == null) {
+      this.locations = new HashMap<String, ModelsLocation>();
+    }
+    this.locations.put(key, locationsItem);
     return this;
   }
 
@@ -75,11 +84,11 @@ public class ModelsEIPService {
    * @return locations
   **/
   @ApiModelProperty(value = "")
-  public Object getLocations() {
+  public Map<String, ModelsLocation> getLocations() {
     return locations;
   }
 
-  public void setLocations(Object locations) {
+  public void setLocations(Map<String, ModelsLocation> locations) {
     this.locations = locations;
   }
 
