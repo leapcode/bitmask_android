@@ -104,7 +104,11 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
         }
 
-        configureBaseCountryCode(bm, parameters);
+        try {
+            configureBaseCountryCode(bm, parameters);
+        } catch (Exception e) {
+            return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
+        }
 
         try {
             String serviceJson = bm.getService();
@@ -159,12 +163,16 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
                 bm.setSocksProxy(SOCKS_PROXY_SCHEME + PROXY_HOST + ":" + TorStatusObservable.getSocksProxyPort());
             }
             // TODO bm.setIntroducer();
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             // TODO: improve error message
             return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
         }
 
-        configureBaseCountryCode(bm, parameters);
+        try {
+            configureBaseCountryCode(bm, parameters);
+        } catch (Exception e) {
+            return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
+        }
 
         try {
             String serviceJson = bm.getService();
@@ -223,13 +231,12 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
     }
 
     @Nullable
-    private void configureBaseCountryCode(BitmaskMobile bm, Bundle parameters) {
+    private void configureBaseCountryCode(BitmaskMobile bm, Bundle parameters) throws Exception {
         String cc = parameters.getString(COUNTRYCODE, null);
         if (cc == null &&
                 EipStatus.getInstance().isDisconnected() &&
                 TorStatusObservable.getStatus() == OFF) {
             try {
-                // FIXME: doGeolocationLookup currently sets the country code implicitly, change that in bitmask-core
                 cc = bm.getGeolocation();
             } catch (Exception e) {
                 // print exception and ignore
