@@ -72,7 +72,7 @@ public class PrivateKeyHelper {
             return key;
         }
 
-        private EdECPrivateKey parseECPrivateKey(String ecKeyString) {
+        private PrivateKey parseECPrivateKey(String ecKeyString) {
             KeyFactory kf;
             try {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
@@ -82,7 +82,7 @@ public class PrivateKeyHelper {
                 }
                 ecKeyString = ecKeyString.replaceFirst(ED_25519_KEY_BEGIN, "").replaceFirst(ED_25519_KEY_END, "");
                 PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(ecKeyString));
-                return (EdECPrivateKey) kf.generatePrivate(keySpec);
+                return kf.generatePrivate(keySpec);
             } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
                 e.printStackTrace();
                 return null;
