@@ -30,22 +30,14 @@ public class CredentialsParser {
                             switch (currentTag) {
                                 case "ca" -> {
                                     ca = parser.getText();
-                                    ca = ca.replaceAll("-----BEGIN CERTIFICATE-----", "");
-                                    ca = ca.replaceAll("-----END CERTIFICATE-----", "");
                                     ca = ca.trim();
                                 }
                                 case "key" -> {
                                     key = parser.getText();
-                                    key = key.replaceAll("-----BEGIN PRIVATE KEY-----", "");
-                                    key = key.replaceAll("-----BEGIN RSA PRIVATE KEY-----", "");
-                                    key = key.replaceAll("-----END PRIVATE KEY-----", "");
-                                    key = key.replaceAll("-----END RSA PRIVATE KEY-----", "");
                                     key = key.trim();
                                 }
                                 case "cert" -> {
                                     cert = parser.getText();
-                                    cert = cert.replaceAll("-----BEGIN CERTIFICATE-----", "");
-                                    cert = cert.replaceAll("-----END CERTIFICATE-----", "");
                                     cert = cert.trim();
                                 }
                             }
