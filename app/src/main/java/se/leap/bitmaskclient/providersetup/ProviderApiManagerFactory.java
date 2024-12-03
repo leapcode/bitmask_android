@@ -16,12 +16,10 @@ public class ProviderApiManagerFactory {
     }
 
     public IProviderApiManager getProviderApiManager(Provider provider) throws IllegalArgumentException {
-        switch (provider.getApiVersion()) {
-            case 5:
-                return new ProviderApiManagerV5(resources, callback);
-            default:
-                OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(resources);
-                return new ProviderApiManagerV3(resources, clientGenerator, callback);
+        if (provider.getApiVersion() >= 5) {
+            return new ProviderApiManagerV5(resources, callback);
         }
+        OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(resources);
+        return new ProviderApiManagerV3(resources, clientGenerator, callback);
     }
 }
