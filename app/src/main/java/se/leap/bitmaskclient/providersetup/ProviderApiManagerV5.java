@@ -210,6 +210,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         try {
             String cert = bm.getOpenVPNCert();
             currentDownload = loadCredentials(provider, cert);
+            currentDownload = validateCertificateForProvider(currentDownload, provider);
         } catch (Exception e) {
             return eventSender.setErrorResult(currentDownload, R.string.error_json_exception_user_message, null);
         }
@@ -223,6 +224,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         try {
             CredentialsParser.parseXml(credentials, provider);
         } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
             return eventSender.setErrorResult(result, vpn_certificate_is_invalid, null);
         }
 
