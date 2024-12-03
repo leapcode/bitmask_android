@@ -60,6 +60,7 @@ import de.blinkt.openvpn.core.connection.Connection;
 import io.swagger.client.model.ModelsBridge;
 import io.swagger.client.model.ModelsEIPService;
 import io.swagger.client.model.ModelsGateway;
+import io.swagger.client.model.ModelsLocation;
 import se.leap.bitmaskclient.base.models.Transport;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 
@@ -122,7 +123,7 @@ public class Gateway {
     }
 
 
-    public Gateway(ModelsEIPService eipService, JSONObject secrets, ModelsGateway modelsGateway, int apiVersion) throws ConfigParser.ConfigParseError, JSONException, IOException {
+    public Gateway(ModelsEIPService eipService, JSONObject secrets, ModelsGateway modelsGateway, int apiVersion) throws ConfigParser.ConfigParseError, NumberFormatException, JSONException, IOException {
         this.apiVersion = apiVersion;
         generalConfiguration = getGeneralConfiguration(eipService);
         this.secrets = secrets;
@@ -133,9 +134,13 @@ public class Gateway {
         this.remoteIpAddress = modelsGateway.getIpAddr();
         this.remoteIpAddressV6 = modelsGateway.getIp6Addr();
         this.host = modelsGateway.getHost();
-        this.locationName = "UNKNOWN due to bug in menshen";
-                // TODO eipService.getLocations().get
-        this.timezone = 2; // modelsGateway.getLocation()...
+        ModelsLocation modelsLocation = eipService.getLocations().get(modelsGateway.getLocation());
+        if (modelsLocation != null) {
+            this.locationName = modelsLocation.getDisplayName();
+            this.timezone = Integer.parseInt(modelsLocation.getTimezone());
+        } else {
+            this.locationName = modelsGateway.getLocation();
+        }
         this.apiVersion = apiVersion;
         VpnConfigGenerator.Configuration configuration = getProfileConfig(createTransportsFrom(modelsGateway));
         this.name = configuration.profileName;
@@ -151,10 +156,13 @@ public class Gateway {
         this.modelsBridges.add(modelsBridge);
         remoteIpAddress = modelsBridge.getIpAddr();
         host = modelsBridge.getHost();
-        locationName = "UNKNOWN due to bug in menshen";
-        // FIXME eipService.getLocations().get
-        timezone = 2; // modelsGateway.getLocation()...
-        this.apiVersion = apiVersion;
+        ModelsLocation modelsLocation = eipService.getLocations().get(modelsBridge.getLocation());
+        if (modelsLocation != null) {
+            this.locationName = modelsLocation.getDisplayName();
+            this.timezone = Integer.parseInt(modelsLocation.getTimezone());
+        } else {
+            this.locationName = modelsBridge.getLocation();
+        }        this.apiVersion = apiVersion;
         VpnConfigGenerator.Configuration configuration = getProfileConfig(Transport.createTransportsFrom(modelsBridge));
         name = configuration.profileName;
         vpnProfiles = createVPNProfiles(configuration);
