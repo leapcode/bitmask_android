@@ -250,4 +250,15 @@
   <string name="enter_invite_code">Įveskite pakvietimo kodą</string>
   <string name="scan_qr_code">Skenuoti QR kodą</string>
   <string name="invalid_code">Neteisingas kodas</string>
+  <string name="automatic_bridge">Automatiškai (rekomenduojama)</string>
+  <string name="automatic_bridge_description">Bus bandoma užmegzti ryšį naudojant geriausius prieinamus tinklų tiltus bei protokolus.</string>
+  <string name="manual_bridge">Rankinė konfigūracija</string>
+  <string name="manual_bridge_description">Pasirinkti privačius tinklų tiltus ir tam tikrus protokolus</string>
+  <string name="censorship_circumvention_description">Rankinė konfigūracija reikalauja techninių žinių. Tęskite apdairiai.</string>
+  <string name="discovery">Atradimas</string>
+  <string name="discovery_description">Cenzoriai gali blokuoti informacijos apie kritinę konfigūraciją atradimą iš jūsų teikėjo. Pasirinkite apėjimo parinktį, skirtą apeiti blokuotes. </string>
+  <string name="tunnelling">Tuneliavimas</string>
+  <string name="tunnelling_description">Cenzoriai gali blokuoti prieigą prie atvirojo interneto. Pasirinkite apėjimo parinktį, skirtą apeiti blokuotes.</string>
+  <string name="port_hopping">Prievadų keitinėjimas</string>
+  <string name="port_hopping_description">Cenzoriai naudoja duomenų srauto analizę, kad blokuotų prieigą prie atvirojo interneto. Prievadų keitinėjimas gali jiems tai apsunkinti.</string>
 </resources>

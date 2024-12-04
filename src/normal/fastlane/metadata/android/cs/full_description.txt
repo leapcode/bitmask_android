@@ -1,0 +1,12 @@
+Bitmask je VPN klient s automatickou konfigurací. Má několik technik, které umožňují obejít cenzuru, blokování sítě nebo se vyhnout sledování. Po výběru kompatibilního poskytovatele služeb bude šifrovat a bezpečně směrovat veškerý síťový provoz přes důvěryhodného poskytovatele služeb.
+
+A máte vše hotovo!
+
+Bitmask je VPN klient s otevřeným zdrojovým kódem, šířený pod licencí GPLv3. Viz https://0xacab.org/leap/bitmask_android.
+
+ČASTO KLADENÉ DOTAZY:
+
+* kdo: leap.se, kolektiv, který věří v koncept na právo nebýt slyšet, existuje od roku 2011.
+* překlady jsou velmi vítány na našem projektu Transifex https://app.transifex.com/otf/bitmask/dashboard/.
+
+Pokud se setkáte s problémy nebo chcete mít k dispozici testovací verze, připojte se k našemu chatu https://matrix.to/#/#leap:libera.chat nebo napište hlášení o chybě: https://0xacab.org/leap/bitmask_android/

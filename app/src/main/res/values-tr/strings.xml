@@ -248,4 +248,9 @@
   <string name="enter_invite_code">Davet kodunu yazın</string>
   <string name="scan_qr_code">Kare kodu tara</string>
   <string name="invalid_code">Kod geçersiz</string>
+  <string name="automatic_bridge">Otomatik (önerilen)</string>
+  <string name="automatic_bridge_description">Bağlantı en iyi mevcut köprüler ve protokoller kullanılarak oluşturulmaya çalışılacak.</string>
+  <string name="manual_bridge">Elle Yapılandırma</string>
+  <string name="manual_bridge_description">Özel köprüler ve belirli protokoller seçin</string>
+  <string name="discovery">Keşif</string>
 </resources>

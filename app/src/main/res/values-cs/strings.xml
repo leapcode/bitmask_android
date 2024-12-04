@@ -250,4 +250,17 @@
   <string name="enter_invite_code">Zadejte kód pozvánky</string>
   <string name="scan_qr_code">Naskenovat QR kód</string>
   <string name="invalid_code">Neplatný kód</string>
+  <string name="automatic_bridge">Automaticky (doporučeno)</string>
+  <string name="automatic_bridge_description">O připojení se pokusíme pomocí nejlepších dostupných mostů a protokolů.</string>
+  <string name="manual_bridge">Ruční nastavení</string>
+  <string name="manual_bridge_description">Vybrat soukromé mosty a specifické protokoly</string>
+  <string name="censorship_circumvention_description">Ruční nastavení vyžaduje technické znalosti. Postupujte opatrně.</string>
+  <string name="discovery">Objevování</string>
+  <string name="discovery_description">Cenzoři mohou blokovat zjišťování kritických informací o konfiguraci od vašeho poskytovatele. Chcete-li blokování obejít, zvolte možnost obcházení.</string>
+  <string name="any">Jakékoli (automatický výběr)</string>
+  <string name="invite_proxy">Proxy pozvánek</string>
+  <string name="tunnelling">Tunelování</string>
+  <string name="tunnelling_description">Cenzoři mohou blokovat přístup k otevřenému internetu. Chcete-li blokování obejít, zvolte možnost obcházení.</string>
+  <string name="port_hopping">Přeskakování portů</string>
+  <string name="port_hopping_description">Cenzoři používají analýzu provozu k blokování přístupu k otevřenému internetu. Přeskakování portů jim to může ztížit.</string>
 </resources>

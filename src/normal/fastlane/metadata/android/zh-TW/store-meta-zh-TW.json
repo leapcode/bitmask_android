@@ -1,0 +1,5 @@
+{
+    "title": "Bitmask",
+    "full_description": "Bitmask 是一款自動設定的 VPN 用戶端。有多種技術可以規避審查、網路封鎖或避免監視。 選擇相容的服務提供者後，它將透過所信任的服務提供者加密安全地路由所有網路流量。\n\n準備好出發了！\n\nBitmask 是開源 VPN 用戶端，根據 GPLv3 授權分發。 請參閱 https://0xacab.org/leap/bitmask_android\n\n常問問題：\n\n* 人物：leap.se，一個熱愛低語權利的集體，約始於 2011 年。\n* 大大感謝 Transifex 專案翻譯 https://app.transifex.com/otf/bitmask/dashboard/\n\n如果遇到問題或想要嚐鮮搶先版，請加入網路聊天 https://matrix.to/#/#leap:libera.chat 或撰寫錯誤回報：https://0xacab.org/leap/bitmask_android/",
+    "short_description": "給一般人的加密通訊\n（也歡迎超級英雄）。"
+}

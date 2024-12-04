@@ -1,0 +1,5 @@
+{
+    "title": "Bitmask",
+    "full_description": "Bitmask otomatik yapılandırma kullanan bir VPN istemcisidir. Kısıtlama ve ağ engellemesini aşmak veya izlenmekten kaçınmak için birçok yöntem kullanır. Uyumlu bir hizmet sağlayıcı seçtikten sonra tüm ağ trafiğinizi şifreler ve güvendiğiniz hizmet sağlayıcınız üzerinden güvenli bir şekilde yöneltir.\n\nBöylece kullanmaya başlayabilirsiniz!\n\nBitmask açık kaynaklı bir VPN istemcisidir. GPLv3 lisansı koşulları altında dağıtılır: https://0xacab.org/leap/bitmask_android\n\nSSS\n\n* Kim: leap.se, fısıldama hakkı kavramını seven bir topluluktır. 2011 yılından beri ortalıktadır.\n* Çevirileri Transifex projemizde memnuniyetle karşılıyoruz: https://app.transifex.com/otf/bitmask/dashboard/\n\nSorunlarla karşılaştıysanız veya güncel sürümü almak istiyorsanız, sohbetimize katılabilir https://matrix.to/#/#leap:libera.chat ya da bir hata bildiriminde bulunabilirsiniz: https://0xacab.org/leap/bitmask_android/",
+    "short_description": "Sadece bir fani olanlar için şifrelenmiş iletişim\n(süper kahramanlar da hoş gelir)"
+}

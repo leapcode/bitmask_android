@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="donate_message">RiseupVPN je jednoduchá, rychlá a bezpečná VPN služba od riseup.net. RiseupVPN nevyžaduje uživatelský účet, neukládá protokoly ani vás žádným způsobem nesleduje. Služba je placená výhradně z darů od uživatelů, jako jste vy. Přispějte prosím na https://riseup.net/vpn/donate. </string>
+  <string name="terms_of_service">Používáním této aplikace souhlasíte se Smluvními podmínkami dostupnými na https://riseup.net/tos. Tato služba je poskytována tak, jak je, bez záruky a je určena lidem, kteří pracují na tom, aby byl svět lepší.</string>
+</resources>

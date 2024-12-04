@@ -1,0 +1,5 @@
+{
+    "title": "Bitmask",
+    "full_description": "Bitmask è un client VPN con configurazione automatica. Dispone di diverse tecniche per aggirare la censura, bloccare la rete o evitare la sorveglianza. Dopo aver scelto un fornitore di servizi compatibile, cripterà e instraderà in modo sicuro tutto il vostro traffico di rete attraverso il vostro fornitore di servizi di fiducia.\n\nE il gioco è fatto!\n\nBitmask è un client VPN open source, distribuito con licenza GPLv3. Vedere https://0xacab.org/leap/bitmask_android\n\nFAQ:\n\n* Chi: leap.se, un collettivo che ama il concetto di diritto di sussurrare, attivo dal 2011.\n* Le traduzioni sono molto apprezzate al nostro progetto Transifex https://app.transifex.com/otf/bitmask/dashboard/.\n\nSe riscontrate problemi o volete provare versioni alpha, partecipate alla nostra chat https://matrix.to/#/#leap:libera.chat o scrivete una segnalazione di bug: https://0xacab.org/leap/bitmask_android/",
+    "short_description": "Comunicazione criptata per i comuni mortali\n(anche i supereroi sono benvenuti)."
+}

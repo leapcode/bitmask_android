@@ -1,0 +1,12 @@
+Bitmask es un cliente VPN de configuración automática. Tiene variadas técnicas para eludir el bloqueo de redes o evitar la vigilancia en línea. Después de elegir un servidor para conectarse, Bitmask cifrará y enrutará el tráfico desde su red de forma segura.
+
+¡Y ya con eso estás listo!
+
+Bitmask es un cliente VPN de código abierto, distribuido bajo la licencia GPLv3. Lee más en https://0xacab.org/leap/bitmask_android
+
+Preguntas Mas Frequentes (FAQ):
+
+* quien: leap.se es un colectivo que ama el derecho a susurrar sin ser escuchado, y existe desde 2011.
+* Las traducciones son muy apreciadas en nuestro proyecto Transifex en https://app.transifex.com/otf/bitmask/dashboard/
+
+Si tienes algún problema o deseas obtener la última versión, únete a nuestro chat en  https://matrix.to/#/#leap:libera.chat, o escribe un informe de error en  https://0xacab.org/leap/bitmask_android/
