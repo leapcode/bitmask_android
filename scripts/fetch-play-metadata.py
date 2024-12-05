@@ -15,9 +15,14 @@ parser.add_argument('--save', action='store_true', help='Save the fetched detail
 parser.add_argument('--commit', action='store_true', help='Commit changes to the Play Store')
 args = parser.parse_args()
 
+# Get the credentials file path from an environment variable
+credentials_path = os.environ.get('GOOGLE_PLAY_CREDENTIALS', None)
+if not credentials_path:
+    raise ValueError("Environment variable 'GOOGLE_PLAY_CREDENTIALS' is not set.")
+
 # Create a service account credentials object
 credentials = service_account.Credentials.from_service_account_file(
-    '/home/kwadronaut/dev/leap/secrets/api-project-994875643994-22f0c79f9a67.json',
+    credentials_path,
     scopes=['https://www.googleapis.com/auth/androidpublisher']
 )
 service = build('androidpublisher', 'v3', credentials=credentials, cache_discovery=False)
@@ -133,4 +138,3 @@ elif args.extract_details:
         print("Please specify a language with --language or use --list-languages to list supported languages.")
 else:
     print("No valid action specified. Use --list-languages, --extract-details, or --extract-changelog.")
-
