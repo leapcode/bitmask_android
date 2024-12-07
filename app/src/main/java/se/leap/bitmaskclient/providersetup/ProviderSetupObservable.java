@@ -38,6 +38,9 @@ public class ProviderSetupObservable {
     private boolean canceled = false;
     public static final int DOWNLOADED_PROVIDER_JSON = 20;
     public static final int DOWNLOADED_CA_CERT = 40;
+    public static final int DOWNLOADED_V5_SERVICE_JSON = 40;
+    public static final int DOWNLOADED_V5_GATEWAYS = 60;
+    public static final int DOWNLOADED_V5_BRIDGES = 80;
     public static final int DOWNLOADED_EIP_SERVICE_JSON = 60;
     public static final int DOWNLOADED_GEOIP_JSON = 80;
     public static final int DOWNLOADED_VPN_CERTIFICATE = 100;

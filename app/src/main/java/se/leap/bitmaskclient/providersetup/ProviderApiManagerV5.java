@@ -18,8 +18,10 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.QUIETLY_UPDATE_VPN
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
-import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_EIP_SERVICE_JSON;
-import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_PROVIDER_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_BRIDGES;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_SERVICE_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_GATEWAYS;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
 import android.content.res.Resources;
@@ -178,7 +180,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             String serviceJson = bm.getService();
             Log.d(TAG, "service Json reponse: " + serviceJson);
             provider.setService(serviceJson);
-            ProviderSetupObservable.updateProgress(DOWNLOADED_EIP_SERVICE_JSON);
+            ProviderSetupObservable.updateProgress(DOWNLOADED_V5_SERVICE_JSON);
         } catch (Exception e) {
             Log.w(TAG, "failed to fetch service.json: " + e.getMessage());
             e.printStackTrace();
@@ -190,6 +192,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             String gatewaysJson = bm.getAllGateways("", "", "");
             Log.d(TAG, "gateways Json reponse: " + gatewaysJson);
             provider.setGateways(gatewaysJson);
+            ProviderSetupObservable.updateProgress(DOWNLOADED_V5_GATEWAYS);
         } catch (Exception e) {
             Log.w(TAG, "failed to fetch gateways: " + e.getMessage());
             e.printStackTrace();
@@ -201,6 +204,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             String bridgesJson = bm.getAllBridges("", "", "", "");
             Log.d(TAG, "bridges Json reponse: " + bridgesJson);
             provider.setBridges(bridgesJson);
+            ProviderSetupObservable.updateProgress(DOWNLOADED_V5_BRIDGES);
         } catch (Exception e) {
             Log.w(TAG, "failed to fetch bridges: " + e.getMessage());
             e.printStackTrace();
@@ -211,6 +215,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             String cert = bm.getOpenVPNCert();
             currentDownload = loadCredentials(provider, cert);
             currentDownload = validateCertificateForProvider(currentDownload, provider);
+            ProviderSetupObservable.updateProgress(DOWNLOADED_VPN_CERTIFICATE);
         } catch (Exception e) {
             return eventSender.setErrorResult(currentDownload, R.string.error_json_exception_user_message, null);
         }
