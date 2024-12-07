@@ -52,6 +52,7 @@ import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -726,15 +727,20 @@ public final class Provider implements Parcelable {
 
     private boolean parseDefinition(JSONObject definition) {
         try {
+            this.apiVersions = parseApiVersionsArray();
+            this.apiVersion = selectPreferredApiVersion();
+            this.domain = getDefinition().getString(Provider.DOMAIN);
             String pin =  definition.getString(CA_CERT_FINGERPRINT);
             this.certificatePin = pin.split(":")[1].trim();
             this.certificatePinEncoding = pin.split(":")[0].trim();
             this.apiUrl = new URL(definition.getString(API_URL)).toString();
-            this.allowAnonymous = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS);
-            this.allowRegistered = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED);
-            this.apiVersions = parseApiVersionsArray();
-            this.apiVersion = selectPreferredApiVersion();
-            this.domain = getDefinition().getString(Provider.DOMAIN);
+            JSONObject serviceJSONObject = definition.getJSONObject(Provider.SERVICE);
+            if (serviceJSONObject.has(PROVIDER_ALLOW_ANONYMOUS)) {
+                this.allowAnonymous = serviceJSONObject.getBoolean(PROVIDER_ALLOW_ANONYMOUS);
+            }
+            if (serviceJSONObject.has(PROVIDER_ALLOWED_REGISTERED)) {
+                this.allowRegistered = serviceJSONObject.getBoolean(PROVIDER_ALLOWED_REGISTERED);
+            }
             return true;
         } catch (JSONException | ArrayIndexOutOfBoundsException | MalformedURLException | NullPointerException | NumberFormatException e) {
             return false;
@@ -745,7 +751,7 @@ public final class Provider implements Parcelable {
      @returns latest api version supported by client and server or the version set in 'api_version'
      in case there's not a common supported version
      */
-    private int selectPreferredApiVersion() throws JSONException {
+    private int selectPreferredApiVersion() throws JSONException, NumberFormatException {
         if (apiVersions.length == 0) {
             return Integer.parseInt(getDefinition().getString(Provider.API_VERSION));
         }
@@ -767,7 +773,11 @@ public final class Provider implements Parcelable {
             JSONArray versions = getDefinition().getJSONArray(Provider.API_VERSIONS);
             versionArray = new int[versions.length()];
             for (int i = 0; i < versions.length(); i++) {
-                versionArray[i] = Integer.parseInt(versions.getString(i));
+                try {
+                    versionArray[i] = Integer.parseInt(versions.getString(i));
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (JSONException ignore) {
             // this backend doesn't support api_versions yet
