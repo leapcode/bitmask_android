@@ -3,10 +3,8 @@ package se.leap.bitmaskclient.providersetup.fragments;
 import static se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel.ADD_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel.INVITE_CODE_PROVIDER;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -20,19 +18,17 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.ArrayList;
 
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.providersetup.activities.scanner.ScannerActivity;
 import se.leap.bitmaskclient.base.models.Introducer;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.databinding.FProviderSelectionBinding;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
+import se.leap.bitmaskclient.providersetup.activities.scanner.ScannerActivity;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModelFactory;
 

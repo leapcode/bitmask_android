@@ -29,6 +29,10 @@ public class Introducer implements Parcelable {
         kcpEnabled = in.readByte() != 0;
     }
 
+    public String getFullyQualifiedDomainName() {
+        return fullyQualifiedDomainName;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(type);

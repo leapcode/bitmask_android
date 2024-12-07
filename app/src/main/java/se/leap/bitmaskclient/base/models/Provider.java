@@ -135,7 +135,7 @@ public final class Provider implements Parcelable {
     public Provider() { }
 
     public Provider(Introducer introducer) {
-       this(introducer.toUrl(), null);
+        this("https://" + introducer.getFullyQualifiedDomainName());
         this.introducer = introducer;
     }
 

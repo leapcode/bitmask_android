@@ -164,7 +164,9 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             if (TorStatusObservable.isRunning() && TorStatusObservable.getSocksProxyPort() != -1) {
                 bm.setSocksProxy(SOCKS_PROXY_SCHEME + PROXY_HOST + ":" + TorStatusObservable.getSocksProxyPort());
             }
-            // TODO bm.setIntroducer();
+            if (provider.hasIntroducer()) {
+                bm.setIntroducer(provider.getIntroducer().toUrl());
+            }
         } catch (Exception e) {
             // TODO: improve error message
             return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);

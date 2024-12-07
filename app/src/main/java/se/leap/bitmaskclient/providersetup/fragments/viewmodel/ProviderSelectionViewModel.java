@@ -6,7 +6,6 @@ import static se.leap.bitmaskclient.base.utils.ConfigHelper.isNetworkUrl;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.text.InputType;
-import android.util.Patterns;
 import android.view.View;
 
 import androidx.lifecycle.ViewModel;
