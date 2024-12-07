@@ -1003,6 +1003,10 @@ public final class Provider implements Parcelable {
         allowAnonymous = false;
         lastGeoIpUpdate = 0L;
         lastEipServiceUpdate = 0L;
+        modelsProvider = null;
+        modelsGateways = null;
+        modelsBridges = null;
+        modelsEIPService = null;
     }
 
 }
