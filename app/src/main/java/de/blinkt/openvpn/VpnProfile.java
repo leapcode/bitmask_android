@@ -43,6 +43,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -475,7 +476,11 @@ public class VpnProfile implements Serializable, Cloneable {
                 // Client Cert + Key
                 cfg.append(insertFileData("cert", mClientCertFilename));
                 mPrivateKey = ProviderObservable.getInstance().getCurrentProvider().getPrivateKey();
-                cfg.append("management-external-key nopadding pkcs1 pss digest\n");
+                if (mPrivateKey.getAlgorithm().equalsIgnoreCase("RSA")) {
+                    cfg.append("management-external-key nopadding pkcs1 pss digest\n");
+                } else {
+                    cfg.append("management-external-key\n");
+                }
 
                 break;
             case VpnProfile.TYPE_USERPASS_PKCS12:
@@ -1280,7 +1285,9 @@ public class VpnProfile implements Serializable, Cloneable {
                 return signed_bytes;
             }
         } catch
-        (NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | SignatureException | InvalidAlgorithmParameterException
+        (NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException |
+         BadPaddingException | NoSuchPaddingException | SignatureException |
+         InvalidAlgorithmParameterException | NoSuchProviderException
                         e) {
             VpnStatus.logError(R.string.error_rsa_sign, e.getClass().toString(), e.getLocalizedMessage());
             return null;
@@ -1326,11 +1333,13 @@ public class VpnProfile implements Serializable, Cloneable {
         return hashtype;
     }
 
-    private byte[] doDigestSign(PrivateKey privkey, byte[] data, OpenVPNManagement.SignaturePadding padding, String hashalg, String saltlen) throws SignatureException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+    private byte[] doDigestSign(PrivateKey privkey, byte[] data, OpenVPNManagement.SignaturePadding padding, String hashalg, String saltlen) throws SignatureException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException {
         /* RSA */
         Signature sig = null;
 
-        if (privkey.getAlgorithm().equals("EC")) {
+        if (privkey.getAlgorithm().equals("Ed25519")) {
+            sig = Signature.getInstance("Ed25519", "BC");
+        } else if (privkey.getAlgorithm().equals("EC")) {
             if (hashalg.equals(""))
                 hashalg = "NONE";
             /* e.g. SHA512withECDSA */

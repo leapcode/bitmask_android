@@ -272,12 +272,13 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
     }
 
     private void processCommand(String command) {
-        //Log.i(TAG, "Line from managment" + command);
+        Log.i(TAG, "Line from managment " + command);
 
         if (command.startsWith(">") && command.contains(":")) {
             String[] parts = command.split(":", 2);
             String cmd = parts[0].substring(1);
             String argument = parts[1];
+            Log.d(">>>>", "CMD: "+ cmd + "argument: " + argument);
 
 
             switch (cmd) {
@@ -735,7 +736,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
         String[] arguments = argument.split(",");
 
         // NC9t8IkYrjAQcCzc85zN0H5TvwfAUDwYkR4j2ga6fGw=,RSA_PKCS1_PSS_PADDING,hashalg=SHA256,saltlen=digest
-
+        // ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRMUyAxLjMsIGNsaWVudCBIoXJ0aWZpY2F0ZVZlcmlmeQCvvTk69HvSHUhM27ghCCSgzHds1Bdsm4MyVGxlgDIJbnDj+G5Y1YxXajqy6E/G1GA=,ED25519,data=message
 
         SignaturePadding padding = SignaturePadding.NO_PADDING;
         String saltlen="";

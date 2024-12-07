@@ -1,6 +1,8 @@
 package se.leap.bitmaskclient.base.utils;
 
-import android.os.Build;
+import static android.util.Base64.encodeToString;
+
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -11,7 +13,6 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.interfaces.EdECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -20,13 +21,16 @@ import de.blinkt.openvpn.core.NativeUtils;
 
 public class PrivateKeyHelper {
 
+    public static final String TAG = PrivateKeyHelper.class.getSimpleName();
+
     public static final String RSA = "RSA";
     public static final String ED_25519 = "Ed25519";
+    public static final String ECDSA = "ECDSA";
 
     public static final String RSA_KEY_BEGIN = "-----BEGIN RSA PRIVATE KEY-----\n";
     public static final String RSA_KEY_END = "-----END RSA PRIVATE KEY-----";
-    public static final String ED_25519_KEY_BEGIN = "-----BEGIN PRIVATE KEY-----\n";
-    public static final String ED_25519_KEY_END = "-----END PRIVATE KEY-----";
+    public static final String EC_KEY_BEGIN = "-----BEGIN PRIVATE KEY-----\n";
+    public static final String EC_KEY_END = "-----END PRIVATE KEY-----";
 
 
     public interface PrivateKeyHelperInterface {
@@ -43,7 +47,7 @@ public class PrivateKeyHelper {
             }
             if (privateKeyString.contains(RSA_KEY_BEGIN)) {
                 return parseRsaKeyFromString(privateKeyString);
-            } else if (privateKeyString.contains(ED_25519_KEY_BEGIN)) {
+            } else if (privateKeyString.contains(EC_KEY_BEGIN)) {
                return parseECPrivateKey(privateKeyString);
             } else {
                 return null;
@@ -54,11 +58,7 @@ public class PrivateKeyHelper {
             RSAPrivateKey key;
             try {
                 KeyFactory kf;
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                    kf = KeyFactory.getInstance(RSA, "BC");
-                } else {
-                    kf = KeyFactory.getInstance(RSA);
-                }
+                kf = KeyFactory.getInstance(RSA, "BC");
                 rsaKeyString = rsaKeyString.replaceFirst(RSA_KEY_BEGIN, "").replaceFirst(RSA_KEY_END, "");
 
                 PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(rsaKeyString));
@@ -73,20 +73,38 @@ public class PrivateKeyHelper {
         }
 
         private PrivateKey parseECPrivateKey(String ecKeyString) {
-            KeyFactory kf;
+            String base64 = ecKeyString.replace(EC_KEY_BEGIN, "").replace(EC_KEY_END, "");
+            byte[] keyBytes = Base64.decode(base64);
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+            String errMsg;
             try {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                    kf = KeyFactory.getInstance(ED_25519, "BC");
-                } else {
-                    kf = KeyFactory.getInstance(ED_25519);
-                }
-                ecKeyString = ecKeyString.replaceFirst(ED_25519_KEY_BEGIN, "").replaceFirst(ED_25519_KEY_END, "");
-                PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(ecKeyString));
-                return kf.generatePrivate(keySpec);
-            } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
-                e.printStackTrace();
-                return null;
+                KeyFactory keyFactory = KeyFactory.getInstance(ED_25519, "BC");
+                return keyFactory.generatePrivate(keySpec);
+            } catch (InvalidKeySpecException | NoSuchAlgorithmException | NoSuchProviderException e) {
+                errMsg = e.toString();
             }
+
+            try {
+                KeyFactory keyFactory = KeyFactory.getInstance(ECDSA, "BC");
+                return keyFactory.generatePrivate(keySpec);
+            } catch (InvalidKeySpecException | NoSuchAlgorithmException | NoSuchProviderException e) {
+                errMsg += "\n" + e.toString();
+                Log.e(TAG, errMsg);
+            }
+            return null;
+        }
+    }
+
+    public static String getPEMFormattedPrivateKey(PrivateKey key) throws NullPointerException {
+        if (key == null) {
+            throw new NullPointerException("Private key was null.");
+        }
+        String keyString = encodeToString(key.getEncoded(), android.util.Base64.DEFAULT);
+
+        if (key instanceof RSAPrivateKey) {
+            return (RSA_KEY_BEGIN + keyString + RSA_KEY_END);
+        } else {
+            return EC_KEY_BEGIN + keyString + EC_KEY_END;
         }
     }
 

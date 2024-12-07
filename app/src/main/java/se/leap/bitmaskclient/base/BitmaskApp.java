@@ -35,8 +35,10 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.multidex.MultiDexApplication;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.conscrypt.Conscrypt;
 
+import java.security.Provider;
 import java.security.Security;
 
 import se.leap.bitmaskclient.BuildConfig;
@@ -70,7 +72,14 @@ public class BitmaskApp extends MultiDexApplication implements DefaultLifecycleO
         super.onCreate();
         // Normal app init code...*/
         PRNGFixes.apply();
-        Security.insertProviderAt(Conscrypt.newProvider(), 1);
+        final Provider provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME);
+        // Replace Android's own BC provider
+        if (!provider.getClass().equals(BouncyCastleProvider.class)) {
+            Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
+            Security.insertProviderAt(new BouncyCastleProvider(), 1);
+        }
+        Security.insertProviderAt(Conscrypt.newProvider(), 2);
+
         preferenceHelper = new PreferenceHelper(this);
         providerObservable = ProviderObservable.getInstance();
         providerObservable.updateProvider(getSavedProviderFromSharedPreferences());

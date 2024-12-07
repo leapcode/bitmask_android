@@ -39,10 +39,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICA
 import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.CertificateHelper.getFingerprintFromCertificate;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
-import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.ED_25519_KEY_BEGIN;
-import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.ED_25519_KEY_END;
-import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.RSA_KEY_BEGIN;
-import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.RSA_KEY_END;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.getPEMFormattedPrivateKey;
 import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.parsePrivateKeyFromString;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
@@ -99,10 +96,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -386,13 +381,7 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
             }
 
             PrivateKey key = parsePrivateKeyFromString(keyString);
-            keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-
-            if (key instanceof RSAPrivateKey) {
-                provider.setPrivateKeyString(RSA_KEY_BEGIN + keyString + RSA_KEY_END);
-            } else {
-                provider.setPrivateKeyString(ED_25519_KEY_BEGIN + keyString + ED_25519_KEY_END);
-            }
+            provider.setPrivateKeyString(getPEMFormattedPrivateKey(key));
 
             ArrayList<X509Certificate> certificates = ConfigHelper.parseX509CertificatesFromString(certificateString);
             certificates.get(0).checkValidity();

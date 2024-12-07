@@ -416,6 +416,7 @@ dependencies {
   implementation 'com.squareup.okhttp3:okhttp:4.10.0'
   implementation 'com.squareup.okhttp3:okhttp-dnsoverhttps:4.10.0'
   implementation 'org.conscrypt:conscrypt-android:2.5.2'
+  implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
   implementation 'androidx.security:security-crypto:1.1.0-alpha06'
   implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
   implementation 'androidx.annotation:annotation:1.7.0'
