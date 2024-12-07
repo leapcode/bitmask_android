@@ -6,6 +6,12 @@ import mobilemodels.BitmaskMobileCore;
 
 public class BitmaskCoreProvider {
     private static BitmaskMobileCore customMobileCore;
+
+    /**
+     * Returns an empty BitmaskMobile instance, which can be currently only used to access
+     * bitmask-core's persistence layer API
+     * @return BitmaskMobileCore interface
+     */
     public static BitmaskMobileCore getBitmaskMobile() {
         if (customMobileCore == null) {
             return new BitmaskMobile(new PreferenceHelper.SharedPreferenceStore());
