@@ -395,6 +395,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     @Override
     public void retrySetUpProvider(@NonNull Provider provider) {
+        ProviderSetupObservable.reset();
         onProviderSelected(provider);
         binding.viewPager.setCurrentItem(adapter.getFragmentPostion(CONFIGURE_PROVIDER_FRAGMENT));
     }
