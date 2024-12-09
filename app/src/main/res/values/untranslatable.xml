@@ -50,47 +50,28 @@
     <string name="no_location" translatable="false">---</string>
 
     <string-array name="supported_languages" translatable="false">
-        <item>ar</item>
-        <item>az</item>
-        <item>bg</item>
-        <item>bn</item>
-        <item>br</item>
-        <item>ca</item>
         <item>cs</item>
-        <item>de</item>
-        <item>el</item>
-        <item>en</item>
-        <item>es</item>
-        <item>es-AR</item>
-        <item>es-CU</item>
-        <item>et</item>
-        <item>eu</item>
-        <item>fa-IR</item>
-        <item>fi</item>
-        <item>fr</item>
-        <item>gl</item>
-        <item>he</item>
-        <item>hr</item>
-        <item>hu</item>
-        <item>id</item>
-        <item>it</item>
-        <item>ja</item>
         <item>lt</item>
-        <item>my</item>
-        <item>nl</item>
-        <item>no</item>
-        <item>pl</item>
-        <item>pt</item>
-        <item>pt-BR</item>
-        <item>pt-PT</item>
-        <item>ro</item>
-        <item>ru</item>
         <item>tr</item>
-        <item>ug</item>
-        <item>uk</item>
-        <item>vi</item>
-        <item>zh</item>
+        <item>pt-BR</item>
+        <item>el</item>
+        <item>nl</item>
+        <item>de</item>
         <item>zh-TW</item>
+        <item>ru</item>
+        <item>ar</item>
+        <item>es</item>
+        <item>es-CU</item>
+        <item>zh</item>
+        <item>ja</item>
+        <item>fr</item>
+        <item>fi</item>
+        <item>es-AR</item>
+        <item>fa-IR</item>
+        <item>he</item>
+        <item>uk</item>
+        <item>hu</item>
+        <item>vi</item>
     </string-array>
     <string name="tunnelling_obfs4" translatable="false">Obfs4</string>
     <string name="tunnelling_obfs4_kcp" translatable="false">Obfs4+KCP</string>
