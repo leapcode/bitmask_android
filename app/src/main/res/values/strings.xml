@@ -104,7 +104,7 @@
     <string name="warning_corrupted_provider_cert">Stored provider certificate is invalid. You can either update %s (recommended) or update the provider certificate using a commercial CA certificate.</string>
     <string name="warning_expired_provider_cert">Stored provider certificate is expired. You can either update %s (recommended) or update the provider certificate using a commercial CA certificate.</string>
     <string name="downloading_vpn_certificate_failed">Downloading the VPN certificate failed. Try again or choose another provider.</string>
-    <string name="vpn_certificate_is_invalid">VPN certificate is invalid. Try to download a new one.</string>
+    <string name="vpn_certificate_is_invalid">It\'s time to update your VPN certificate. Download a new certificate to keep your connection secure. This is a routine update.</string>
     <string name="vpn_certificate_user_message">The VPN certificate is invalid. Please log in to download a new one.</string>
     <string name="save_battery">Save battery</string>
     <string name="subtitle_save_battery">Disabled while VPN Hotspot is on</string>
