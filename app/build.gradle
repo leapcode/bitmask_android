@@ -32,8 +32,8 @@ android {
     // the factor 1000 is used so that gplay users can upgrade from split apks ((current version number - 1) * 1000) + n
     // to extracted bundle apks, supplied by google
     // however we don't calculate the versionCode here, because F-Droid doesn't like that
-    versionCode 176000
-    versionName "1.4.1"
+    versionCode 177000
+    versionName "1.5.0RC1"
     compileSdk 34
     minSdkVersion 21
     targetSdkVersion 34

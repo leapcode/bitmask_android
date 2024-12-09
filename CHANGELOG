@@ -1,3 +1,15 @@
+1.5.0RC1 API-v5 beta
+features:
+- support new provider config API (beta)
+- allow to setup provider using an invite code and via an obfuscated proxy
+- new circumvention settings user interface
+- Add QR code scanning for invite code
+- in-app language picker
+- update openvpn and openssl
+- updated translations (<3<3<3 -> translators)
+bugfix:
+- fix support for ed25519 private VPN keys
+
 1.4.1 stable
 features:
 - update censorship circumvention library
