@@ -131,7 +131,7 @@ public class ProviderSelectionViewModel extends ViewModel {
 
     public String getProviderName(int pos) {
         String domain = getProvider(pos).getDomain();
-        if ("riseup.net".equals(domain)) {
+        if ("riseup.net".equals(domain) || "black.riseup.net".equals(domain)) {
             return "Riseup";
         }
         if ("calyx.net".equals(domain)) {
