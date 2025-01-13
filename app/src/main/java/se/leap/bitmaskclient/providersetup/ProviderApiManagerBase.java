@@ -136,6 +136,9 @@ public abstract class ProviderApiManagerBase {
 
     protected void getPersistedProviderUpdates(Provider provider) {
         String providerDomain = getDomainFromMainURL(provider.getMainUrl());
+        if (providerDomain == null) {
+            return;
+        }
         if (hasUpdatedProviderDetails(providerDomain)) {
             provider.setCaCert(getPersistedProviderCA(providerDomain));
             provider.define(getPersistedProviderDefinition(providerDomain));
@@ -154,8 +157,6 @@ public abstract class ProviderApiManagerBase {
             provider.setBridges(getFromPersistedProvider(PROVIDER_MODELS_BRIDGES, providerDomain));
         }
     }
-
-
 
     protected String getPersistedPrivateKey(String providerDomain) {
         return getFromPersistedProvider(PROVIDER_PRIVATE_KEY, providerDomain);

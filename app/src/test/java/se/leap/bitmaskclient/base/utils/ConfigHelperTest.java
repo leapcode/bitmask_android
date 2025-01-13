@@ -1,6 +1,7 @@
 package se.leap.bitmaskclient.base.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
@@ -63,6 +64,14 @@ public class ConfigHelperTest {
     public void testGetDomainFromMainURL_handleSuffix() {
         assertEquals("domain.co.uk", ConfigHelper.getDomainFromMainURL("https://subdomain.domain.co.uk"));
         assertEquals("domain.co.uk", ConfigHelper.getDomainFromMainURL("https://domain.co.uk"));
+    }
+
+    @Test
+    public void testGetDomainFromMainURL_returnNullIfInvalid() {
+        assertNull(ConfigHelper.getDomainFromMainURL("https://localhost"));
+        assertNull(ConfigHelper.getDomainFromMainURL("http://localhost"));
+        assertNull(ConfigHelper.getDomainFromMainURL("invalidrandomstring"));
+        assertNull(ConfigHelper.getDomainFromMainURL(null));
     }
 
     @Test

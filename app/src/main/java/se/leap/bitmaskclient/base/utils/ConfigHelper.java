@@ -230,8 +230,19 @@ public class ConfigHelper {
     public static boolean isDomainName(String url) {
         return url != null && Patterns.DOMAIN_NAME.matcher(url).matches();
     }
-    public static String getDomainFromMainURL(@NonNull String mainUrl) throws NullPointerException {
-        return PublicSuffixDatabase.Companion.get().getEffectiveTldPlusOne(mainUrl).replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
+
+    /**
+     * Extracts a domain from a given URL
+     * @param mainUrl URL as String
+     * @return Domain as String, null if mainUrl is an invalid URL
+     */
+    public static String getDomainFromMainURL(String mainUrl) {
+        try {
+            String topLevelDomain = PublicSuffixDatabase.Companion.get().getEffectiveTldPlusOne(mainUrl);
+            return topLevelDomain.replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
+        } catch (NullPointerException | IllegalArgumentException e) {
+            return null;
+        }
     }
     
     public static boolean isCalyxOSWithTetheringSupport(Context context) {
