@@ -3,8 +3,6 @@ package se.leap.bitmaskclient.providersetup.fragments;
 import static se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel.ADD_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel.INVITE_CODE_PROVIDER;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -15,10 +13,12 @@ import android.view.ViewGroup;
 import android.widget.RadioButton;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
 
@@ -28,13 +28,12 @@ import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.databinding.FProviderSelectionBinding;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
-import se.leap.bitmaskclient.providersetup.activities.scanner.ScannerActivity;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModelFactory;
 
 public class ProviderSelectionFragment extends BaseSetupFragment implements CancelCallback {
 
-    private ActivityResultLauncher<Intent> scannerActivityResultLauncher;
+    private ActivityResultLauncher<ScanOptions> scannerActivityResultLauncher;
 
     private ProviderSelectionViewModel viewModel;
     private ArrayList<RadioButton> radioButtons;
@@ -55,15 +54,17 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                 new ProviderSelectionViewModelFactory(
                         getContext().getApplicationContext().getAssets())).
                 get(ProviderSelectionViewModel.class);
-        scannerActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            if (result.getResultCode() == Activity.RESULT_OK) {
-                Intent data = result.getData();
-                if (data != null) {
-                    Introducer introducer = data.getParcelableExtra(ScannerActivity.INVITE_CODE);
-                    binding.editCustomProvider.setText(introducer.toUrl());
-                }
-            }
-        });
+
+        scannerActivityResultLauncher = registerForActivityResult(new ScanContract(), result -> {
+                    if(result.getContents() != null) {
+                        try {
+                            Introducer introducer = Introducer.fromUrl(result.getContents());
+                            binding.editCustomProvider.setText(introducer.toUrl());
+                        } catch (Exception e) {
+                            //binding.editCustomProvider.setText(result.getContents());
+                        }
+                    }
+                });
     }
 
     @Override
@@ -107,7 +108,13 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
     }
 
     private void initQrScanner() {
-        binding.btnQrScanner.setOnClickListener(v -> scannerActivityResultLauncher.launch(ScannerActivity.newIntent(getContext())));
+        binding.btnQrScanner.setOnClickListener(v -> {
+            ScanOptions options = new ScanOptions();
+            options.setBeepEnabled(false);
+            options.setBarcodeImageEnabled(true);
+            options.setOrientationLocked(false);
+            scannerActivityResultLauncher.launch(options);
+        });
     }
 
 
