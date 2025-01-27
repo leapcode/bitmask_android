@@ -150,6 +150,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             }
             return bm.getProvider();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 if (allowRetry &&
                         TorStatusObservable.getStatus() == OFF &&

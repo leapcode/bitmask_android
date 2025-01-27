@@ -3,8 +3,10 @@ package se.leap.bitmaskclient.base.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 public class Introducer implements Parcelable {
     private String type;
@@ -13,12 +15,15 @@ public class Introducer implements Parcelable {
     private String fullyQualifiedDomainName;
     private boolean kcpEnabled;
 
-    public Introducer(String type, String address, String certificate, String fullyQualifiedDomainName, boolean kcpEnabled) {
+    private String auth;
+
+    public Introducer(String type, String address, String certificate, String fullyQualifiedDomainName, boolean kcpEnabled, String auth) {
         this.type = type;
         this.address = address;
         this.certificate = certificate;
         this.fullyQualifiedDomainName = fullyQualifiedDomainName;
         this.kcpEnabled = kcpEnabled;
+        this.auth = auth;
     }
 
     protected Introducer(Parcel in) {
@@ -27,6 +32,7 @@ public class Introducer implements Parcelable {
         certificate = in.readString();
         fullyQualifiedDomainName = in.readString();
         kcpEnabled = in.readByte() != 0;
+        auth = in.readString();
     }
 
     public String getFullyQualifiedDomainName() {
@@ -40,6 +46,7 @@ public class Introducer implements Parcelable {
         dest.writeString(certificate);
         dest.writeString(fullyQualifiedDomainName);
         dest.writeByte((byte) (kcpEnabled ? 1 : 0));
+        dest.writeString(auth);
     }
 
     @Override
@@ -72,10 +79,14 @@ public class Introducer implements Parcelable {
         if (!"localhost".equals(fullyQualifiedDomainName) && fullyQualifiedDomainName.split("\\.").length < 2) {
             throw new IllegalArgumentException("Expected a FQDN, got: " + fullyQualifiedDomainName);
         }
+
+        if (auth == null || auth.isEmpty()) {
+            throw new IllegalArgumentException("Auth token is missing");
+        }
         return true;
     }
 
-    public static Introducer fromUrl(String introducerUrl) throws URISyntaxException {
+    public static Introducer fromUrl(String introducerUrl) throws URISyntaxException, IllegalArgumentException {
         URI uri = new URI(introducerUrl);
         String fqdn = getQueryParam(uri, "fqdn");
         if (fqdn == null || fqdn.isEmpty()) {
@@ -89,11 +100,15 @@ public class Introducer implements Parcelable {
             throw new IllegalArgumentException("Cert not found in the introducer URL");
         }
 
-        return new Introducer(uri.getScheme(), uri.getAuthority(), cert, fqdn, kcp);
+        String auth = getQueryParam(uri, "auth");
+        if (auth == null || auth.isEmpty()) {
+            throw new IllegalArgumentException("Authentication token not found in the introducer URL");
+        }
+        return new Introducer(uri.getScheme(), uri.getAuthority(), cert, fqdn, kcp, auth);
     }
 
-    public String toUrl() {
-        return String.format("%s://%s?fqdn=%s&kcp=%d&cert=%s", type, address, fullyQualifiedDomainName, kcpEnabled ? 1 : 0, certificate);
+    public String toUrl() throws UnsupportedEncodingException {
+        return String.format("%s://%s?fqdn=%s&kcp=%d&cert=%s&auth=%s", type, address, URLEncoder.encode(fullyQualifiedDomainName, "UTF-8"), kcpEnabled ? 1 : 0, URLEncoder.encode(certificate, "UTF-8"),  URLEncoder.encode(auth, "UTF-8"));
     }
 
     private static String getQueryParam(URI uri, String param) {

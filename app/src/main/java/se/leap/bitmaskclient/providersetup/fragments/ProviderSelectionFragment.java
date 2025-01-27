@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import se.leap.bitmaskclient.R;
@@ -61,6 +62,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                             Introducer introducer = Introducer.fromUrl(result.getContents());
                             binding.editCustomProvider.setText(introducer.toUrl());
                         } catch (Exception e) {
+                            e.printStackTrace();
                             //binding.editCustomProvider.setText(result.getContents());
                         }
                     }
@@ -191,8 +193,12 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
     public void providerSelectionChanged(){
         Provider provider = setupActivityCallback.getSelectedProvider();
         if (provider != null && provider.hasIntroducer()) {
-            binding.providerRadioGroup.check(INVITE_CODE_PROVIDER);
-            binding.editCustomProvider.setText(provider.getIntroducer().toUrl());
+            try {
+                binding.providerRadioGroup.check(INVITE_CODE_PROVIDER);
+                binding.editCustomProvider.setText(provider.getIntroducer().toUrl());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         } else {
             binding.providerRadioGroup.check(viewModel.getSelected());
         }
