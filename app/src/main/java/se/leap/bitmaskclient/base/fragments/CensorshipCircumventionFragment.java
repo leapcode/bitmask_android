@@ -29,11 +29,11 @@ import se.leap.bitmaskclient.databinding.FCensorshipCircumventionBinding;
 import se.leap.bitmaskclient.eip.EipCommand;
 
 public class CensorshipCircumventionFragment extends Fragment {
-    public static int DISCOVERY_NONE = 100200000;
+    public static int DISCOVERY_AUTOMATICALLY = 100200000;
     public static int DISCOVERY_SNOWFLAKE = 100200001;
     public static int DISCOVERY_INVITE_PROXY = 100200002;
 
-    public static int TUNNELING_NONE = 100300000;
+    public static int TUNNELING_AUTOMATICALLY = 100300000;
     public static int TUNNELING_OBFS4 = 100300001;
     public static int TUNNELING_OBFS4_KCP = 100300002;
 
@@ -71,7 +71,7 @@ public class CensorshipCircumventionFragment extends Fragment {
 
         RadioButton noneRadioButton = new RadioButton(binding.getRoot().getContext());
         noneRadioButton.setText(getText(R.string.automatically_select));
-        noneRadioButton.setId(DISCOVERY_NONE);
+        noneRadioButton.setId(DISCOVERY_AUTOMATICALLY);
         noneRadioButton.setChecked(!(hasSnowflakePrefs() && getUseSnowflake()) && !ProviderObservable.getInstance().getCurrentProvider().hasIntroducer());
         binding.discoveryRadioGroup.addView(noneRadioButton);
 
@@ -91,7 +91,7 @@ public class CensorshipCircumventionFragment extends Fragment {
 
         binding.discoveryRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             useBridges(true);
-            if (checkedId == DISCOVERY_NONE) {
+            if (checkedId == DISCOVERY_AUTOMATICALLY) {
                 useSnowflake(false);
             } else if (checkedId == DISCOVERY_SNOWFLAKE) {
                 useSnowflake(true);
@@ -115,7 +115,7 @@ public class CensorshipCircumventionFragment extends Fragment {
         RadioButton noneRadioButton = new RadioButton(binding.getRoot().getContext());
         noneRadioButton.setText(getText(R.string.automatically_select));
         noneRadioButton.setChecked(!getUseObfs4() && !getUseObfs4Kcp());
-        noneRadioButton.setId(TUNNELING_NONE);
+        noneRadioButton.setId(TUNNELING_AUTOMATICALLY);
         binding.tunnelingRadioGroup.addView(noneRadioButton);
 
         if (ProviderObservable.getInstance().getCurrentProvider().supportsObfs4()) {

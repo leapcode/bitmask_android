@@ -1,7 +1,7 @@
 package se.leap.bitmaskclient.base.utils;
 
 import static android.content.Context.MODE_PRIVATE;
-import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_NONE;
+import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_AUTOMATICALLY;
 import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_OBFS4;
 import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_OBFS4_KCP;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_EXPERIMENTAL_TRANSPORTS;
@@ -632,7 +632,7 @@ public class PreferenceHelper {
     }
 
     public static int getUseTunnel() {
-        return getInt(USE_TUNNEL, TUNNELING_NONE);
+        return getInt(USE_TUNNEL, TUNNELING_AUTOMATICALLY);
     }
 
     public static boolean useIpv6Firewall() {

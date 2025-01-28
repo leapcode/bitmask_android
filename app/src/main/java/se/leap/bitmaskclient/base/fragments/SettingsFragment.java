@@ -3,7 +3,7 @@ package se.leap.bitmaskclient.base.fragments;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.R.string.advanced_settings;
-import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_NONE;
+import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_AUTOMATICALLY;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAY_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
@@ -105,7 +105,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
                 if (isChecked) {
                     useSnowflake(false);
-                    setUseTunnel(TUNNELING_NONE);
+                    setUseTunnel(TUNNELING_AUTOMATICALLY);
                     setUsePortHopping(false);
                 }
                 useBridges(isChecked);
@@ -153,7 +153,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void resetManualConfig() {
         useSnowflake(false);
-        setUseTunnel(TUNNELING_NONE);
+        setUseTunnel(TUNNELING_AUTOMATICALLY);
         setUsePortHopping(false);
         useBridges(false);
         if (VpnStatus.isVPNActive()) {
