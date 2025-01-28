@@ -138,6 +138,10 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         if (ProviderSetupObservable.isSetupRunning()) {
             handleResult(ProviderSetupObservable.getResultCode(), ProviderSetupObservable.getResultData(), true);
         } else {
+            Provider provider = setupActivityCallback.getSelectedProvider();
+            if (provider != null && provider.hasIntroducer()) {
+                    PreferenceHelper.useBridges(true);
+            }
             ProviderSetupObservable.startSetup();
             Bundle parameters = new Bundle();
             parameters.putString(Constants.COUNTRYCODE, PreferenceHelper.getBaseCountry());
