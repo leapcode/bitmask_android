@@ -250,7 +250,7 @@
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="invalid_code">Invalid code</string>
     <string name="automatic_bridge">Automatic (recommended)</string>
-    <string name="automatic_bridge_description">Connection wil be attemptd using the best available birdges and protocols.</string>
+    <string name="automatic_bridge_description">Connection will be attempted using the best available bridges and protocols.</string>
     <string name="manual_bridge">Manual Configuration</string>
     <string name="manual_bridge_description">Select private bridges and specific protocols</string>
     <string name="censorship_circumvention_description">Manual configuration requires technical understanding. Proceed with caution.</string>
