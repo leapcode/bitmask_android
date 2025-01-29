@@ -75,6 +75,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
         binding = FProviderSelectionBinding.inflate(inflater, container, false);
 
         radioButtons = new ArrayList<>();
+        // add configured providers
         for (int i = 0; i < viewModel.size(); i++) {
             RadioButton radioButton = new RadioButton(binding.getRoot().getContext());
             radioButton.setText(viewModel.getProviderName(i));
@@ -83,13 +84,14 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
             radioButtons.add(radioButton);
         }
 
+        // add new provider entry
         RadioButton addProviderRadioButton = new RadioButton(binding.getRoot().getContext());
         addProviderRadioButton.setText(getText(R.string.add_provider));
         addProviderRadioButton.setId(ADD_PROVIDER);
         binding.providerRadioGroup.addView(addProviderRadioButton);
         radioButtons.add(addProviderRadioButton);
 
-
+        // invite code entry
         RadioButton inviteCodeRadioButton = new RadioButton(binding.getRoot().getContext());
         inviteCodeRadioButton.setText(R.string.enter_invite_code);
         inviteCodeRadioButton.setId(INVITE_CODE_PROVIDER);
