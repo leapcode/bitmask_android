@@ -60,9 +60,11 @@
             app:text="@string/automatic_bridge"
             app:subtitle="@string/automatic_bridge_description"
             app:icon="@drawable/bridge_automatic"
+            android:visibility="visible"
             app:singleLine="false" />
 
         <LinearLayout
+            android:id="@+id/bridge_manual_switch_entry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">

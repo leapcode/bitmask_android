@@ -5,6 +5,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.resetSnowflakeSettings;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseTunnel;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
@@ -68,12 +69,11 @@ public class CensorshipCircumventionFragment extends Fragment {
 
 
     private void initDiscovery() {
-
-        RadioButton noneRadioButton = new RadioButton(binding.getRoot().getContext());
-        noneRadioButton.setText(getText(R.string.automatically_select));
-        noneRadioButton.setId(DISCOVERY_AUTOMATICALLY);
-        noneRadioButton.setChecked(!(hasSnowflakePrefs() && getUseSnowflake()) && !ProviderObservable.getInstance().getCurrentProvider().hasIntroducer());
-        binding.discoveryRadioGroup.addView(noneRadioButton);
+        RadioButton automaticallyRadioButton = new RadioButton(binding.getRoot().getContext());
+        automaticallyRadioButton.setText(getText(R.string.automatically_select));
+        automaticallyRadioButton.setId(DISCOVERY_AUTOMATICALLY);
+        automaticallyRadioButton.setChecked(!(hasSnowflakePrefs() && getUseSnowflake()) && !ProviderObservable.getInstance().getCurrentProvider().hasIntroducer());
+        binding.discoveryRadioGroup.addView(automaticallyRadioButton);
 
         RadioButton snowflakeRadioButton = new RadioButton(binding.getRoot().getContext());
         snowflakeRadioButton.setText(getText(R.string.snowflake));
@@ -92,14 +92,12 @@ public class CensorshipCircumventionFragment extends Fragment {
         binding.discoveryRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             useBridges(true);
             if (checkedId == DISCOVERY_AUTOMATICALLY) {
-                useSnowflake(false);
+                resetSnowflakeSettings();
             } else if (checkedId == DISCOVERY_SNOWFLAKE) {
                 useSnowflake(true);
             } else if (checkedId == DISCOVERY_INVITE_PROXY) {
                 useSnowflake(false);
             }
-
-            tryReconnectVpn();
         });
     }
 

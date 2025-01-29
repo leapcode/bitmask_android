@@ -37,7 +37,6 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.usesSpecificTunnel;
 
 import android.content.Context;
 import android.util.Log;
@@ -54,10 +53,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;

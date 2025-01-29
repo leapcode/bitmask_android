@@ -65,13 +65,10 @@ import androidx.annotation.WorkerThread;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
-import com.google.gson.Gson;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
@@ -81,9 +78,6 @@ import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.NativeUtils;
-import io.swagger.client.JSON;
-import mobile.BitmaskMobile;
-import mobilemodels.BitmaskMobileCore;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.base.models.Introducer;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -491,6 +485,10 @@ public class PreferenceHelper {
         return hasKey(USE_SNOWFLAKE);
     }
 
+    public static void resetSnowflakeSettings() {
+        removeKey(USE_SNOWFLAKE);
+    }
+
     public static Boolean getUseSnowflake() {
         return getBoolean(USE_SNOWFLAKE, true);
     }
@@ -619,12 +617,8 @@ public class PreferenceHelper {
         return getUseTunnel() == TUNNELING_OBFS4_KCP;
     }
 
-    public static boolean usesManualBridges(){
-        return getUseSnowflake() || usesSpecificTunnel() || getUsePortHopping();
-    }
-
-    public static boolean usesSpecificTunnel() {
-        return getUseObfs4() || getUseObfs4Kcp();
+    public static boolean useManualBridgeSettings(){
+        return (hasSnowflakePrefs() && getUseSnowflake()) || getUseObfs4() || getUseObfs4Kcp() || getUsePortHopping();
     }
 
     public static void setUseTunnel(int tunnel) {
@@ -706,6 +700,12 @@ public class PreferenceHelper {
     public static Set<String> getExcludedApps() {
         synchronized (LOCK) {
             return preferences.getStringSet(EXCLUDED_APPS, new HashSet<>());
+        }
+    }
+
+    public static void removeKey(String key) {
+        synchronized (LOCK) {
+            preferences.edit().remove(key).apply();
         }
     }
 

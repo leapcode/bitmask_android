@@ -16,6 +16,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.resetSnowflakeSettings;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
@@ -23,7 +24,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseTunnel;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.usesManualBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useManualBridgeSettings;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
 import android.app.AlertDialog;
@@ -37,10 +38,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -94,43 +97,42 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void initAutomaticCircumventionEntry(View rootView) {
         IconSwitchEntry automaticCircumvention = rootView.findViewById(R.id.bridge_automatic_switch);
-        if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
-            automaticCircumvention.setVisibility(VISIBLE);
+        automaticCircumvention.setChecked(getUseBridges() && !useManualBridgeSettings());
+        automaticCircumvention.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!buttonView.isPressed()) {
+                return;
+            }
 
-            automaticCircumvention.setChecked(getUseBridges() && !usesManualBridges());
-            automaticCircumvention.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (!buttonView.isPressed()) {
-                    return;
-                }
-
-                if (isChecked) {
-                    useSnowflake(false);
-                    setUseTunnel(TUNNELING_AUTOMATICALLY);
-                    setUsePortHopping(false);
-                }
+            if (isChecked) {
+                resetSnowflakeSettings();
+                setUseTunnel(TUNNELING_AUTOMATICALLY);
+                setUsePortHopping(false);
+            } else {
+                useSnowflake(false);
+            }
+            if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
                 useBridges(isChecked);
                 if (VpnStatus.isVPNActive()) {
                     EipCommand.startVPN(getContext(), false);
                     Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
                 }
-            });
+            }
+        });
 
-            //We check the UI state of the useUdpEntry here as well, in order to avoid a situation
-            //where both entries are disabled, because both preferences are enabled.
-            //bridges can be enabled not only from here but also from error handling
-            boolean useUDP = getPreferUDP() && useUdpEntry.isEnabled();
-            automaticCircumvention.setEnabled(!useUDP);
-            automaticCircumvention.setSubtitle(getString(useUDP?R.string.disabled_while_udp_on:R.string.automatic_bridge_description));
-        } else {
-            automaticCircumvention.setVisibility(GONE);
-        }
+        //We check the UI state of the useUdpEntry here as well, in order to avoid a situation
+        //where both entries are disabled, because both preferences are enabled.
+        //bridges can be enabled not only from here but also from error handling
+        boolean useUDP = getPreferUDP() && useUdpEntry.isEnabled();
+        automaticCircumvention.setEnabled(!useUDP);
+        automaticCircumvention.setSubtitle(getString(useUDP ? R.string.disabled_while_udp_on : R.string.automatic_bridge_description));
     }
 
     private void initManualCircumventionEntry(View rootView) {
+        LinearLayout manualConfigRoot = rootView.findViewById(R.id.bridge_manual_switch_entry);
+        manualConfigRoot.setVisibility(ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports() ? VISIBLE : GONE);
         IconTextEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
-        manualConfiguration.setVisibility(ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports() ? VISIBLE : GONE);
         SwitchCompat manualConfigurationSwitch = rootView.findViewById(R.id.bridge_manual_switch_control);
-        boolean usesManualBridge = usesManualBridges();
+        boolean usesManualBridge = useManualBridgeSettings();
         manualConfigurationSwitch.setChecked(usesManualBridge);
         manualConfigurationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
@@ -148,7 +150,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         //bridges can be enabled not only from here but also from error handling
         boolean useUDP = getPreferUDP() && useUdpEntry.isEnabled();
         manualConfiguration.setEnabled(!useUDP);
-        manualConfiguration.setSubtitle(getString(useUDP? R.string.disabled_while_udp_on:R.string.manual_bridge_description));
+        manualConfiguration.setSubtitle(getString(useUDP ? R.string.disabled_while_udp_on : R.string.manual_bridge_description));
     }
 
     private void resetManualConfig() {

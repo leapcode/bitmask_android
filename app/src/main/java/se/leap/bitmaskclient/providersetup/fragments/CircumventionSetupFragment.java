@@ -1,5 +1,6 @@
 package se.leap.bitmaskclient.providersetup.fragments;
 
+import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_AUTOMATICALLY;
 import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 
 import android.graphics.Typeface;
@@ -35,14 +36,17 @@ public class CircumventionSetupFragment extends BaseSetupFragment implements Can
             if (binding.rbCircumvention.getId() == checkedId) {
                 PreferenceHelper.useBridges(true);
                 PreferenceHelper.useSnowflake(true);
+                PreferenceHelper.setUseTunnel(TUNNELING_AUTOMATICALLY);
                 binding.tvCircumventionDetailDescription.setVisibility(View.VISIBLE);
                 binding.rbCircumvention.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                 binding.rbPlainVpn.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
                 return;
             }
-
+            // otherwise don't use obfuscation
             PreferenceHelper.useBridges(false);
-            PreferenceHelper.useSnowflake(false);
+            PreferenceHelper.resetSnowflakeSettings();
+            PreferenceHelper.setUsePortHopping(false);
+            PreferenceHelper.setUseTunnel(TUNNELING_AUTOMATICALLY);
             binding.tvCircumventionDetailDescription.setVisibility(View.GONE);
             binding.rbPlainVpn.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
             binding.rbCircumvention.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
