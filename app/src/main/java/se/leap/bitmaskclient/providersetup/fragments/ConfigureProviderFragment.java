@@ -7,11 +7,15 @@ import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static se.leap.bitmaskclient.R.string.app_name;
 import static se.leap.bitmaskclient.R.string.description_configure_provider;
 import static se.leap.bitmaskclient.R.string.description_configure_provider_circumvention;
+import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_AUTOMATICALLY;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseTunnel;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.animateContainerVisibility;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
@@ -140,7 +144,11 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         } else {
             Provider provider = setupActivityCallback.getSelectedProvider();
             if (provider != null && provider.hasIntroducer()) {
-                    PreferenceHelper.useBridges(true);
+                // enable automatic selection of bridges
+                useSnowflake(false);
+                setUseTunnel(TUNNELING_AUTOMATICALLY);
+                setUsePortHopping(false);
+                PreferenceHelper.useBridges(true);
             }
             ProviderSetupObservable.startSetup();
             Bundle parameters = new Bundle();
