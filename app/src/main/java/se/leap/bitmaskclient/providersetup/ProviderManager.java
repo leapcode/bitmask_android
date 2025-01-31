@@ -45,8 +45,11 @@ public class ProviderManager {
     private boolean addDummyEntry = false;
 
     public static ProviderManager getInstance(AssetManager assetsManager) {
-        if (instance == null)
+        if (instance == null) {
             instance = new ProviderManager(assetsManager);
+        } else {
+            instance.updateCustomProviders();
+        }
 
         return instance;
     }
@@ -63,7 +66,7 @@ public class ProviderManager {
     private ProviderManager(AssetManager assetManager) {
         this.assetsManager = assetManager;
         addDefaultProviders(assetManager);
-        addCustomProviders();
+        updateCustomProviders();
     }
 
     private void addDefaultProviders(AssetManager assetManager) {
@@ -117,7 +120,7 @@ public class ProviderManager {
     }
 
 
-    private void addCustomProviders() {
+    public void updateCustomProviders() {
         customProviders = PreferenceHelper.getCustomProviders();
     }
 

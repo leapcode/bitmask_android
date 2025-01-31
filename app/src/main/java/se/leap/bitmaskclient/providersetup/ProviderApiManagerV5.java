@@ -66,6 +66,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             case SET_UP_PROVIDER:
                 result = setupProvider(provider, parameters);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    serviceCallback.saveProvider(provider);
                     eventSender.sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
                 } else {
                     eventSender.sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);

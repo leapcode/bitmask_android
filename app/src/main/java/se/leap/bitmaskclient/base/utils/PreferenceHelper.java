@@ -71,6 +71,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -212,20 +213,17 @@ public class PreferenceHelper {
     public static HashMap<String, Provider> getCustomProviders() {
         Set<String> providerDomains = getCustomProviderDomains();
         HashMap<String, Provider> customProviders = new HashMap<>();
-        if (providerDomains.size() > 0) {
-            for (String domain : providerDomains) {
-                String mainURL = preferences.getString(Provider.MAIN_URL + "." + domain, null);
-                if (mainURL != null) {
-                    Introducer introducer = null;
-                    try {
-                       introducer = Introducer.fromUrl(BitmaskCoreProvider.getBitmaskMobile().getIntroducerURLByDomain(domain));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    customProviders.put(mainURL, Provider.createCustomProvider(mainURL, domain, introducer));
+        for (String domain : providerDomains) {
+            String mainURL = preferences.getString(Provider.MAIN_URL + "." + domain, null);
+            if (mainURL != null) {
+                Introducer introducer = null;
+                try {
+                   introducer = Introducer.fromUrl(BitmaskCoreProvider.getBitmaskMobile().getIntroducerURLByDomain(domain));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+                customProviders.put(mainURL, Provider.createCustomProvider(mainURL, domain, introducer));
             }
-
         }
 
         return customProviders;
@@ -851,7 +849,7 @@ public class PreferenceHelper {
 
             @Override
             public byte[] getByteArray(String s) {
-                String encodedString = preferences.getString(s, "");
+                String encodedString = preferences.getString(s, Arrays.toString(Base64.encode(new byte[0], Base64.DEFAULT)));
                 try {
                     return Base64.decode(encodedString, Base64.DEFAULT);
                 } catch (IllegalArgumentException e) {
