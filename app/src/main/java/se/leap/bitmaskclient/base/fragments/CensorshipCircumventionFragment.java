@@ -69,19 +69,20 @@ public class CensorshipCircumventionFragment extends Fragment {
 
 
     private void initDiscovery() {
+        boolean hasIntroducer = ProviderObservable.getInstance().getCurrentProvider().hasIntroducer();
         RadioButton automaticallyRadioButton = new RadioButton(binding.getRoot().getContext());
         automaticallyRadioButton.setText(getText(R.string.automatically_select));
         automaticallyRadioButton.setId(DISCOVERY_AUTOMATICALLY);
-        automaticallyRadioButton.setChecked(!(hasSnowflakePrefs() && getUseSnowflake()) && !ProviderObservable.getInstance().getCurrentProvider().hasIntroducer());
+        automaticallyRadioButton.setChecked(!hasSnowflakePrefs() && !hasIntroducer);
         binding.discoveryRadioGroup.addView(automaticallyRadioButton);
 
         RadioButton snowflakeRadioButton = new RadioButton(binding.getRoot().getContext());
         snowflakeRadioButton.setText(getText(R.string.snowflake));
         snowflakeRadioButton.setId(DISCOVERY_SNOWFLAKE);
-        snowflakeRadioButton.setChecked(hasSnowflakePrefs() && getUseSnowflake());
+        snowflakeRadioButton.setChecked(!hasIntroducer && hasSnowflakePrefs() && getUseSnowflake());
         binding.discoveryRadioGroup.addView(snowflakeRadioButton);
 
-        if (ProviderObservable.getInstance().getCurrentProvider().hasIntroducer()) {
+        if (hasIntroducer) {
             RadioButton inviteProxyRadioButton = new RadioButton(binding.getRoot().getContext());
             inviteProxyRadioButton.setText(getText(R.string.invite_proxy));
             inviteProxyRadioButton.setId(DISCOVERY_INVITE_PROXY);
