@@ -1,1 +1,1 @@
-RiseupVPN – anoniminis VPN. Veikia su Bitmask.
+RiseupVPN: anoniminis VPN. Veikia su Bitmask.

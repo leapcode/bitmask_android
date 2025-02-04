@@ -1,0 +1,3 @@
+RiseupVPN es un servicio de VPN fácil, rápido y seguro de https://riseup.net. RiseupVPN no requiere una cuenta de usuario, no guarda registros ni te rastrea de ninguna manera. El servicio se financia en su totalidad con donaciones de usuarios como tú..
+
+https://riseup.net/vpn/donate

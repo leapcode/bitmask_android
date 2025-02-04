@@ -1,1 +1,1 @@
-RiseupVPN: anonieme VPN. Bitmask als motor.
+RiseupVPN: anonieme VPN. Gebaseerd op Btimask.
