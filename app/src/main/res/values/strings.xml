@@ -211,7 +211,7 @@
     <string name="select_provider_description">When using a VPN you are transferring your trust from your Internet Service Provider to your VPN provider. Bitmask only connects to providers with a clear history of privacy protection and advocacy.</string>
     <string name="provider_description_riseup">Riseup provides online communication tools for people and groups working on liberatory social change. We are a project to create democratic alternatives and practice self-determination by controlling our own secure means of communications.</string>
     <string name="next">Next</string>
-    <string name="add_provider_description">Bitmask connects to trusted providers that are not publicly listed. Enter your provider’s url below.</string>
+    <string name="add_provider_description">Bitmask allows you to connect to providers that are not publicly listed. Make sure you know and trust the provider you are adding.</string>
     <string name="add_provider_prompt">Enter the provider’s URL here.</string>
     <string name="invite_code_provider_description">Bitmask allows you to connect to providers using a private Invite Code. </string>
     <string name="invite_code_provider_prompt">Enter your trusted Invite Code here.</string>
@@ -235,9 +235,12 @@
     <string name="snowflake_broker_success">Snowflake proxy rendezvous successful</string>
     <string name="snowflake_sending_data">Sending data via Snowflake</string>
     <string name="title_upcoming_connection_request">Upcoming Connection Request</string>
-    <string name="upcoming_connection_request_description">In the next panel Android will remind you that it’s essential to trust your VPN provider. Bitmask only partners with providers that adhere to strict privacy best practices for VPNs and have a verifiable history of protecting user’s data and identities.</string>
+    <string name="title_upcoming_request">Upcoming requests</string>
+    <string name="title_upcoming_request_summary">In the next panels Android will ask for your permission in form of a Connection Request and Notification Request.</string>
+    <string name="title_upcoming_connection_request_summary_custom">Accepting the Connection Request is essential to use the core functionality of %s.</string>
+    <string name="title_upcoming_connection_request_summary">For the Connection Request it’s important to know that Bitmask only partners with trusted partner providers that adhere to best practices for VPNs and have a verifiable history of protecting user’s data and identities. However, if you are manually connecting to a non-public provider, make sure you trust them.</string>
+    <string name="title_upcoming_notification_request_summary">Accepting the Notification Request allows the app to run in the background and enables you to see your data usage from within Android’s notification center.</string>
     <string name="title_upcoming_notifications_request">Upcoming Notifications Request</string>
-    <string name="upcoming_notifications_request_description">In the next panel Android will ask if you want to allow notifications. This will ensure a stable background connection and enable you to see your data usage from within Android’s notification center.</string>
     <string name="title_setup_success">You\'re all set!</string>
     <string name="setup_success_description">Click the button below to connect</string>
     <string name="permission_rejected">Permission request rejected.</string>
