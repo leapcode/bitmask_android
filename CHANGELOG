@@ -1,3 +1,17 @@
+1.5.0RC2 API-v5 beta
+features:
+* replace MLKit with FOSS QR code scanning library zxing
+* implement auth token support for invite codes
+* updated translations
+
+bugfix:
+* fix typos in strings
+* fix introducer handling when switching providers
+* fix resetting obfuscation settings when switching providers
+* always default to bridges in case a provider was setup via an invite token
+* fix crash in obfsvpn
+* fix crash while entering invalid invite code
+
 1.5.0RC1 API-v5 beta
 features:
 - support new provider config API (beta)
