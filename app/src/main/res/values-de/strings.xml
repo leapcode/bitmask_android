@@ -248,7 +248,7 @@
   <string name="syntax_check">Syntax-Überprüfung:</string>
   <string name="validation_status_success">Gut</string>
   <string name="validation_status_failure">ungültig</string>
-  <string name="enter_invite_code">Gib den Einladungscode ein</string>
+  <string name="enter_invite_code">Einladungscode eingeben</string>
   <string name="scan_qr_code">Lese QR Code</string>
   <string name="invalid_code">Ungültiger Code</string>
   <string name="automatic_bridge">Automatisch (empfohlen)</string>
