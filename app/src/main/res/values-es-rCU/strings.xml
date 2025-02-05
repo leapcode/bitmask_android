@@ -231,9 +231,7 @@
   <string name="snowflake_broker_success">Conexión del proxy Snowflake exitosa.</string>
   <string name="snowflake_sending_data">Enviando datos a través de Snowflake</string>
   <string name="title_upcoming_connection_request">Próxima Solicitud de Conexión</string>
-  <string name="upcoming_connection_request_description">La siguiente ventana de Android te recordará que es esencial confiar en tu proveedor de VPN. Bitmask solo se asocia con proveedores que siguen estrictas prácticas de privacidad para las VPN y tienen un historial verificable de protección de los datos e identidades de usuarios.</string>
   <string name="title_upcoming_notifications_request">Solicitud de Próximas Notificaciones</string>
-  <string name="upcoming_notifications_request_description">La próxima ventana de Android te preguntará si quieres permitir notificaciones. Esto garantizará una conexión estable en el background y podrás ver el uso de tus datos en el panel de notificaciones de Android.</string>
   <string name="title_setup_success">¡Estás listo! </string>
   <string name="setup_success_description">Haz click en el botón de abajo para conectar.</string>
   <string name="permission_rejected">Permiso rechazado.</string>

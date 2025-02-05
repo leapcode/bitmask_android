@@ -234,9 +234,7 @@
   <string name="snowflake_broker_success">Επιτυχές ραντεβού διακομιστή Snowflake</string>
   <string name="snowflake_sending_data">Αποστολή δεδομένων μέσω Snowflake</string>
   <string name="title_upcoming_connection_request">Επικείμενο αίτημα σύνδεσης</string>
-  <string name="upcoming_connection_request_description">Στον επόμενο πίνακα, το Android θα σας υπενθυμίσει ότι είναι απαραίτητο να εμπιστεύεστε τον πάροχο VPN. Το Bitmask συνεργάζεται μόνο με παρόχους που τηρούν αυστηρές βέλτιστες πρακτικές απορρήτου για VPN και έχουν επαληθεύσιμο ιστορικό προστασίας των δεδομένων και των ταυτοτήτων των χρηστών.</string>
   <string name="title_upcoming_notifications_request">Αίτημα για επερχόμενες ειδοποιήσεις</string>
-  <string name="upcoming_notifications_request_description">Στον επόμενο πίνακα, το Android θα σας ρωτήσει εάν θέλετε να επιτρέψετε τις ειδοποιήσεις. Αυτό θα εξασφαλίσει μια σταθερή σύνδεση στο παρασκήνιο και θα σας επιτρέψει να δείτε τη χρήση των δεδομένων σας μέσα από το κέντρο ειδοποιήσεων του Android.</string>
   <string name="title_setup_success">Είστε έτοιμος!</string>
   <string name="setup_success_description">Κάντε κλικ στο κουμπί παρακάτω για να συνδεθείτε</string>
   <string name="permission_rejected">Το αίτημα άδειας απορρίφθηκε.</string>

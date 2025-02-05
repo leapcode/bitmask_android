@@ -104,7 +104,7 @@
   <string name="warning_corrupted_provider_cert">Laikomas teikėjo liudijimas negalioja. Jūs galite arba atnaujinti %s (rekomenduojama), arba atnaujinti teikėjo liudijimą, naudodami komercinį LĮ liudijimą.</string>
   <string name="warning_expired_provider_cert">Laikomas teikėjo liudijimas nebegalioja. Jūs galite arba atnaujinti %s (rekomenduojama), arba atnaujinti teikėjo liudijimą, naudodami komercinį LĮ liudijimą.</string>
   <string name="downloading_vpn_certificate_failed">Nepavyko atsisiųsti VPN liudijimo. Bandykite dar kartą arba pasirinkite kitą teikėją.</string>
-  <string name="vpn_certificate_is_invalid">VPN liudijimas negalioja. Pabandykite atsisiųsti naują.</string>
+  <string name="vpn_certificate_is_invalid">Metas atnaujinti jūsų VPN liudijimą. Atsisiųskite naują liudijimą, kad išlaikytumėte savo ryšį saugų. Tai yra įprastas atnaujinimas.</string>
   <string name="vpn_certificate_user_message">VPN liudijimas negalioja. Prisijunkite norėdami atsisiųsti naują.</string>
   <string name="save_battery">Taupyti akumuliatoriaus energiją</string>
   <string name="subtitle_save_battery">Išjungta, kol įjungtas VPN viešosios interneto prieigos taškas</string>
@@ -236,9 +236,7 @@
   <string name="snowflake_broker_success">„Snowflake“ įgaliotojo serverio pasimatymas sėkmingas</string>
   <string name="snowflake_sending_data">Siunčiami duomenys per „Snowflake“</string>
   <string name="title_upcoming_connection_request">Būsima ryšio užklausa</string>
-  <string name="upcoming_connection_request_description">Kitame langelyje „Android“ primins jums apie tai, kad yra būtina pasitikėti savo VPN teikėju. Bitmask bendradarbiauja tik su partneriais, kurie tvirtai laikosi geriausių ir griežtų VPN privatumo įpročių ir turi įrodomą naudotojų duomenų ir tapatybių apsaugos istoriją.</string>
   <string name="title_upcoming_notifications_request">Būsima pranešimų užklausa</string>
-  <string name="upcoming_notifications_request_description">Kitame langelyje „Android“ paklaus jūsų, ar norite leisti pranešimus. Tai užtikrins stabilų foninį ryšį ir leis jums „Android“ pranešimų centre matyti duomenų naudojimą.</string>
   <string name="title_setup_success">Viskas paruošta!</string>
   <string name="setup_success_description">Norėdami prisijungti, spustelėkite žemiau esantį mygtuką</string>
   <string name="permission_rejected">Leidimo užklausa atmesta.</string>
@@ -257,6 +255,7 @@
   <string name="censorship_circumvention_description">Rankinė konfigūracija reikalauja techninių žinių. Tęskite apdairiai.</string>
   <string name="discovery">Atradimas</string>
   <string name="discovery_description">Cenzoriai gali blokuoti informacijos apie kritinę konfigūraciją atradimą iš jūsų teikėjo. Pasirinkite apėjimo parinktį, skirtą apeiti blokuotes. </string>
+  <string name="automatically_select">Pasirinkti automatiškai</string>
   <string name="tunnelling">Tuneliavimas</string>
   <string name="tunnelling_description">Cenzoriai gali blokuoti prieigą prie atvirojo interneto. Pasirinkite apėjimo parinktį, skirtą apeiti blokuotes.</string>
   <string name="port_hopping">Prievadų keitinėjimas</string>

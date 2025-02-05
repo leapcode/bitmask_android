@@ -104,7 +104,7 @@
   <string name="warning_corrupted_provider_cert">O certificado armazenado do provedor é invalido. Você pode atualizar %s (recomendado) ou atualizar o certificado do provedor utilizando um certificado CA comercial. </string>
   <string name="warning_expired_provider_cert">O certificado do provedor está expirado. Você pode atualizar %s (recomendado) ou atualizar o certificado do provedor utilizando um certificado CA comercial. </string>
   <string name="downloading_vpn_certificate_failed">Download do certificado VPN falhou. Tente novamente ou escolha outro provedor.</string>
-  <string name="vpn_certificate_is_invalid">Certificado VPN inválido. Tente baixar um novo.</string>
+  <string name="vpn_certificate_is_invalid">É hora de atualizar seu certificado VPN. Faça o download de um novo certificado para manter sua conexão segura. Esta é uma atualização de rotina.</string>
   <string name="vpn_certificate_user_message">O certificado VPN é inválido. Por favor, faça login e baixe um novo.</string>
   <string name="save_battery">Economizar energia</string>
   <string name="subtitle_save_battery">Desabilitado enquanto o Ponto de acesso VPN estiver ligado</string>
@@ -235,9 +235,7 @@
   <string name="snowflake_broker_success">Encontro do proxy Snowflake bem-sucedido</string>
   <string name="snowflake_sending_data">Enviando dados via Snowflake</string>
   <string name="title_upcoming_connection_request">Próxima solicitação de conexão</string>
-  <string name="upcoming_connection_request_description">No próximo painel o Android irá lembrá-lo de que é essencial confiar no seu provedor de VPN. A Bitmask faz parceria apenas com provedores que aderem às práticas recomendadas de privacidade estritas para VPNs e têm um histórico verificável de proteção de dados e identidades do usuário.</string>
   <string name="title_upcoming_notifications_request">Próxima solicitação de notificações</string>
-  <string name="upcoming_notifications_request_description">No próximo painel o Android perguntará se você deseja permitir notificações. Isso garantirá uma conexão em segundo plano estável e permitirá que você veja o uso de dados na central de notificações do Android.</string>
   <string name="title_setup_success">Está tudo pronto!</string>
   <string name="setup_success_description">Clique no botão abaixo para conectar</string>
   <string name="permission_rejected">Solicitação de permissão rejeitada.</string>
@@ -249,4 +247,17 @@
   <string name="enter_invite_code">Digite o código de convite</string>
   <string name="scan_qr_code">Ler QR Code</string>
   <string name="invalid_code">Código inválido</string>
+  <string name="automatic_bridge">Automático (recomendado)</string>
+  <string name="automatic_bridge_description">A conexão será tentada usando as melhores pontes e protocolos disponíveis.</string>
+  <string name="manual_bridge">Configuração manual</string>
+  <string name="manual_bridge_description">Selecione pontes privadas e protocolos específicos</string>
+  <string name="censorship_circumvention_description">A configuração manual requer compreensão técnica. Prossiga com cautela.</string>
+  <string name="discovery">Descobrir</string>
+  <string name="discovery_description">Os sensores podem bloquear a descoberta de informações críticas de configuração do seu provedor. Escolha uma opção de evasão para contornar blocos.</string>
+  <string name="automatically_select">Selecione automaticamente</string>
+  <string name="invite_proxy">Código Proxy</string>
+  <string name="tunnelling">Tunneling</string>
+  <string name="tunnelling_description">Os censores podem bloquear o acesso à internet aberta. Escolha uma opção de evasão para contornar blocos.</string>
+  <string name="port_hopping">Port Hopping</string>
+  <string name="port_hopping_description">Os censores usam a análise de tráfego para bloquear o acesso à internet aberta. Port Hopping pode tornar isso mais difícil para eles.</string>
 </resources>

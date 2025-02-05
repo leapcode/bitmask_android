@@ -233,14 +233,16 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="snowflake_broker_success">Snowflake proxy rendezvous succesvol</string>
   <string name="snowflake_sending_data">Data versturen via Snowflake</string>
   <string name="title_upcoming_connection_request">Nu volgt een verzoek om een verbinding te maken.</string>
-  <string name="upcoming_connection_request_description">In het volgende scherm herinnert Android je eraan dat het belangrijk is je VPN provider te vertrouwen. Bitmask werkt alleen samen met providers die zich houden aan strikte privacyrichtlijnen voor VPN’s en een bewezen geschiedenis hebben in het beschermen van de gegevens en identiteiten van gebruikers. Wanneer je je met een niet publieke provider verbindt, zorg er dan zeker voor dat je ze vertrouwt.</string>
   <string name="title_upcoming_notifications_request">Nu volgt de vraag om meldingen toe te staan.</string>
-  <string name="upcoming_notifications_request_description">In het volgende scherm vraagt Android of je meldingen wilt toestaan. Dit zorgt voor een stabiele achtergrondverbinding en stelt je in staat om je datagebruik te zien bij de meldingen van Android.</string>
   <string name="title_setup_success">Je bent klaar! </string>
   <string name="setup_success_description">Tik hieronder om een verbinding te maken</string>
   <string name="permission_rejected">Toestemmingsverzoek afgewezen.</string>
   <string name="login_not_supported">Je kunt in deze versie van de app niet inloggen, wat je nodig hebt om de VPN certificaten van deze provider te updaten.</string>
   <string name="select_language">Selecteer taal</string>
   <string name="validation_status_success">Goed</string>
+  <string name="enter_invite_code">Voer de uitnodigingscode in</string>
   <string name="scan_qr_code">QR-code scannen</string>
+  <string name="invalid_code">Ongeldige code</string>
+  <string name="automatic_bridge">Automatisch (aanbevolen)</string>
+  <string name="automatically_select">Automatisch geselecteerd</string>
 </resources>

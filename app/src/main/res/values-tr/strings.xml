@@ -104,7 +104,7 @@
   <string name="warning_corrupted_provider_cert">Kaydedilmiş hizmet sağlayıcı sertifikası geçersiz. %s güncellemeyi (önerilir) ya da ticari bir CA sertifikası kullanarak hizmet sağlayıcı sertifikasını güncellemeyi seçebilirsiniz.</string>
   <string name="warning_expired_provider_cert">Kaydedilmiş hizmet sağlayıcı sertifikasının süresi dolmuş. %s güncellemeyi (önerilir) ya da ticari bir CA sertifikası kullanarak hizmet sağlayıcı sertifikasını güncellemeyi seçebilirsiniz.</string>
   <string name="downloading_vpn_certificate_failed">VPN sertifikası indirilemedi. Yeniden deneyin ya da başka bir hizmet sağlayıcı seçin.</string>
-  <string name="vpn_certificate_is_invalid">VPN sertifikası geçersiz. Yeni bir sertifika indirmeyi deneyin.</string>
+  <string name="vpn_certificate_is_invalid">VPN sertifikanızı yenileme zamanınız geldi. Bağlantınızı güvende tutmak için yeni bir sertifika indirin. Bu güncelleme belirli aralıklarla yapılan normal bir işlemdir.</string>
   <string name="vpn_certificate_user_message">VPN sertifikası geçersiz. Lütfen yeni bir sertifika indirmek için oturum açın.</string>
   <string name="save_battery">Güç tasarrufu</string>
   <string name="subtitle_save_battery">VPN erişim noktası açıkken devre dışı</string>
@@ -211,7 +211,7 @@
   <string name="select_provider_description">VPN kullandığınızda, İnternet hizmeti sağlayıcınızına olan güveninizi VPN hizmeti sağlayıcınıza aktarmış olursunuz. Bitmask yalnızca temiz bir gizlilik koruma ve savunma geçmişi olan hizmet sağlayıcılar ile bağlantı kurar.</string>
   <string name="provider_description_riseup">Riseup özgürleştirici toplumsal değişim üzerine çalışan kişi ve gruplara çevrim içi iletişim araçları sağlıyor. Projemiz, demokratik alternatifleri oluşturmayı ve kendi denetimimiz altında güvenli iletişim araçları geliştirmeyi amaçlıyor.</string>
   <string name="next">Sonraki</string>
-  <string name="add_provider_description">Bitmask herkese açık olarak listelenmeyen güvenli hizmet sağlayıcılar ile bağlantı kurar. Hizmet sağlayıcınızın adresini aşağıya yazın.</string>
+  <string name="add_provider_description">Bitmask, herkese açık olarak listelenmeyen hizmet sağlayıcılara bağlanmanızı sağlar. Eklediğiniz hizmet sağlayıcıyı bildiğinizden ve güvendiğinizden emin olun.</string>
   <string name="add_provider_prompt">Hizmet sağlayıcının adresini buraya yazın.</string>
   <string name="invite_code_provider_description">Bitmask bir özel davet kodu ile hizmet sağlayıcılara bağlanmanızı sağlar.</string>
   <string name="invite_code_provider_prompt">Güvenli davet Kodunuzu buraya yazın.</string>
@@ -234,9 +234,12 @@
   <string name="snowflake_broker_success">Snowflake vekil sunucusuna erişildi</string>
   <string name="snowflake_sending_data">Veriler Snowflake ile gönderiliyor</string>
   <string name="title_upcoming_connection_request">Gelen bağlantı isteği</string>
-  <string name="upcoming_connection_request_description">Android, sonraki ekranda VPN hizmeti sağlayıcınıza güvenmenizin temel olduğunu size anımsatacak. Bitmask yalnızca en iyi gizlilik uygulamalarını sıkı bir şekilde uygulayan ve kullanıcıların verileri ile kimliklerini korumakta doğrulanabilir bir geçmişi olan VPN hizmetleri ile işbirliği yapıyor.</string>
+  <string name="title_upcoming_request">İstenecek izinler</string>
+  <string name="title_upcoming_request_summary">Sonraki panolarda Android sizden Bağlantı isteği ve Bildirim isteği ile izninizi isteyecek.</string>
+  <string name="title_upcoming_connection_request_summary_custom">Temel %s işlevselliğini sağlamak için bağlantı isteğinin kabul edilmesi önemlidir.</string>
+  <string name="title_upcoming_connection_request_summary">Bağlantı isteği için, Bitmask uygulamasının yalnızca VPN uygulamaları için iyi örnekleri uygulayan ve kullanıcıların verileri ile kimliklerini koruma konusunda doğrulanabilir bir geçmişi olan güvenilir hizmet sağlayıcılarla işbirliği yaptığını bilmeniz önemlidir. Bununla birlikte, herkese açık olmayan bir hizmet sağlayıcıya el ile bağlanıyorsanız, onun güvenilir olduğundan emin olun.</string>
+  <string name="title_upcoming_notification_request_summary">Bildirim isteğini kabul etmek, uygulamanın arka planda çalışmasına yol açar ve Android bildirim merkezinde veri kullanımınızı görmenizi sağlar.</string>
   <string name="title_upcoming_notifications_request">Gelen bildirim isteği</string>
-  <string name="upcoming_notifications_request_description">Android, sonraki ekranda bildirimlere izin vermek isteyip istemediğinizi soracak. Böylece kararlı bir arka plan bağlantısı kurulduğundan emin olunacak ve veri kullanımınızı Android bildirim merkezinde görebileceksiniz.</string>
   <string name="title_setup_success">Hazırsınız!</string>
   <string name="setup_success_description">Bağlanmak için aşağıdaki düğmeye tıklayın</string>
   <string name="permission_rejected">İzin isteği reddedildi</string>
@@ -249,8 +252,16 @@
   <string name="scan_qr_code">Kare kodu tara</string>
   <string name="invalid_code">Kod geçersiz</string>
   <string name="automatic_bridge">Otomatik (önerilen)</string>
-  <string name="automatic_bridge_description">Bağlantı en iyi mevcut köprüler ve protokoller kullanılarak oluşturulmaya çalışılacak.</string>
-  <string name="manual_bridge">Elle Yapılandırma</string>
-  <string name="manual_bridge_description">Özel köprüler ve belirli protokoller seçin</string>
+  <string name="automatic_bridge_description">Bağlantı kullanılabilecek en iyi köprüler ve iletişim kuralları ile kurulmaya çalışılacak.</string>
+  <string name="manual_bridge">El ile yapılandırma</string>
+  <string name="manual_bridge_description">Özel köprüler ve belirli iletişim kuralları seçin</string>
+  <string name="censorship_circumvention_description">El ile yapılandırma için teknik bilgi gereklidir. Dikkatli davranın.</string>
   <string name="discovery">Keşif</string>
+  <string name="discovery_description">Sansür uygulayıcılar, hizmet sağlayıcınızın sunduğu kritik yapılandırma bilgisinin keşfini engelleyebilir. Engellemeleri aşmak için bir seçenek seçin.</string>
+  <string name="automatically_select">Otomatik olarak seçilsin</string>
+  <string name="invite_proxy">Vekil sunucu daveti</string>
+  <string name="tunnelling">Tünelleme</string>
+  <string name="tunnelling_description">Sansür uygulayıcılar açık internete erişimi engelleyebilir. Engellemeleri aşmak için bir seçenek seçin.</string>
+  <string name="port_hopping">Bağlantı noktası değiştirme</string>
+  <string name="port_hopping_description">Sansür uygulayıcılar açık internete erişimi engellemek için trafik analizini kullanırlar. Bağlantı noktası değiştirme bunu onlar için zorlaştırır.</string>
 </resources>

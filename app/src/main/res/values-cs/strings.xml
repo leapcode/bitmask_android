@@ -104,7 +104,7 @@
   <string name="warning_corrupted_provider_cert">Uložený certifikát poskytovatele je neplatný. Můžete buď aktualizovat aplikaci %s (doporučeno) nebo aktualizovat certifikát poskytovatele použitím komerčního certifikátu CA.</string>
   <string name="warning_expired_provider_cert">Uložený certifikát poskytovatele vypršel. Můžete buď aktualizovat aplikaci %s (doporučeno) nebo aktualizovat certifikát poskytovatele použitím komerčního certifikátu CA.</string>
   <string name="downloading_vpn_certificate_failed">Stahování certifikátu VPN selhalo. Zkuste to znovu nebo vyberte jiného poskytovatele.</string>
-  <string name="vpn_certificate_is_invalid">Certifikát VPN je neplatný. Zkuste stáhnout nový.</string>
+  <string name="vpn_certificate_is_invalid">Je čas aktualizovat váš certifikát VPN. Stáhněte si nový certifikát, aby bylo vaše připojení bezpečné. Jedná se o běžnou aktualizaci.</string>
   <string name="vpn_certificate_user_message">Certifikát VPN je neplatný. Přihlaste se pro stažení nového.</string>
   <string name="save_battery">Spořič baterie</string>
   <string name="subtitle_save_battery">Zakázáno při zapnutém VPN hotspotu</string>
@@ -213,7 +213,7 @@
   <string name="select_provider_description">Při používání sítě VPN přenášíte svou důvěru z poskytovatele internetových služeb na poskytovatele sítě VPN. Bitmask se připojuje pouze k poskytovatelům s jasnou historií ochrany soukromí.</string>
   <string name="provider_description_riseup">Riseup poskytuje online komunikační nástroje pro lidi a skupiny pracující na svobodné sociální změně. Jsme projekt, jehož cílem je vytvářet demokratické alternativy a praktikovat sebeurčení prostřednictvím kontroly vlastních bezpečných komunikačních prostředků.</string>
   <string name="next">Další</string>
-  <string name="add_provider_description">Bitmask se připojuje k důvěryhodným poskytovatelům, kteří nejsou veřejně uvedeni. Níže zadejte adresu URL svého poskytovatele.</string>
+  <string name="add_provider_description">Bitmask umožňuje připojení k poskytovatelům, kteří nejsou veřejně uvedeni. Ujistěte se, že poskytovatele, kterého přidáváte, znáte a důvěřujete mu.</string>
   <string name="add_provider_prompt">Sem zadejte adresu URL poskytovatele.</string>
   <string name="invite_code_provider_description">Bitmask umožňuje připojení k poskytovatelům pomocí soukromého zvacího kódu.</string>
   <string name="invite_code_provider_prompt">Sem zadejte váš důvěryhodný zvací kód.</string>
@@ -236,9 +236,12 @@
   <string name="snowflake_broker_success">Úspěšné setkání s proxy serverem Snowflake</string>
   <string name="snowflake_sending_data">Posílání dat přes Snowflake</string>
   <string name="title_upcoming_connection_request">Nadcházející žádost o připojení</string>
-  <string name="upcoming_connection_request_description">V dalším panelu vám systém Android připomene, že je nezbytné důvěřovat poskytovateli VPN. Bitmask spolupracuje pouze s poskytovateli, kteří dodržují přísné osvědčené postupy ochrany soukromí pro sítě VPN a mají ověřitelnou historii ochrany dat a identit uživatelů.</string>
+  <string name="title_upcoming_request">Nadcházející požadavky</string>
+  <string name="title_upcoming_request_summary">V dalších panelech vás systém Android požádá o oprávnění ve formě žádosti o připojení a žádosti o oznámení.</string>
+  <string name="title_upcoming_connection_request_summary_custom">Přijetí požadavku na připojení je nezbytné pro používání základních funkcí aplikace %s.</string>
+  <string name="title_upcoming_connection_request_summary">Pokud jde o žádost o připojení, je důležité vědět, že Bitmask spolupracuje pouze s důvěryhodnými partnerskými poskytovateli, kteří dodržují osvědčené postupy pro sítě VPN a mají ověřitelnou historii ochrany dat a identit uživatelů. Pokud se však ručně připojujete k neveřejnému poskytovateli, ujistěte se, že mu důvěřujete.</string>
+  <string name="title_upcoming_notification_request_summary">Přijetí požadavku na oznámení umožní aplikaci běžet na pozadí a zobrazit využití dat v centru oznámení systému Android.</string>
   <string name="title_upcoming_notifications_request">Nadcházející žádost o oznámení</string>
-  <string name="upcoming_notifications_request_description">Na dalším panelu se systém Android zeptá, zda chcete povolit oznámení. Tím zajistíte stabilní připojení na pozadí a umožníte si zobrazit využití dat v centru oznámení systému Android.</string>
   <string name="title_setup_success">Jste připraveni!</string>
   <string name="setup_success_description">Klepněte na tlačítko níže pro připojení</string>
   <string name="permission_rejected">Žádost o oprávnění zamítnuta.</string>
@@ -257,7 +260,7 @@
   <string name="censorship_circumvention_description">Ruční nastavení vyžaduje technické znalosti. Postupujte opatrně.</string>
   <string name="discovery">Objevování</string>
   <string name="discovery_description">Cenzoři mohou blokovat zjišťování kritických informací o konfiguraci od vašeho poskytovatele. Chcete-li blokování obejít, zvolte možnost obcházení.</string>
-  <string name="automatically_select">Automatický výběr</string>
+  <string name="automatically_select">Automaticky vybrat</string>
   <string name="invite_proxy">Proxy pozvánek</string>
   <string name="tunnelling">Tunelování</string>
   <string name="tunnelling_description">Cenzoři mohou blokovat přístup k otevřenému internetu. Chcete-li blokování obejít, zvolte možnost obcházení.</string>
