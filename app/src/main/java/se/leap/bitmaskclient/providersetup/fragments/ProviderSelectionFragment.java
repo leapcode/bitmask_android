@@ -115,7 +115,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
         binding.btnQrScanner.setOnClickListener(v -> {
             ScanOptions options = new ScanOptions();
             options.setBeepEnabled(false);
-            options.setBarcodeImageEnabled(true);
+            options.setBarcodeImageEnabled(false);
             options.setOrientationLocked(false);
             scannerActivityResultLauncher.launch(options);
         });
