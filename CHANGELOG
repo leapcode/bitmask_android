@@ -1,3 +1,12 @@
+1.5.1 stable
+features:
+- see 1.5.0RC2 API-v5 beta and 1.5.0RC1 API-v5 beta
+
+bugfixes:
+- fixed obfs4+kcp performance issues
+- handle panics in obfsvpn more gracefully
+- fix barcode scanner photo leak
+
 1.5.0RC2 API-v5 beta
 features:
 * replace MLKit with FOSS QR code scanning library zxing
