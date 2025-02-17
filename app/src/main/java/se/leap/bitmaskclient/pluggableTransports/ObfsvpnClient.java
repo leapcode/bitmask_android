@@ -1,5 +1,8 @@
 package se.leap.bitmaskclient.pluggableTransports;
 
+import static se.leap.bitmaskclient.base.models.Constants.KCP;
+import static se.leap.bitmaskclient.base.models.Constants.QUIC;
+
 import android.util.Log;
 
 import client.Client;
@@ -12,6 +15,7 @@ import se.leap.bitmaskclient.pluggableTransports.models.HoppingConfig;
 import se.leap.bitmaskclient.pluggableTransports.models.KcpConfig;
 import se.leap.bitmaskclient.pluggableTransports.models.Obfs4Options;
 import se.leap.bitmaskclient.pluggableTransports.models.ObfsvpnConfig;
+import se.leap.bitmaskclient.pluggableTransports.models.QuicConfig;
 
 public class ObfsvpnClient implements EventLogger {
 
@@ -29,14 +33,17 @@ public class ObfsvpnClient implements EventLogger {
         //FIXME: use a different strategy here
         //Basically we would want to track if the more performant transport protocol (KCP?/TCP?) usage was successful
         //if so, we stick to it, otherwise we flip the flag
-        boolean kcpEnabled = Constants.KCP.equals(options.transport.getProtocols()[0]);
+        String protocol = options.transport.getProtocols()[0];
+        boolean kcpEnabled = KCP.equals(protocol);
+        boolean quicEnabled = QUIC.equals(protocol);
         boolean hoppingEnabled = options.transport.getTransportType() == Connection.TransportType.OBFS4_HOP;
         if (!hoppingEnabled && (options.transport.getPorts() == null || options.transport.getPorts().length == 0)) {
             throw new IllegalStateException("obf4 based transport has no bridge ports configured");
         }
         KcpConfig kcpConfig = new KcpConfig(kcpEnabled);
+        QuicConfig quicConfig = new QuicConfig(quicEnabled);
         HoppingConfig hoppingConfig = new HoppingConfig(hoppingEnabled,IP+":"+PORT, options, 10, 10);
-        ObfsvpnConfig obfsvpnConfig = new ObfsvpnConfig(IP+":"+PORT, hoppingConfig, kcpConfig, options.bridgeIP, options.transport.getPorts()[0], options.transport.getOptions().getCert() );
+        ObfsvpnConfig obfsvpnConfig = new ObfsvpnConfig(IP+":"+PORT, hoppingConfig, kcpConfig, quicConfig, options.bridgeIP, options.transport.getPorts()[0], options.transport.getOptions().getCert() );
         try {
             Log.d(TAG, obfsvpnConfig.toString());
             client = Client.newFFIClient(obfsvpnConfig.toString());

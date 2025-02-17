@@ -26,6 +26,7 @@ import static se.leap.bitmaskclient.base.models.Constants.HOST;
 import static se.leap.bitmaskclient.base.models.Constants.IAT_MODE;
 import static se.leap.bitmaskclient.base.models.Constants.KCP;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.models.Constants.QUIC;
 import static se.leap.bitmaskclient.base.models.Constants.SORTED_GATEWAYS;
 import static se.leap.bitmaskclient.base.models.Constants.TCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningCert;
@@ -37,6 +38,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Quic;
 
 import android.content.Context;
 import android.util.Log;
@@ -174,7 +176,7 @@ public class GatewaysManager {
 
         if (getUsePortHopping()) {
             return new TransportType[]{OBFS4_HOP};
-        } else if (getUseObfs4() || getUseObfs4Kcp()) {
+        } else if (getUseObfs4() || getUseObfs4Kcp() || getUseObfs4Quic()) {
             return new TransportType[]{OBFS4};
         } else {
             return new TransportType[]{OBFS4, OBFS4_HOP};
@@ -192,10 +194,12 @@ public class GatewaysManager {
             return Set.of(TCP);
         } else if (getUseObfs4Kcp()) {
             return Set.of(KCP);
+        } else if (getUseObfs4Quic()) {
+            return Set.of(QUIC);
         } else {
             // If neither Obf4 nor Obf4Kcp are used, and bridges are enabled,
-            // then use both TCP and KCP (based on the original logic).
-            return Set.of(TCP, KCP);
+            // then allow to use any of these protocols
+            return Set.of(TCP, KCP, QUIC);
         }
     }
 
@@ -492,7 +496,7 @@ public class GatewaysManager {
                 options.put(CERT, getObfuscationPinningCert());
                 options.put(IAT_MODE, "0");
                 modelsBridge.options(options);
-                modelsBridge.transport(getObfuscationPinningKCP() ? "kcp" : "tcp");
+                modelsBridge.transport(getObfuscationPinningKCP() ? KCP : TCP);
                 modelsBridge.type(OBFS4.toString());
                 modelsBridge.host(PINNED_OBFUSCATION_PROXY);
                 Gateway gateway = new Gateway(modelsEIPService, secrets, modelsBridge, provider.getApiVersion());

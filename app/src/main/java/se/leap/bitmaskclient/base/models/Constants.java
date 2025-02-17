@@ -192,6 +192,7 @@ public interface Constants {
     String UDP = "udp";
     String TCP = "tcp";
     String KCP = "kcp";
+    String QUIC = "quic";
     String CAPABILITIES = "capabilities";
     String TRANSPORT = "transport";
     String TYPE = "type";

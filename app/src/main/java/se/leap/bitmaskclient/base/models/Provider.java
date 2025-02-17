@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient.base.models;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportProtocol.KCP;
+import static de.blinkt.openvpn.core.connection.Connection.TransportProtocol.QUIC;
 import static de.blinkt.openvpn.core.connection.Connection.TransportProtocol.TCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_HOP;
@@ -52,7 +53,6 @@ import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -303,11 +303,11 @@ public final class Provider implements Parcelable {
     }
 
     public boolean supportsPluggableTransports() {
-        return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP), new Pair<>(OBFS4, KCP), new Pair<>(OBFS4_HOP, TCP), new Pair<>(OBFS4_HOP, KCP)});
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP), new Pair<>(OBFS4, KCP), new Pair<>(OBFS4, QUIC), new Pair<>(OBFS4_HOP, TCP), new Pair<>(OBFS4_HOP, KCP), new Pair<>(OBFS4_HOP, QUIC)});
     }
 
     public boolean supportsExperimentalPluggableTransports() {
-        return supportsTransports(new Pair[]{new Pair<>(OBFS4, KCP),  new Pair<>(OBFS4_HOP, TCP), new Pair<>(OBFS4_HOP, KCP)});
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4, KCP),  new Pair<>(OBFS4_HOP, TCP), new Pair<>(OBFS4_HOP, KCP), new Pair<>(OBFS4, QUIC), new Pair<>(OBFS4_HOP, QUIC)});
     }
 
 
@@ -319,8 +319,12 @@ public final class Provider implements Parcelable {
         return supportsTransports(new Pair[]{new Pair<>(OBFS4, KCP)});
     }
 
+    public boolean supportsObfs4Quic() {
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4, QUIC)});
+    }
+
     public boolean supportsObfs4Hop() {
-        return supportsTransports(new Pair[]{new Pair<>(OBFS4_HOP, KCP),new Pair<>(OBFS4_HOP, TCP)});
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4_HOP, KCP), new Pair<>(OBFS4_HOP, QUIC), new Pair<>(OBFS4_HOP, TCP)});
     }
 
     private boolean supportsTransports(Pair<TransportType, TransportProtocol>[] transportTypes) {

@@ -45,7 +45,8 @@ public abstract class Connection implements Serializable, Cloneable {
     public enum TransportProtocol {
         UDP("udp"),
         TCP("tcp"),
-        KCP("kcp");
+        KCP("kcp"),
+        QUIC("quic");
 
         final String protocol;
 

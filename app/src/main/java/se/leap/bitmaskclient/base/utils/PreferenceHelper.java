@@ -4,6 +4,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_AUTOMATICALLY;
 import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_OBFS4;
 import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_OBFS4_KCP;
+import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_QUIC;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_EXPERIMENTAL_TRANSPORTS;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_BLUETOOTH;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_USB;
@@ -615,8 +616,16 @@ public class PreferenceHelper {
         return getUseTunnel() == TUNNELING_OBFS4_KCP;
     }
 
-    public static boolean useManualBridgeSettings(){
-        return (hasSnowflakePrefs() && getUseSnowflake()) || getUseObfs4() || getUseObfs4Kcp() || getUsePortHopping();
+    public static boolean getUseObfs4Quic() {
+        return getUseTunnel() == TUNNELING_QUIC;
+    }
+
+    public static boolean useManualBridgeSettings() {
+        return getUseObfs4() || getUseObfs4Kcp() || getUseObfs4Quic() || getUsePortHopping();
+    }
+
+    public static boolean useManualDiscoverySettings() {
+        return hasSnowflakePrefs() && getUseSnowflake();
     }
 
     public static void setUseTunnel(int tunnel) {

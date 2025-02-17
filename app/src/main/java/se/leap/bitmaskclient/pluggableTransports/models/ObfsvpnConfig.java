@@ -11,14 +11,16 @@ public class ObfsvpnConfig {
     final String proxyAddr;
     final HoppingConfig hoppingConfig;
     final KcpConfig kcpConfig;
+    final QuicConfig quicConfig;
     final String remoteIp;
     final String remotePort;
     final String obfs4Cert;
 
-    public ObfsvpnConfig(String proxyAddress, HoppingConfig hoppingConfig, KcpConfig kcpConfig, String remoteIP, String remotePort, String obfsv4Cert) {
+    public ObfsvpnConfig(String proxyAddress, HoppingConfig hoppingConfig, KcpConfig kcpConfig, QuicConfig quicConfig, String remoteIP, String remotePort, String obfsv4Cert) {
         this.proxyAddr = proxyAddress;
         this.hoppingConfig = hoppingConfig;
         this.kcpConfig = kcpConfig;
+        this.quicConfig = quicConfig;
         this.remoteIp = remoteIP;
         this.remotePort = remotePort;
         this.obfs4Cert = obfsv4Cert;

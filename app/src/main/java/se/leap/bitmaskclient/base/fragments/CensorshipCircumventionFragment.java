@@ -3,6 +3,7 @@ package se.leap.bitmaskclient.base.fragments;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Quic;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.resetSnowflakeSettings;
@@ -37,6 +38,7 @@ public class CensorshipCircumventionFragment extends Fragment {
     public static int TUNNELING_AUTOMATICALLY = 100300000;
     public static int TUNNELING_OBFS4 = 100300001;
     public static int TUNNELING_OBFS4_KCP = 100300002;
+    public static int TUNNELING_QUIC = 100300003;
 
     private @NonNull FCensorshipCircumventionBinding binding;
 
@@ -113,7 +115,7 @@ public class CensorshipCircumventionFragment extends Fragment {
     private void initTunneling() {
         RadioButton noneRadioButton = new RadioButton(binding.getRoot().getContext());
         noneRadioButton.setText(getText(R.string.automatically_select));
-        noneRadioButton.setChecked(!getUseObfs4() && !getUseObfs4Kcp());
+        noneRadioButton.setChecked(!getUseObfs4() && !getUseObfs4Kcp() && !getUseObfs4Quic());
         noneRadioButton.setId(TUNNELING_AUTOMATICALLY);
         binding.tunnelingRadioGroup.addView(noneRadioButton);
 
@@ -131,6 +133,14 @@ public class CensorshipCircumventionFragment extends Fragment {
             obfs4KcpRadioButton.setId(TUNNELING_OBFS4_KCP);
             obfs4KcpRadioButton.setChecked(getUseObfs4Kcp());
             binding.tunnelingRadioGroup.addView(obfs4KcpRadioButton);
+        }
+
+        if (ProviderObservable.getInstance().getCurrentProvider().supportsObfs4Quic()) {
+            RadioButton obfs4QuicRadioButton = new RadioButton(binding.getRoot().getContext());
+            obfs4QuicRadioButton.setText(getText(R.string.tunnelling_quic));
+            obfs4QuicRadioButton.setId(TUNNELING_QUIC);
+            obfs4QuicRadioButton.setChecked(getUseObfs4Quic());
+            binding.tunnelingRadioGroup.addView(obfs4QuicRadioButton);
         }
 
         binding.tunnelingRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {

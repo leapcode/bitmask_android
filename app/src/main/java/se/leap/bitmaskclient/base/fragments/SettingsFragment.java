@@ -15,6 +15,8 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.resetSnowflakeSettings;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
@@ -22,6 +24,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscatio
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseTunnel;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useManualDiscoverySettings;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useManualBridgeSettings;
@@ -132,14 +135,14 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         manualConfigRoot.setVisibility(ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports() ? VISIBLE : GONE);
         IconTextEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
         SwitchCompat manualConfigurationSwitch = rootView.findViewById(R.id.bridge_manual_switch_control);
-        boolean usesManualBridge = useManualBridgeSettings();
-        manualConfigurationSwitch.setChecked(usesManualBridge);
+        boolean useManualCircumventionSettings = useManualBridgeSettings() || useManualDiscoverySettings();
+        manualConfigurationSwitch.setChecked(useManualCircumventionSettings);
         manualConfigurationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
             resetManualConfig();
-            if (!usesManualBridge){
+            if (!useManualCircumventionSettings){
                 openManualConfigurationFragment();
             }
         });
