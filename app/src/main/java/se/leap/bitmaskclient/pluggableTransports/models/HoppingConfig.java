@@ -11,14 +11,15 @@ import se.leap.bitmaskclient.base.models.Transport;
 public class HoppingConfig {
 
     /**
-     * Enabled       bool     `json:"enabled"`
+     * 	Enabled       bool     `json:"enabled"`
      * 	Remotes       []string `json:"remotes"`
      * 	Obfs4Certs    []string `json:"obfs4_certs"`
      * 	PortSeed      int64    `json:"port_seed"`
      * 	PortCount     uint     `json:"port_count"`
+     * 	MinHopPort    uint     `json:"min_hop_port"`
+     * 	MaxHopPort    uint     `json:"max_hop_port"`
      * 	MinHopSeconds uint     `json:"min_hop_seconds"`
      * 	HopJitter     uint     `json:"hop_jitter"`
-     * }
      */
 
     final boolean enabled;
@@ -29,12 +30,12 @@ public class HoppingConfig {
     final int portCount;
     final int minHopSeconds;
     final int hopJitter;
+    final int minHopPort;
+    final int maxHopPort;
 
     public HoppingConfig(boolean enabled,
                          String proxyAddr,
-                         Obfs4Options options,
-                         int minHopSeconds,
-                         int hopJitter) {
+                         Obfs4Options options) {
         this.enabled = enabled;
         this.proxyAddr = proxyAddr;
         Transport transport = options.transport;
@@ -54,8 +55,10 @@ public class HoppingConfig {
         }
         this.portSeed = transport.getOptions().getPortSeed();
         this.portCount = transport.getOptions().getPortCount();
-        this.minHopSeconds = minHopSeconds;
-        this.hopJitter = hopJitter;
+        this.minHopSeconds = transport.getOptions().getMinHopSeconds();
+        this.hopJitter = transport.getOptions().getHopJitter();
+        this.minHopPort = transport.getOptions().getMinHopPort();
+        this.maxHopPort = transport.getOptions().getMaxHopPort();
     }
 
     @NonNull

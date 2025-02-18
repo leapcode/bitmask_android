@@ -42,7 +42,7 @@ public class ObfsvpnClient implements EventLogger {
         }
         KcpConfig kcpConfig = new KcpConfig(kcpEnabled);
         QuicConfig quicConfig = new QuicConfig(quicEnabled);
-        HoppingConfig hoppingConfig = new HoppingConfig(hoppingEnabled,IP+":"+PORT, options, 10, 10);
+        HoppingConfig hoppingConfig = new HoppingConfig(hoppingEnabled,IP+":"+PORT, options);
         ObfsvpnConfig obfsvpnConfig = new ObfsvpnConfig(IP+":"+PORT, hoppingConfig, kcpConfig, quicConfig, options.bridgeIP, options.transport.getPorts()[0], options.transport.getOptions().getCert() );
         try {
             Log.d(TAG, obfsvpnConfig.toString());

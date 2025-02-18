@@ -203,6 +203,10 @@ public interface Constants {
     String ENDPOINTS = "endpoints";
     String PORT_SEED = "port_seed";
     String PORT_COUNT = "port_count";
+    String HOP_JITTER = "hop_jitter";
+    String MIN_HOP_PORT = "min_hop_port";
+    String MAX_HOP_PORT = "max_hop_port";
+    String MIN_HOP_SECONDS = "min_hop_seconds";
     String EXPERIMENTAL = "experimental";
     String VERSION = "version";
     String NAME = "name";
