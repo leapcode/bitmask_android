@@ -1,6 +1,7 @@
 package se.leap.bitmaskclient.base.utils;
 
 import static android.content.Context.MODE_PRIVATE;
+import static de.blinkt.openvpn.core.connection.Connection.TransportProtocol.TCP;
 import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_AUTOMATICALLY;
 import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_OBFS4;
 import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_OBFS4_KCP;
@@ -24,9 +25,9 @@ import static se.leap.bitmaskclient.base.models.Constants.LAST_UPDATE_CHECK;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_USED_PROFILE;
 import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_CERT;
 import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_IP;
-import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_KCP;
 import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_LOCATION;
 import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_PORT;
+import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_PROTOCOL;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
@@ -588,12 +589,12 @@ public class PreferenceHelper {
         return getString(OBFUSCATION_PINNING_LOCATION, null);
     }
 
-    public static Boolean getObfuscationPinningKCP() {
-        return getBoolean(OBFUSCATION_PINNING_KCP, false);
+    public static String getObfuscationPinningProtocol() {
+        return getString(OBFUSCATION_PINNING_PROTOCOL, TCP.toString());
     }
 
-    public static void setObfuscationPinningKCP(boolean isKCP) {
-        putBoolean(OBFUSCATION_PINNING_KCP, isKCP);
+    public static void setObfuscationPinningProtocol(String protocol) {
+        putString(OBFUSCATION_PINNING_PROTOCOL, protocol);
     }
 
     public static void setUseIPv6Firewall(boolean useFirewall) {

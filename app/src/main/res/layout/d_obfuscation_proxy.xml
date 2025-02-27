@@ -57,16 +57,32 @@
             android:id="@+id/cert_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-        <se.leap.bitmaskclient.base.views.IconSwitchEntry
-            android:id="@+id/kcp_switch"
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:text="KCP"
-            app:subtitle="UDP based network protocol"
-            app:icon="@drawable/ic_multiple_stop"
-            >
-
-        </se.leap.bitmaskclient.base.views.IconSwitchEntry>
+            android:text="Network protocol"
+            android:textStyle="bold"
+            android:paddingTop="@dimen/activity_margin"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/protocol_spinner_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="?android:attr/listPreferredItemHeightSmall"
+                android:layout_height="?android:attr/listPreferredItemHeightSmall"
+                android:src="@drawable/ic_multiple_stop"
+                android:padding="@dimen/stdpadding"/>
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/protocol_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tooltipText="select nework protocol"/>
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="wrap_content"

@@ -21,6 +21,7 @@ import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_H
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.models.Constants.KCP;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.models.Constants.QUIC;
 import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
 import static se.leap.bitmaskclient.base.models.Constants.TCP;
 import static se.leap.bitmaskclient.base.models.Constants.UDP;
@@ -29,8 +30,8 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningCert;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningGatewayLocation;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningIP;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningPort;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningProtocol;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 
@@ -69,7 +70,7 @@ public class VpnConfigGenerator {
     private final String obfuscationPinningIP;
     private final String obfuscationPinningPort;
     private final String obfuscationPinningCert;
-    private final boolean obfuscationPinningKCP;
+    private final String obfuscationPinningTransportProtocol;
     private final String remoteGatewayIP;
     private final String remoteGatewayIPv6;
     private final String profileName;
@@ -89,7 +90,7 @@ public class VpnConfigGenerator {
         Set<String> excludedApps = null;
 
         boolean useObfuscationPinning;
-        boolean obfuscationProxyKCP;
+        String obfuscationProxyTransportProtocol = "";
         String obfuscationProxyIP = "";
         String obfuscationProxyPort = "";
         String obfuscationProxyCert = "";
@@ -110,7 +111,7 @@ public class VpnConfigGenerator {
                 config.obfuscationProxyIP = getObfuscationPinningIP();
                 config.obfuscationProxyPort = getObfuscationPinningPort();
                 config.obfuscationProxyCert = getObfuscationPinningCert();
-                config.obfuscationProxyKCP = getObfuscationPinningKCP();
+                config.obfuscationProxyTransportProtocol = getObfuscationPinningProtocol();
             }
             config.transports = transports;
             return config;
@@ -128,7 +129,7 @@ public class VpnConfigGenerator {
         this.obfuscationPinningIP = config.obfuscationProxyIP;
         this.obfuscationPinningPort = config.obfuscationProxyPort;
         this.obfuscationPinningCert = config.obfuscationProxyCert;
-        this.obfuscationPinningKCP = config.obfuscationProxyKCP;
+        this.obfuscationPinningTransportProtocol = config.obfuscationProxyTransportProtocol;
         this.remoteGatewayIP = config.remoteGatewayIP;
         this.remoteGatewayIPv6 = config.remoteGatewayIPv6;
         this.transports = config.transports;
@@ -196,7 +197,7 @@ public class VpnConfigGenerator {
         String ip = remoteGatewayIP;
         if (useObfuscationPinning) {
             transport = new Transport(OBFS4.toString(),
-                    new String[]{obfuscationPinningKCP ? KCP : TCP},
+                    new String[]{obfuscationPinningTransportProtocol},
                     new String[]{obfuscationPinningPort},
                     obfuscationPinningCert);
             ip = obfuscationPinningIP;
@@ -326,7 +327,7 @@ public class VpnConfigGenerator {
                 return TCP.equals(protocol) || UDP.equals(protocol);
             case OBFS4_HOP:
             case OBFS4:
-                return TCP.equals(protocol) || KCP.equals(protocol);
+                return TCP.equals(protocol) || KCP.equals(protocol) || QUIC.equals(protocol);
         }
         return false;
     }

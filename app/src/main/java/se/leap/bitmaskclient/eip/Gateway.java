@@ -29,15 +29,6 @@ import static se.leap.bitmaskclient.base.models.Constants.OVERLOAD;
 import static se.leap.bitmaskclient.base.models.Constants.TIMEZONE;
 import static se.leap.bitmaskclient.base.models.Constants.VERSION;
 import static se.leap.bitmaskclient.base.models.Transport.createTransportsFrom;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningCert;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningGatewayLocation;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningIP;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningPort;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -294,7 +285,7 @@ public class Gateway {
      * In case the transport type is an obfuscation transport, you can pass a Vector of required transport layer protocols.
      * This way you can filter for TCP based obfs4 traffic versus KCP based obfs4 traffic.
      * @param transportType transport type, e.g. openvpn or obfs4
-     * @param obfuscationTransportLayerProtocols filters for _any_ of these transport layer protocols (e.g. TCP or KCP) of a given obfuscation transportType, can be omitted if transportType is OPENVPN.
+     * @param obfuscationTransportLayerProtocols filters for _any_ of these transport layer protocols (e.g. TCP, KCP, QUIC) of a given obfuscation transportType, can be omitted if transportType is OPENVPN.
      *
      * @return
      */

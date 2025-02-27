@@ -31,14 +31,14 @@ import static se.leap.bitmaskclient.base.models.Constants.SORTED_GATEWAYS;
 import static se.leap.bitmaskclient.base.models.Constants.TCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningCert;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningIP;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningPort;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningProtocol;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Quic;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
 
 import android.content.Context;
 import android.util.Log;
@@ -436,7 +436,7 @@ public class GatewaysManager {
                 try {
                     Transport[] transports = new Transport[]{
                             new Transport(OBFS4.toString(),
-                                    new String[]{getObfuscationPinningKCP() ? "kcp" : "tcp"},
+                                    new String[]{getObfuscationPinningProtocol()},
                                     new String[]{getObfuscationPinningPort()},
                                     getObfuscationPinningCert())};
                     GatewayJson.Capabilities capabilities = new GatewayJson.Capabilities(false, false, false, transports, false);
@@ -496,7 +496,7 @@ public class GatewaysManager {
                 options.put(CERT, getObfuscationPinningCert());
                 options.put(IAT_MODE, "0");
                 modelsBridge.options(options);
-                modelsBridge.transport(getObfuscationPinningKCP() ? KCP : TCP);
+                modelsBridge.transport(getObfuscationPinningProtocol());
                 modelsBridge.type(OBFS4.toString());
                 modelsBridge.host(PINNED_OBFUSCATION_PROXY);
                 Gateway gateway = new Gateway(modelsEIPService, secrets, modelsBridge, provider.getApiVersion());

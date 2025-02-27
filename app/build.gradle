@@ -66,7 +66,8 @@ android {
     buildConfigField "String", "obfsvpn_port", '"4431"'
     buildConfigField "String", "obfsvpn_ip", '"37.218.241.208"'
     buildConfigField "String", "obfsvpn_cert", '"k0L4LFg0Wk98v7P66xvgAx2ud+kggvjZX/qul3iFTJGH5X7xSHT+vVL4UZR0WI3SkmDzUg"'
-    buildConfigField 'boolean', 'obfsvpn_use_kcp', 'true'
+    // obfsvpn_transport_protocol can be any of "tcp", "kcp" or "quic"
+    buildConfigField "String", 'obfsvpn_transport_protocol', '"kcp"'
     // default to UDP usage
     buildConfigField 'boolean', 'prefer_udp', 'false'
 
