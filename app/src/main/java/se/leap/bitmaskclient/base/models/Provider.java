@@ -1000,7 +1000,7 @@ public final class Provider implements Parcelable {
         certificatePin = "";
         certificatePinEncoding = "";
         caCert = "";
-        apiVersion = 3;
+        apiVersion = BuildConfig.preferred_client_api_version;
         privateKeyString = "";
         vpnCertificate = "";
         allowRegistered = false;
