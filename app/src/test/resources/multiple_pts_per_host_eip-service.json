@@ -41,6 +41,19 @@
               "kcp"
             ],
             "type":"obfs4"
+          },
+          {
+            "options":{
+              "cert":"XXXX",
+              "iatMode":"0"
+            },
+            "ports":[
+              "4432"
+            ],
+            "protocols":[
+              "quic"
+            ],
+            "type":"obfs4"
           }
         ]
       },

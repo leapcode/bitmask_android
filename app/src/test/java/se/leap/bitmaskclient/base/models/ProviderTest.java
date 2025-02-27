@@ -125,7 +125,37 @@ public class ProviderTest {
     }
 
     @Test
+    public void testIsExperimentalPluggableTransportsSupported_Obfs4Quic_returnsTrue() throws Exception {
+        Provider p1 = TestSetupHelper.getProvider(
+                "https://pt.demo.bitmask.net",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "multiple_pts_per_host_eip-service.json",
+                null);
+        assertTrue(p1.supportsExperimentalPluggableTransports());
+    }
+
+    @Test
     public void testSupportsPluggableTransports_Obfs4Kcp_obsvpn_returnsTrue() throws Exception {
+        BuildConfigHelper helper = MockHelper.mockBuildConfigHelper(true);
+
+        Provider p1 = TestSetupHelper.getProvider(
+                "https://pt.demo.bitmask.net",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "ptdemo_only_experimental_transports_gateways.json",
+                null);
+        assertTrue(p1.supportsPluggableTransports());
+    }
+
+    @Test
+    public void testSupportsPluggableTransports_Obfs4Quic_obsvpn_returnsTrue() throws Exception {
         BuildConfigHelper helper = MockHelper.mockBuildConfigHelper(true);
 
         Provider p1 = TestSetupHelper.getProvider(

@@ -1653,7 +1653,7 @@ public class VpnConfigGeneratorTest {
         configuration.obfuscationProxyPort = "443";
         configuration.obfuscationProxyIP = "5.6.7.8";
         configuration.obfuscationProxyCert = "asdfasdf";
-        configuration.obfuscationProxyKCP = true;
+        configuration.obfuscationProxyTransportProtocol = "kcp";
         configuration.remoteGatewayIP = "1.2.3.4";
         configuration.transports = createTransportsFrom(gateway, 3);
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, configuration);
@@ -1671,7 +1671,7 @@ public class VpnConfigGeneratorTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.useObfuscationPinning = true;
-        configuration.obfuscationProxyKCP = false;
+        configuration.obfuscationProxyTransportProtocol = "tcp";
         configuration.obfuscationProxyPort = "443";
         configuration.obfuscationProxyIP = "5.6.7.8";
         configuration.obfuscationProxyCert = "asdfasdf";
@@ -1692,7 +1692,7 @@ public class VpnConfigGeneratorTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.useObfuscationPinning = true;
-        configuration.obfuscationProxyKCP = true;
+        configuration.obfuscationProxyTransportProtocol = "kcp";
         configuration.obfuscationProxyPort = "443";
         configuration.obfuscationProxyIP = "5.6.7.8";
         configuration.obfuscationProxyCert = "asdfasdf";
@@ -1705,6 +1705,28 @@ public class VpnConfigGeneratorTest {
         assertTrue("has no obfs4 profile", containsKey(vpnProfiles, OBFS4));
         assertTrue("bridge is pinned one", getVpnProfile(vpnProfiles, OBFS4).getTransportType() == OBFS4 && getVpnProfile(vpnProfiles, OBFS4).mGatewayIp.equals("1.2.3.4"));
         assertTrue("bridge is running KCP", ((Obfs4Connection) getVpnProfile(vpnProfiles, OBFS4).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("kcp"));
+    }
+
+    @Test
+    public void testGenerateVpnProfile_ObfuscationPinningEnabled_quic_obfs4QuicProfile () throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONArray("gateways").getJSONObject(0);
+        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONObject(OPENVPN_CONFIGURATION);
+        VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
+        configuration.apiVersion = 3;
+        configuration.useObfuscationPinning = true;
+        configuration.obfuscationProxyTransportProtocol = "quic";
+        configuration.obfuscationProxyPort = "443";
+        configuration.obfuscationProxyIP = "5.6.7.8";
+        configuration.obfuscationProxyCert = "asdfasdf";
+        configuration.remoteGatewayIP = "1.2.3.4";
+        configuration.transports = createTransportsFrom(gateway, 3);
+
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, configuration);
+        Vector<VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertFalse("has openvpn profile", containsKey(vpnProfiles, OPENVPN));
+        assertTrue("has no obfs4 profile", containsKey(vpnProfiles, OBFS4));
+        assertTrue("bridge is pinned one", getVpnProfile(vpnProfiles, OBFS4).getTransportType() == OBFS4 && getVpnProfile(vpnProfiles, OBFS4).mGatewayIp.equals("1.2.3.4"));
+        assertTrue("bridge is running QUIC", ((Obfs4Connection) getVpnProfile(vpnProfiles, OBFS4).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("quic"));
     }
     @Test
     public void testGenerateVpnProfile_obfs4hop_tcp () throws Exception {

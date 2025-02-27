@@ -12,7 +12,7 @@ public class GatewayJsonTest {
 
     @Test
     public void testToString() {
-        String gatewayJSON = "{\"location\":\"Unknown Location\",\"ip_address\":\"1.2.3.4\",\"host\":\"pinned.obfuscation.proxy\",\"capabilities\":{\"adblock\":false,\"filter_dns\":false,\"limited\":false,\"transport\":[{\"type\":\"obfs4\",\"protocols\":[\"tcp\"],\"ports\":[\"1194\"],\"options\":{\"cert\":\"xxxxxxx\",\"iatMode\":\"0\",\"experimental\":false,\"portSeed\":0,\"portCount\":0}}],\"user_ips\":false}}";
+        String gatewayJSON = "{\"location\":\"Unknown Location\",\"ip_address\":\"1.2.3.4\",\"host\":\"pinned.obfuscation.proxy\",\"capabilities\":{\"adblock\":false,\"filter_dns\":false,\"limited\":false,\"transport\":[{\"type\":\"obfs4\",\"protocols\":[\"tcp\"],\"ports\":[\"1194\"],\"options\":{\"cert\":\"xxxxxxx\",\"iatMode\":\"0\",\"experimental\":false,\"portSeed\":0,\"portCount\":0,\"minHopPort\":0,\"maxHopPort\":0,\"minHopSeconds\":0,\"hopJitter\":0}}],\"user_ips\":false}}";
 
         Connection.TransportType transportType = OBFS4;
         Transport[] transports = new Transport[]{

@@ -203,8 +203,8 @@ public class MockHelper {
             }
 
             @Override
-            public boolean useKcp() {
-                return false;
+            public String obfsvpnTransportProtocol() {
+                return "tcp";
             }
 
             @Override

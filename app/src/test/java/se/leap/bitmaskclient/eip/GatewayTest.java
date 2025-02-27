@@ -1,11 +1,12 @@
 package se.leap.bitmaskclient.eip;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.base.models.Provider.CA_CERT;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
 
 import android.content.Context;
@@ -33,11 +34,8 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.base.utils.TimezoneHelper;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
-import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Build.VERSION_CODES.P})
@@ -129,6 +127,7 @@ public class GatewayTest {
         assertTrue(gateway.supportsTransport(Connection.TransportType.OBFS4, null));
         assertTrue(gateway.supportsTransport(Connection.TransportType.OBFS4, new HashSet<>(Arrays.asList("kcp"))));
         assertTrue(gateway.supportsTransport(Connection.TransportType.OBFS4, new HashSet<>(Arrays.asList("tcp"))));
+        assertTrue(gateway.supportsTransport(Connection.TransportType.OBFS4, new HashSet<>(Arrays.asList("quic"))));
         assertFalse(gateway.supportsTransport(Connection.TransportType.OBFS4, new HashSet<>(Arrays.asList("invalid"))));
     }
 
