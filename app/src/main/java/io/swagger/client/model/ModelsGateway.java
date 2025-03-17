@@ -273,10 +273,10 @@ public class ModelsGateway {
   }
 
    /**
-   * TCP, UDP or KCP. This was called \&quot;protocol\&quot; in previous versions of the API.
+   * TCP, UDP, KCP or Quic. This was called \&quot;protocol\&quot; in previous versions of the API.
    * @return transport
   **/
-  @ApiModelProperty(value = "TCP, UDP or KCP. This was called \"protocol\" in previous versions of the API.")
+  @ApiModelProperty(value = "TCP, UDP, KCP or Quic. This was called \"protocol\" in previous versions of the API.")
   public String getTransport() {
     return transport;
   }
