@@ -1,3 +1,10 @@
+1.5.2RC1 Obfuscation Update beta release
+features:
+- handle Quic as obfuscation protocol
+bugfixes:
+- fix parsing of hopping mode
+- fix fastlane directory structure, should fix meta data being picked up correctly by f-droid (thanks @lhr)
+
 1.5.1 stable
 features:
 - see 1.5.0RC2 API-v5 beta and 1.5.0RC1 API-v5 beta
