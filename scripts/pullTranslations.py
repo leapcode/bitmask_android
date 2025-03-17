@@ -46,9 +46,9 @@ def list_locales(app_type):
 # If there's no file, tx will skip the translations
 def create_metadata_files(locales, app_type):
     if app_type == "main":
-        metadata_dir = get_script_path() + "/../src/normal/fastlane/metadata/android"
+        metadata_dir = get_script_path() + "/../src/normalProductionFat/fastlane/metadata/android"
     elif app_type == "custom":
-        metadata_dir = get_script_path() + "/../src/custom/fastlane/metadata/android"
+        metadata_dir = get_script_path() + "/../src/customProductionFat/fastlane/metadata/android"
     else:
         raise ValueError("Invalid app type. Use 'main' or 'custom'.")
     for locale_code in locales:
@@ -138,9 +138,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.app_type == "main":
-        metadata_dir = get_script_path() + "/../src/normal/fastlane/metadata/android"
+        metadata_dir = get_script_path() + "/../src/normalProductionFat/fastlane/metadata/android"
     elif args.app_type == "custom":
-        metadata_dir = get_script_path() + "/../src/custom/fastlane/metadata/android"
+        metadata_dir = get_script_path() + "/../src/customProductionFat/fastlane/metadata/android"
     else:
         raise ValueError("Invalid app type. Use 'main' or 'custom'.")
 

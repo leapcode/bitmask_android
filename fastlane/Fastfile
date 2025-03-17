@@ -59,7 +59,7 @@ platform :android do
     # Prepare builds for Automatic UI Tests
     build_bitmask_for_screengrab
     capture_android_screenshots
-    Dir.chdir("../src/normal/fastlane/metadata") do
+    Dir.chdir("../src/normalProductionFat/fastlane/metadata") do
          frameit(
              white: true,
              path: "."
@@ -72,7 +72,7 @@ platform :android do
      # Prepare builds for Automatic UI Tests
      build_custom_for_screengrab
      capture_android_screenshots
-     Dir.chdir("../src/custom/fastlane/metadata") do
+     Dir.chdir("../src/customProductionFat/fastlane/metadata") do
          frameit(
              white: true,
              path: "."

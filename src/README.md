@@ -8,7 +8,7 @@ Any string that will be changed in the source language (en_US) in the  master br
 
 # Metadata: F-Droid compatible fastlane metadata directory
 
-The src/<flavor>/fastlande/metadata folder contains the generated metadata for f-droid builds for both Bitmask and a custom flavored client.
+The src/<flavor>/fastlane/metadata folder contains the generated metadata for f-droid builds for both Bitmask and a custom flavored client.
 Currently neither F-Droid nor Fastlane support metadata dirs directly within build flavor dirs of a module, like 
 `/<module>/src/<buildFlavor>/fastlane/metadata/android/` (which would be preferable). 
 Transifex wants 1 file, play store wants 1 file, fastlane uses text files.
@@ -46,7 +46,7 @@ This will fetch the existing metadata. If you updated something through your bro
 You can also use this when adding a new provider.
 
 You need an API token from the Google Play store. If you don't have one yet, we have some links below that should help you get started.
-fastlane supply init -j <YOUR-API-DETAILS.json> -p se.leap.<PROJECTNAME> -m src/custom/fastlane/metadata/
+fastlane supply init -j <YOUR-API-DETAILS.json> -p se.leap.<PROJECTNAME> -m src/customProductionFat/fastlane/metadata/
 
 apt install pythong3-babel
 

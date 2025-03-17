@@ -22,16 +22,16 @@ resource_name = RiseupVPN Android
 
 [o:otf:p:bitmask:r:bitmask-playstore-listing]
 lang_map = en: en-US, es_AR: es-AR, es_CU: es-CU, fa_IR: fa-IR, kn_IN: kn-IN, pt_BR: pt-BR, pt_PT: pt-PT, zh_TW: zh-TW, nb: no
-source_file = src/normal/fastlane/metadata/android/en-US/store-meta-en-US.json
+source_file = src/normalProductionFat/fastlane/metadata/android/en-US/store-meta-en-US.json
 type = KEYVALUEJSON
 resource_name = Bitmask details in Appstore
-file_filter = src/normal/fastlane/metadata/android/<lang>/store-meta-<lang>.json
+file_filter = src/normalProductionFat/fastlane/metadata/android/<lang>/store-meta-<lang>.json
 minimum_perc = 98
 
 [o:otf:p:bitmask:r:riseupvpn-playstore-listing]
 lang_map = en: en-US, es_AR: es-AR, es_CU: es-CU, fa_IR: fa-IR, kn_IN: kn-IN, pt_BR: pt-BR, pt_PT: pt-PT, zh_TW: zh-TW, nb: no
-source_file = src/custom/fastlane/metadata/android/en-US/store-meta-en-US.json
+source_file = src/customProductionFat/fastlane/metadata/android/en-US/store-meta-en-US.json
 type = KEYVALUEJSON
 resource_name = RiseupVPN details in Appstore
-file_filter = src/custom/fastlane/metadata/android/<lang>/store-meta-<lang>.json
+file_filter = src/customProductionFat/fastlane/metadata/android/<lang>/store-meta-<lang>.json
 minimum_perc = 98

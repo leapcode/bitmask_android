@@ -30,9 +30,9 @@ service = build('androidpublisher', 'v3', credentials=credentials, cache_discove
 # Base path for Fastlane metadata
 def get_metadata_path(package_name):
     if package_name == "se.leap.bitmaskclient":
-        return 'src/normal/fastlane/metadata/android'
+        return 'src/normalProductionFat/fastlane/metadata/android'
     elif package_name == "se.leap.riseupvpn":
-        return 'src/custom/fastlane/metadata/android'
+        return 'src/customProductionFat/fastlane/metadata/android'
     else:
         raise ValueError(f"Unknown package name: {package_name}")
 
