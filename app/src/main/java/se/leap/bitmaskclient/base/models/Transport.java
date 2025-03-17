@@ -122,8 +122,11 @@ public class Transport implements Serializable {
     private static int getIntOption(Map<String, Object> options, String key, int defaultValue) {
         try {
             Object o = options.get(key);
+            if (o instanceof String) {
+                return Integer.parseInt((String) o);
+            }
             return (int) o;
-        } catch (NullPointerException | ClassCastException e){
+        } catch (NullPointerException | ClassCastException | NumberFormatException e){
             e.printStackTrace();
             return defaultValue;
         }
