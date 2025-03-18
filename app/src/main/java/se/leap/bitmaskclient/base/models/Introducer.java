@@ -1,12 +1,13 @@
 package se.leap.bitmaskclient.base.models;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.Locale;
 
 public class Introducer implements Parcelable {
     private String type;
@@ -87,38 +88,32 @@ public class Introducer implements Parcelable {
     }
 
     public static Introducer fromUrl(String introducerUrl) throws URISyntaxException, IllegalArgumentException {
-        URI uri = new URI(introducerUrl);
-        String fqdn = getQueryParam(uri, "fqdn");
+        Uri uri = Uri.parse(introducerUrl);
+        String fqdn = uri.getQueryParameter("fqdn");
         if (fqdn == null || fqdn.isEmpty()) {
             throw new IllegalArgumentException("FQDN not found in the introducer URL");
         }
 
-        boolean kcp = "1".equals(getQueryParam(uri, "kcp"));
+        boolean kcp = "1".equals(uri.getQueryParameter( "kcp"));
 
-        String cert = getQueryParam(uri, "cert");
+        String cert = uri.getQueryParameter( "cert");
         if (cert == null || cert.isEmpty()) {
             throw new IllegalArgumentException("Cert not found in the introducer URL");
         }
 
-        String auth = getQueryParam(uri, "auth");
+        String auth = uri.getQueryParameter( "auth");
         if (auth == null || auth.isEmpty()) {
             throw new IllegalArgumentException("Authentication token not found in the introducer URL");
         }
         return new Introducer(uri.getScheme(), uri.getAuthority(), cert, fqdn, kcp, auth);
     }
 
-    public String toUrl() throws UnsupportedEncodingException {
-        return String.format("%s://%s?fqdn=%s&kcp=%d&cert=%s&auth=%s", type, address, URLEncoder.encode(fullyQualifiedDomainName, "UTF-8"), kcpEnabled ? 1 : 0, URLEncoder.encode(certificate, "UTF-8"),  URLEncoder.encode(auth, "UTF-8"));
+    public String getAuthToken() {
+        return auth;
     }
 
-    private static String getQueryParam(URI uri, String param) {
-        String[] queryParams = uri.getQuery().split("&");
-        for (String queryParam : queryParams) {
-            String[] keyValue = queryParam.split("=");
-            if (keyValue.length == 2 && keyValue[0].equals(param)) {
-                return keyValue[1];
-            }
-        }
-        return null;
+    public String toUrl() throws UnsupportedEncodingException {
+        return String.format(Locale.US, "%s://%s?fqdn=%s&kcp=%d&cert=%s&auth=%s", type, address, URLEncoder.encode(fullyQualifiedDomainName, "UTF-8"), kcpEnabled ? 1 : 0, URLEncoder.encode(certificate, "UTF-8"),  URLEncoder.encode(auth, "UTF-8"));
     }
+
 }
