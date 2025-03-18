@@ -1,3 +1,7 @@
+1.5.2RC2 Obfuscation Update beta release
+bugfixes:
+- fix parsing invite code parameters, fixes bucket authentication
+
 1.5.2RC1 Obfuscation Update beta release
 features:
 - handle Quic as obfuscation protocol
