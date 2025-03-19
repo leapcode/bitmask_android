@@ -153,6 +153,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         //bridges can be enabled not only from here but also from error handling
         boolean useUDP = getPreferUDP() && useUdpEntry.isEnabled();
         manualConfiguration.setEnabled(!useUDP);
+        manualConfigurationSwitch.setVisibility(useUDP ? GONE : VISIBLE);
         manualConfiguration.setSubtitle(getString(useUDP ? R.string.disabled_while_udp_on : R.string.manual_bridge_description));
     }
 

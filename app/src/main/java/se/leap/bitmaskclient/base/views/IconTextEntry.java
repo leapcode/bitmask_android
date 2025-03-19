@@ -108,4 +108,10 @@ public class IconTextEntry extends LinearLayout {
         iconView.setImageResource(id);
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        textView.setTextColor(getResources().getColor(enabled ? android.R.color.black : R.color.colorDisabled));
+        iconView.setImageAlpha(enabled ? 255 : 128);
+    }
 }
