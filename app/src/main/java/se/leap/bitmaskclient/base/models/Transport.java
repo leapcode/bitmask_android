@@ -122,6 +122,9 @@ public class Transport implements Serializable {
     private static int getIntOption(Map<String, Object> options, String key, int defaultValue) {
         try {
             Object o = options.get(key);
+            if (o == null) {
+                return defaultValue;
+            }
             if (o instanceof String) {
                 return Integer.parseInt((String) o);
             }
