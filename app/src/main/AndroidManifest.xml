@@ -20,10 +20,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" /> <!-- Used to show all apps in the allowed Apps selection -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+
     <application
         android:name=".base.BitmaskApp"
         android:allowBackup="false"

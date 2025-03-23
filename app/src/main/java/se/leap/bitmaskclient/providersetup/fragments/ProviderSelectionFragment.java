@@ -12,13 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-
-import com.journeyapps.barcodescanner.ScanContract;
-import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -29,17 +25,18 @@ import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.databinding.FProviderSelectionBinding;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
+import se.leap.bitmaskclient.providersetup.fragments.helpers.AbstractQrScannerHelper;
+import se.leap.bitmaskclient.providersetup.helpers.QrScannerHelper;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModelFactory;
 
-public class ProviderSelectionFragment extends BaseSetupFragment implements CancelCallback {
-
-    private ActivityResultLauncher<ScanOptions> scannerActivityResultLauncher;
+public class ProviderSelectionFragment extends BaseSetupFragment implements CancelCallback, AbstractQrScannerHelper.ScanResultCallback {
 
     private ProviderSelectionViewModel viewModel;
     private ArrayList<RadioButton> radioButtons;
 
     private FProviderSelectionBinding binding;
+    private QrScannerHelper qrScannerHelper;
 
     public static ProviderSelectionFragment newInstance(int position) {
         ProviderSelectionFragment fragment = new ProviderSelectionFragment();
@@ -56,17 +53,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                         getContext().getApplicationContext().getAssets())).
                 get(ProviderSelectionViewModel.class);
 
-        scannerActivityResultLauncher = registerForActivityResult(new ScanContract(), result -> {
-                    if(result.getContents() != null) {
-                        try {
-                            Introducer introducer = Introducer.fromUrl(result.getContents());
-                            binding.editCustomProvider.setText(introducer.toUrl());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            //binding.editCustomProvider.setText(result.getContents());
-                        }
-                    }
-                });
+        qrScannerHelper = new QrScannerHelper(this, this);
     }
 
     @Override
@@ -112,13 +99,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
     }
 
     private void initQrScanner() {
-        binding.btnQrScanner.setOnClickListener(v -> {
-            ScanOptions options = new ScanOptions();
-            options.setBeepEnabled(false);
-            options.setBarcodeImageEnabled(false);
-            options.setOrientationLocked(false);
-            scannerActivityResultLauncher.launch(options);
-        });
+        binding.btnQrScanner.setOnClickListener(v -> qrScannerHelper.startScan());
     }
 
 
@@ -240,5 +221,14 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
     @Override
     public void onCanceled() {
         binding.providerRadioGroup.check(0);
+    }
+
+    @Override
+    public void onScanResult(Introducer introducer) {
+        try {
+            binding.editCustomProvider.setText(introducer.toUrl());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
