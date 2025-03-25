@@ -26,6 +26,7 @@ public class ObfsvpnClient implements EventLogger {
     public static final int DEFAULT_PORT = 8080;
     public static final String IP = "127.0.0.1";
     private static final String ERROR_BIND = "bind: address already in use";
+    private static final String STATE_RUNNING = "RUNNING";
     private final Object LOCK = new Object();
     private final AtomicInteger currentPort = new AtomicInteger(DEFAULT_PORT);
     private CountDownLatch startCallback = null;
@@ -171,7 +172,7 @@ public class ObfsvpnClient implements EventLogger {
     public void log(String state, String message) {
         VpnStatus.logDebug("[obfs4-client] " + state + ": " + message);
         CountDownLatch startCallback = this.startCallback;
-        if (startCallback != null && "RUNNING".equals(state)) {
+        if (startCallback != null && STATE_RUNNING.equals(state)) {
             startCallback.countDown();
             this.startCallback = null;
         }
