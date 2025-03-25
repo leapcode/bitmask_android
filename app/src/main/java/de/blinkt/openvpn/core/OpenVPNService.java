@@ -182,6 +182,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         synchronized (mProcessLock) {
             mProcessThread = null;
         }
+        stopObfsvpn();
         VpnStatus.removeByteCountListener(this);
         unregisterDeviceStateReceiver(mDeviceStateReceiver);
         mDeviceStateReceiver = null;
@@ -230,15 +231,20 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             mDeviceStateReceiver.userPause(shouldBePaused);
     }
 
+    private boolean stopObfsvpn() {
+        if (obfsVpnClient == null || !obfsVpnClient.isStarted()) {
+            return true;
+        }
+        boolean success = obfsVpnClient.stop();
+        obfsVpnClient = null;
+        return success;
+    }
     @Override
     public boolean stopVPN(boolean replaceConnection) {
+        stopObfsvpn();
         if(isVpnRunning()) {
             if (getManagement() != null && getManagement().stopVPN(replaceConnection)) {
                 if (!replaceConnection) {
-                    if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
-                        obfsVpnClient.stop();
-                        obfsVpnClient = null;
-                    }
                     VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 }
                 return true;
@@ -369,17 +375,42 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     private void startOpenVPN() {
-        //TODO: investigate how connections[n] with n>0 get called during vpn setup (on connection refused?)
-        // Do we need to check if there's any obfs4 connection in mProfile.mConnections and start
-        // the dispatcher here? Can we start the dispatcher at a later point of execution, e.g. when
-        // connections[n], n>0 gets choosen?
-
         Connection connection = mProfile.mConnections[0];
         VpnStatus.setCurrentlyConnectingProfile(mProfile);
 
+        // Set a flag that we are starting a new VPN
+        mStarting = true;
+        // Stop the previous session by interrupting the thread.
+        stopOldOpenVPNProcess();
+        // An old running VPN should now be exited
+        mStarting = false;
+
+        // stop old running obfsvpn client
+        if (!stopObfsvpn()) {
+            VpnStatus.logError("Failed to stop already running obfsvpn client");
+            endVpnService();
+            return;
+        }
+
+        // optionally start start obfsvpn and adapt openvpn config to the port obfsvpn is listening to
+        Connection.TransportType transportType = connection.getTransportType();
+        if (mProfile.usePluggableTransports() && transportType.isPluggableTransport()) {
+            try {
+                obfsVpnClient = new ObfsvpnClient(((Obfs4Connection) connection).getObfs4Options());
+                obfsVpnClient.start();
+                int port = obfsVpnClient.getPort();
+                connection.setServerPort(String.valueOf(port));
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+                VpnStatus.logException(e);
+                endVpnService();
+                return;
+            }
+        }
+
+        // write openvpn config
         VpnStatus.logInfo(R.string.building_configration);
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
-
         try {
             mProfile.writeConfigFile(this);
         } catch (IOException e) {
@@ -387,6 +418,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             endVpnService();
             return;
         }
+
         String nativeLibraryDirectory = getApplicationInfo().nativeLibraryDir;
         String tmpDir;
         try {
@@ -398,25 +430,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         // Write OpenVPN binary
         String[] argv = VPNLaunchHelper.buildOpenvpnArgv(this);
-
-
-        // Set a flag that we are starting a new VPN
-        mStarting = true;
-        // Stop the previous session by interrupting the thread.
-
-        stopOldOpenVPNProcess();
-        // An old running VPN should now be exited
-        mStarting = false;
-        Connection.TransportType transportType = connection.getTransportType();
-        if (mProfile.usePluggableTransports() && transportType.isPluggableTransport()) {
-            if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
-                obfsVpnClient.stop();
-            }
-            obfsVpnClient = new ObfsvpnClient(((Obfs4Connection) connection).getObfs4Options());
-            obfsVpnClient.start();
-            Log.d(TAG, "obfsvpn client started");
-        }
-
 
         // Start a new session by creating a new thread.
         boolean useOpenVPN3 = VpnProfile.doUseOpenVPN3(this);
@@ -471,11 +484,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             if (mOpenVPNThread != null)
                 ((OpenVPNThread) mOpenVPNThread).setReplaceConnection();
             if (mManagement.stopVPN(true)) {
-                if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
-                    Log.d(TAG, "-> stop obfsvpnClient");
-                    obfsVpnClient.stop();
-                    obfsVpnClient = null;
-                }
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

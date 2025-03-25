@@ -379,7 +379,7 @@ public class VpnConfigGenerator {
         }
 
         stringBuilder.append(getRouteString(ipAddress, transport));
-        String transparentProxyRemote = REMOTE + " " + ObfsvpnClient.IP + " " + ObfsvpnClient.PORT + " udp" + newLine;
+        String transparentProxyRemote = REMOTE + " " + ObfsvpnClient.IP + " " + ObfsvpnClient.DEFAULT_PORT + " udp" + newLine;
         stringBuilder.append(transparentProxyRemote);
     }
 
