@@ -224,7 +224,9 @@ public class ConfigHelper {
     }
 
     public static boolean isNetworkUrl(String url) {
-        return url != null && URLUtil.isNetworkUrl(url) && Patterns.WEB_URL.matcher(url).matches();
+        return url != null && URLUtil.isNetworkUrl(url)
+                && URLUtil.isHttpsUrl(url)
+                && Patterns.WEB_URL.matcher(url).matches();
     }
 
     public static boolean isDomainName(String url) {
