@@ -165,12 +165,12 @@ public class ObfsvpnClient implements EventLogger {
 
     @Override
     public void error(String s) {
-        VpnStatus.logError("[obfs4-client] error: " + s);
+        VpnStatus.logError("[obfsvpn-client] error: " + s);
     }
 
     @Override
     public void log(String state, String message) {
-        VpnStatus.logDebug("[obfs4-client] " + state + ": " + message);
+        VpnStatus.logDebug("[obfsvpn-client] " + state + ": " + message);
         CountDownLatch startCallback = this.startCallback;
         if (startCallback != null && STATE_RUNNING.equals(state)) {
             startCallback.countDown();
