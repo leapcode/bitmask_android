@@ -210,7 +210,6 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         }
 
         try {
-            // TODO: check if provider supports this API endpoint?
             String gatewaysJson = bm.getAllGateways("", "", "");
             Log.d(TAG, "gateways Json reponse: " + gatewaysJson);
             provider.setGateways(gatewaysJson);
@@ -222,7 +221,6 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         }
 
         try {
-            // TODO: check if provider supports this API endpoint?
             String bridgesJson = bm.getAllBridges("", "", "", "");
             Log.d(TAG, "bridges Json reponse: " + bridgesJson);
             provider.setBridges(bridgesJson);
