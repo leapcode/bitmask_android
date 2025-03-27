@@ -130,12 +130,21 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
         }
 
+        try {
+            if (provider.hasIntroducer()) {
+                    bm.setIntroducer(provider.getIntroducer().toUrl());
+            }
+        } catch (Exception e) {
+            return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
+        }
+
         if (PreferenceHelper.getUseBridges()) {
             try {
                 String bridgesJson = bm.getAllBridges("", "", "", "");
                 provider.setBridges(bridgesJson);
             } catch (Exception e) {
                 // TODO: send failed to fetch bridges event
+                return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
             }
         } else {
             try {
@@ -147,7 +156,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
 
             }
         }
-
+        currentDownload.putBoolean(BROADCAST_RESULT_KEY, true);
         return currentDownload;
 
     }
