@@ -9,9 +9,11 @@ import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.COUNTRYCODE;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_SERVICE_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.QUIETLY_UPDATE_VPN_CERTIFICATE;
@@ -19,8 +21,8 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_BRIDGES;
-import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_SERVICE_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_GATEWAYS;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_SERVICE_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
@@ -84,13 +86,20 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
                 break;
 
             case QUIETLY_UPDATE_VPN_CERTIFICATE:
-            case UPDATE_INVALID_VPN_CERTIFICATE:
                 result = updateVpnCertificate(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     Log.d(TAG, "successfully downloaded VPN certificate");
                     provider.setShouldUpdateVpnCertificate(false);
                     PreferenceHelper.storeProviderInPreferences(provider);
                     ProviderObservable.getInstance().updateProvider(provider);
+                }
+                break;
+            case UPDATE_INVALID_VPN_CERTIFICATE:
+                result = updateVpnCertificate(provider);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    eventSender.sendToReceiverOrBroadcast(receiver, CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE, result, provider);
+                } else {
+                    eventSender.sendToReceiverOrBroadcast(receiver, INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE, result, provider);
                 }
                 break;
         }
@@ -314,7 +323,25 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
     }
 
     protected Bundle updateVpnCertificate(Provider provider) {
-        return null;
+        Bundle currentDownload = new Bundle();
+        BitmaskMobile bm;
+        try {
+            bm = new BitmaskMobile(provider.getMainUrl(), new PreferenceHelper.SharedPreferenceStore());
+            bm.setDebug(BuildConfig.DEBUG);
+        } catch (IllegalStateException e) {
+            return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
+        }
+
+        try {
+            String cert = bm.getOpenVPNCert();
+            currentDownload = loadCredentials(provider, cert);
+            currentDownload = validateCertificateForProvider(currentDownload, provider);
+            ProviderSetupObservable.updateProgress(DOWNLOADED_VPN_CERTIFICATE);
+        } catch (Exception e) {
+            return eventSender.setErrorResult(currentDownload, R.string.error_json_exception_user_message, null);
+        }
+
+        return currentDownload;
     }
 
 }
