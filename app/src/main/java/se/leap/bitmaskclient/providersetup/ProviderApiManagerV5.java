@@ -103,6 +103,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         BitmaskMobile bm;
         try {
             bm = new BitmaskMobile(provider.getMainUrl(), new PreferenceHelper.SharedPreferenceStore());
+            bm.setDebug(BuildConfig.DEBUG);
         } catch (IllegalStateException e) {
             return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
         }
