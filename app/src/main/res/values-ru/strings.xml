@@ -211,7 +211,6 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="splash_footer">Разработано LEAP</string>
   <string name="welcome">Добро пожаловать!</string>
   <string name="select_provider">Выберите провайдера</string>
-  <string name="select_provider_description">При использовании VPN вы передаёте своё доверие от интернет-провайдера к VPN-провайдеру. Bitmask подключается только к тем провайдерам, которые имеют чистую историю защиты и отстаивания конфиденциальности.</string>
   <string name="provider_description_riseup">Riseup предоставляет инструменты онлайн-коммуникации для людей и групп, работающих над освободительными социальными изменениями. Мы — проект, направленный на создание демократических альтернатив и самоопределения путём контроля за безопасностью собственных средств связи.</string>
   <string name="next">Далее</string>
   <string name="add_provider_description">Bitmask позволяет подключаться к провайдерам, которые не публичны. Убедитесь, что вы знаете и доверяете провайдеру, которого добавляете.</string>

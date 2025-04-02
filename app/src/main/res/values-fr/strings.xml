@@ -209,7 +209,6 @@
   <string name="splash_footer">Développé par LEAP</string>
   <string name="welcome">Bienvenue.</string>
   <string name="select_provider">Choisir un fournisseur</string>
-  <string name="select_provider_description">Lorsque vous utilisez un RPV, vous transférez la confiance que vous accorde votre fournisseur d\'accès à Internet à votre fournisseur RPV. Bitmask ne se connecte qu\'à des fournisseurs ayant un bilan clair en matière de protection de la vie privée et de défense des droits.</string>
   <string name="provider_description_riseup">Riseup fournit des outils de communication en ligne pour les personnes et les groupes qui œuvrent en faveur d\'un changement social libéral. Nous voulons créer des alternatives démocratiques et pratiquer l\'autodétermination en contrôlant nos propres moyens de communication sécurisés.</string>
   <string name="next">Suivant</string>
   <string name="add_provider_description">Bitmask se connecte à des fournisseurs fiables qui ne sont pas répertoriés publiquement. Saisissez l\'adresse URL de votre fournisseur ci-dessous.</string>

@@ -140,6 +140,12 @@ public class ProviderManager {
         return allProviders;
     }
 
+    public List<Provider> getDefaultProviders() {
+        List<Provider> providers = new ArrayList<>();
+        providers.addAll(defaultProviders);
+        return providers;
+    }
+
     public int size() {
         return providers().size();
     }

@@ -207,7 +207,6 @@
   <string name="splash_footer">由 LEAP 开发</string>
   <string name="welcome">欢迎！</string>
   <string name="select_provider">选择提供商</string>
-  <string name="select_provider_description">使用 VPN 是将信任从网路服务供应商转移到 VPN 提供者。 Bitmask 只和有良好记录保护和倡导隐私的提供者建立连线。</string>
   <string name="provider_description_riseup">Riseup 为解放社会变革的人民和团体提供线上交流工具，透过控制自己的安全通讯方式来创造民主替代方案并实践自决方案。</string>
   <string name="next">下一步</string>
   <string name="add_provider_description">Bitmask 连接未公开的可信任提供者。 在下面输入提供者的网址。</string>

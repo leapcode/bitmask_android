@@ -209,7 +209,6 @@
   <string name="splash_footer">Desenvolvido pela LEAP</string>
   <string name="welcome">Bem-vindo!</string>
   <string name="select_provider">Selecione seu provedor</string>
-  <string name="select_provider_description">Ao usar uma VPN, você está transferindo sua confiança do seu provedor de serviços de Internet para o seu provedor de VPN. O Bitmask se conecta apenas a provedores com um histórico claro de proteção e defesa da privacidade.</string>
   <string name="provider_description_riseup">Riseup fornece ferramentas de comunicação online para pessoas e grupos que trabalham em mudanças sociais libertadoras. Somos um projeto para criar alternativas democráticas e praticar a autodeterminação, controlando os nossos próprios meios de comunicação seguros.</string>
   <string name="next">Próximo</string>
   <string name="add_provider_description">O Bitmask permite que você se conecte a provedores que não estão listados publicamente. Certifique-se de conhecer e confiar no provedor que você está adicionando.</string>

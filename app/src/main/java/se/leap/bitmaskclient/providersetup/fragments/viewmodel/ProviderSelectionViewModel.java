@@ -70,6 +70,31 @@ public class ProviderSelectionViewModel extends ViewModel {
         return selected == ADD_PROVIDER || selected == INVITE_CODE_PROVIDER;
     }
 
+    public CharSequence getGeneralDescription(Context context) {
+        List<Provider> providerList = providerManager.getDefaultProviders();
+        StringBuilder builder = new StringBuilder();
+        if (providerList.size() < 2) {
+            // Our string sources expect at least 2 pre-shipped providers
+            return "";
+        }
+        if (providerList.size() > 2) {
+            // enumerate all but last provider, comma separated
+            int penultimateIndex = providerList.size() - 1;
+            for (int i = 0; i <  penultimateIndex; i++) {
+                builder.append(getProviderNameForGeneralDescription(providerList.get(i)));
+                if (i + 1 < penultimateIndex) {
+                    builder.append(", ");
+                }
+            }
+        } else {
+            // exactly 2 providers
+            builder.append(getProviderNameForGeneralDescription(providerList.get(0)));
+        }
+        String arg1 = builder.toString();
+        String arg2 = getProviderNameForGeneralDescription(providerList.get(providerList.size() - 1));
+        return context.getString(R.string.select_provider_description, arg1, arg2);
+    }
+
     public CharSequence getProviderDescription(Context context) {
         if (selected == ADD_PROVIDER) {
             return context.getText(R.string.add_provider_description);
@@ -136,6 +161,20 @@ public class ProviderSelectionViewModel extends ViewModel {
         }
         if ("calyx.net".equals(domain)) {
             return "The Calyx Institute";
+        }
+        return domain;
+    }
+
+    private String getProviderNameForGeneralDescription(Provider p) {
+        if (p == null) {
+            return "";
+        }
+        String domain = p.getDomain();
+        if ("riseup.net".equals(domain) || "black.riseup.net".equals(domain)) {
+            return "Riseup";
+        }
+        if ("calyx.net".equals(domain)) {
+            return "Calyx";
         }
         return domain;
     }

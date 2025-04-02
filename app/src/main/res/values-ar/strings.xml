@@ -214,7 +214,6 @@ https://www.transifex.com/projects/p/bitmask/</string>
   <string name="splash_footer">تم تطويره بواسطة LEAP</string>
   <string name="welcome">مرحبا!</string>
   <string name="select_provider">تحديد مُزوِّدك</string>
-  <string name="select_provider_description">عند استخدام شبكة خاصة افتراضية VPN، فإنك تنقل ثقتك من مزود خدمة الإنترنت الخاص بك إلى مزود VPN الخاص بك. يتصل Bitmask فقط بمقدمي الخدمات الذين لديهم سجل واضح لحماية الخصوصية والدعوة.</string>
   <string name="provider_description_riseup">توفر Riseup أدوات اتصال عبر الإنترنت للأشخاص والمجموعات التي تعمل على التغيير الاجتماعي التحرري. نحن مشروع لخلق بدائل ديمقراطية وممارسة تقرير المصير من خلال التحكم في وسائل الاتصالات الآمنة الخاصة بنا.</string>
   <string name="next">التالي</string>
   <string name="add_provider_description">يتصل Bitmask بمزودي الخدمات الموثوقين غير المدرجين بشكل علني. أدخل عنوان URL الخاص بمزود الخدمة الخاص بك أدناه.</string>

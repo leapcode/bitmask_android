@@ -61,6 +61,8 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                              @Nullable Bundle savedInstanceState) {
         binding = FProviderSelectionBinding.inflate(inflater, container, false);
 
+        binding.tvProviderDescription.setText(viewModel.getGeneralDescription(binding.getRoot().getContext()));
+
         radioButtons = new ArrayList<>();
         // add configured providers
         for (int i = 0; i < viewModel.size(); i++) {

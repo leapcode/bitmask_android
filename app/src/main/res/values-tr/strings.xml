@@ -208,7 +208,6 @@
   <string name="splash_footer">LEAP tarafından geliştirildi</string>
   <string name="welcome">Hoş geldiniz!</string>
   <string name="select_provider">Hizmet sağlayıcınızı seçin</string>
-  <string name="select_provider_description">VPN kullandığınızda, İnternet hizmeti sağlayıcınızına olan güveninizi VPN hizmeti sağlayıcınıza aktarmış olursunuz. Bitmask yalnızca temiz bir gizlilik koruma ve savunma geçmişi olan hizmet sağlayıcılar ile bağlantı kurar.</string>
   <string name="provider_description_riseup">Riseup özgürleştirici toplumsal değişim üzerine çalışan kişi ve gruplara çevrim içi iletişim araçları sağlıyor. Projemiz, demokratik alternatifleri oluşturmayı ve kendi denetimimiz altında güvenli iletişim araçları geliştirmeyi amaçlıyor.</string>
   <string name="next">Sonraki</string>
   <string name="add_provider_description">Bitmask, herkese açık olarak listelenmeyen hizmet sağlayıcılara bağlanmanızı sağlar. Eklediğiniz hizmet sağlayıcıyı bildiğinizden ve güvendiğinizden emin olun.</string>

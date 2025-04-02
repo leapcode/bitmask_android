@@ -208,7 +208,7 @@
     <string name="splash_footer">Developed by LEAP</string>
     <string name="welcome">Welcome!</string>
     <string name="select_provider">Select Your Provider</string>
-    <string name="select_provider_description">When using a VPN you are transferring your trust from your Internet Service Provider to your VPN provider. Bitmask only connects to providers with a clear history of privacy protection and advocacy.</string>
+    <string name="select_provider_description">When using a VPN you are transferring your trust from your Internet Service Provider to your VPN provider. %1$s and %2$s have a clear history of privacy protection and advocacy. If you are adding a provider or using an invite code make sure you know and trust the provider.</string>
     <string name="provider_description_riseup">Riseup provides online communication tools for people and groups working on liberatory social change. We are a project to create democratic alternatives and practice self-determination by controlling our own secure means of communications.</string>
     <string name="next">Next</string>
     <string name="add_provider_description">Bitmask allows you to connect to providers that are not publicly listed. Make sure you know and trust the provider you are adding.</string>

@@ -210,7 +210,6 @@
   <string name="splash_footer">Vyvinuto v projektu LEAP</string>
   <string name="welcome">Vítejte!</string>
   <string name="select_provider">Vyberte svého poskytovatele</string>
-  <string name="select_provider_description">Při používání sítě VPN přenášíte svou důvěru z poskytovatele internetových služeb na poskytovatele sítě VPN. Bitmask se připojuje pouze k poskytovatelům s jasnou historií ochrany soukromí.</string>
   <string name="provider_description_riseup">Riseup poskytuje online komunikační nástroje pro lidi a skupiny pracující na svobodné sociální změně. Jsme projekt, jehož cílem je vytvářet demokratické alternativy a praktikovat sebeurčení prostřednictvím kontroly vlastních bezpečných komunikačních prostředků.</string>
   <string name="next">Další</string>
   <string name="add_provider_description">Bitmask umožňuje připojení k poskytovatelům, kteří nejsou veřejně uvedeni. Ujistěte se, že poskytovatele, kterého přidáváte, znáte a důvěřujete mu.</string>

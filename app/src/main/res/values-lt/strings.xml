@@ -210,7 +210,6 @@
   <string name="splash_footer">Sukūrė „LEAP“</string>
   <string name="welcome">Sveiki!</string>
   <string name="select_provider">Pasirinkite teikėją</string>
-  <string name="select_provider_description">Naudodamiesi VPN, jūs iš interneto paslaugų teikėjo perduodate savo pasitikėjimą VPN teikėjui. Bitmask jungiasi tik prie teikėjų, turinčių nesugadintą privatumo apsaugos ir gynimo istoriją.</string>
   <string name="provider_description_riseup">„Riseup“ teikia internetinio susisiekimo įrankius žmonėms ir grupėms, siekiantiems išvaduojamųjų socialinių pokyčių. Mes esame projektas, kurio tikslas – kurti demokratines alternatyvas ir praktikuoti apsisprendimo teisę, valdant mūsų asmenines saugias komunikacijos priemones.</string>
   <string name="next">Kitas</string>
   <string name="add_provider_description">Bitmask jungiasi prie patikimų teikėjų, kurie nėra viešai išvardyti. Žemiau įveskite savo teikėjo URL adresą.</string>

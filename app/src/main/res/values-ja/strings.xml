@@ -207,7 +207,6 @@
   <string name="splash_footer">LEAPによって開発されました</string>
   <string name="welcome">ようこそ!</string>
   <string name="select_provider">プロバイダーを選択</string>
-  <string name="select_provider_description">VPNを使用するとインターネットサービスプロバイダーからVPNプロバイダーへ、信頼されなければならない組織が移ります。Bitmaskは、プライバシーの保護と擁護の明瞭な歴史があるプロバイダーに限って接続します。</string>
   <string name="provider_description_riseup">プロバイダーRiseupは、解放的社会変革に粘り強く取り組む事業団体です。我々は新方式の民主主義を創り、通信の安全を意図して自己制御による自己決定を実践します。</string>
   <string name="next">次へ</string>
   <string name="add_provider_description">Bitmaskは、公開一覧に記載されていないプロバイダーに接続できます。追加するプロバイダーは、あなたが知っていて、信頼しているものであることを確かめてください。</string>
