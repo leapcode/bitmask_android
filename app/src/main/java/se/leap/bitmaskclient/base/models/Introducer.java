@@ -5,18 +5,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.io.UnsupportedEncodingException;
+import java.net.IDN;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
 public class Introducer implements Parcelable {
-    private String type;
-    private String address;
-    private String certificate;
-    private String fullyQualifiedDomainName;
-    private boolean kcpEnabled;
-
-    private String auth;
+    private final String type;
+    private final String address;
+    private final String certificate;
+    private final String fullyQualifiedDomainName;
+    private final boolean kcpEnabled;
+    private final String auth;
 
     public Introducer(String type, String address, String certificate, String fullyQualifiedDomainName, boolean kcpEnabled, String auth) {
         this.type = type;
@@ -94,6 +94,10 @@ public class Introducer implements Parcelable {
             throw new IllegalArgumentException("FQDN not found in the introducer URL");
         }
 
+        if (!isAscii(fqdn)) {
+            throw new IllegalArgumentException("FQDN is not ASCII: " + fqdn);
+        }
+
         boolean kcp = "1".equals(uri.getQueryParameter( "kcp"));
 
         String cert = uri.getQueryParameter( "cert");
@@ -110,6 +114,15 @@ public class Introducer implements Parcelable {
 
     public String getAuthToken() {
         return auth;
+    }
+
+    private static boolean isAscii(String fqdn) {
+        try {
+            String asciiFQDN = IDN.toASCII(fqdn, IDN.USE_STD3_ASCII_RULES);
+            return fqdn.equals(asciiFQDN);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     public String toUrl() throws UnsupportedEncodingException {

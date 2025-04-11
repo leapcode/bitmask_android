@@ -983,7 +983,7 @@ public final class Provider implements Parcelable {
         return introducer;
     }
 
-    public void setIntroducer(String introducerUrl) throws URISyntaxException {
+    public void setIntroducer(String introducerUrl) throws URISyntaxException, IllegalArgumentException {
        this.introducer = Introducer.fromUrl(introducerUrl);
     }
 
