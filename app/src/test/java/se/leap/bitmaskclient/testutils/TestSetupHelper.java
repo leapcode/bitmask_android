@@ -119,16 +119,6 @@ public class TestSetupHelper {
             }
 
             @Override
-            public String getBestBridge() throws Exception {
-                return null;
-            }
-
-            @Override
-            public String getBestGateway() throws Exception {
-                return null;
-            }
-
-            @Override
             public String getGeolocation() throws Exception {
                 return null;
             }
@@ -159,6 +149,11 @@ public class TestSetupHelper {
             }
 
             @Override
+            public void setCountryCodeLookupURL(String s) throws Exception {
+
+            }
+
+            @Override
             public void setDebug(boolean b) {
 
             }
@@ -175,6 +170,11 @@ public class TestSetupHelper {
 
             @Override
             public void setSocksProxy(String s) {
+
+            }
+
+            @Override
+            public void setStunServers(String s) throws Exception {
 
             }
 
