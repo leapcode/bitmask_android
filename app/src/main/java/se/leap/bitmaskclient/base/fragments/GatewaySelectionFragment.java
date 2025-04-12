@@ -217,6 +217,7 @@ public class GatewaySelectionFragment extends Fragment implements PropertyChange
             locationListAdapter.updateTransport(selectedTransport, gatewaysManager);
             bridgesHint.setVisibility(showBridges ? VISIBLE : GONE);
             disableBridges.setVisibility(showBridges ? VISIBLE : GONE);
+            updateRecommendedLocation();
         }
     }
 
