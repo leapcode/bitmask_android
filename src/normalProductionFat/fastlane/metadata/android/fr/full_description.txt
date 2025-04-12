@@ -1,0 +1,12 @@
+Bitmask est un client RPV à configuration automatique. Il dispose de plusieurs techniques pour contourner la censure, le blocage du réseau ou éviter la surveillance. Après avoir sélectionné un fournisseur de services compatible, il cryptera et acheminera en toute sécurité l'ensemble de votre trafic réseau par l'intermédiaire de votre fournisseur de services de confiance.
+
+Et vous êtes prêt à vous lancer !
+
+Bitmask est un client RPV à code source ouvert, distribué sous licence GPLv3. Pour en savoir plus, consultez le site https://0xacab.org/leap/bitmask_android
+
+FAQ :
+
+* qui : leap.se, un collectif présent depuis 2011, amoureux du concept du droit de chuchoter.
+* Les traductions sont les bienvenues sur notre projet Transifex https://app.transifex.com/otf/bitmask/dashboard/
+
+Si vous rencontrez des problèmes ou si vous voulez des versions innovantes, rejoignez notre chat https://matrix.to/#/#leap:libera.chat ou écrivez un rapport de bug : https://0xacab.org/leap/bitmask_android/

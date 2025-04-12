@@ -212,7 +212,7 @@
   <string name="select_provider_description">Ao usar uma VPN, você está transferindo sua confiança do seu provedor de serviços de Internet para o seu provedor de VPN. O Bitmask se conecta apenas a provedores com um histórico claro de proteção e defesa da privacidade.</string>
   <string name="provider_description_riseup">Riseup fornece ferramentas de comunicação online para pessoas e grupos que trabalham em mudanças sociais libertadoras. Somos um projeto para criar alternativas democráticas e praticar a autodeterminação, controlando os nossos próprios meios de comunicação seguros.</string>
   <string name="next">Próximo</string>
-  <string name="add_provider_description">Bitmask se conecta a provedores confiáveis ​​que não estão listados publicamente. Insira o URL do seu provedor abaixo.</string>
+  <string name="add_provider_description">O Bitmask permite que você se conecte a provedores que não estão listados publicamente. Certifique-se de conhecer e confiar no provedor que você está adicionando.</string>
   <string name="add_provider_prompt">Digite o URL do provedor aqui.</string>
   <string name="invite_code_provider_description">O Bitmask permite que você se conecte a provedores usando um código de convite privado. </string>
   <string name="invite_code_provider_prompt">Digite seu código de convite confiável aqui.</string>
@@ -235,6 +235,11 @@
   <string name="snowflake_broker_success">Encontro do proxy Snowflake bem-sucedido</string>
   <string name="snowflake_sending_data">Enviando dados via Snowflake</string>
   <string name="title_upcoming_connection_request">Próxima solicitação de conexão</string>
+  <string name="title_upcoming_request">Próximas solicitações</string>
+  <string name="title_upcoming_request_summary">Nos próximos painéis, o Android pedirá sua permissão na forma de uma Solicitação de Conexão e Solicitação de Notificação.</string>
+  <string name="title_upcoming_connection_request_summary_custom">Aceitar a Solicitação de Conexão é essencial para usar a funcionalidade principal de %s.</string>
+  <string name="title_upcoming_connection_request_summary">Para a solicitação de conexão, é importante saber que a Bitmask só faz parceria com provedores parceiros confiáveis que aderem às práticas recomendadas para VPNs e têm um histórico verificável de proteção dos dados e identidades do usuário. No entanto, se você estiver se conectando manualmente a um provedor não público, certifique-se de confiar neles.</string>
+  <string name="title_upcoming_notification_request_summary">Aceitar a solicitação de notificação permite que o aplicativo seja executado em segundo plano e permite que você veja o uso de dados no centro de notificações do Android.</string>
   <string name="title_upcoming_notifications_request">Próxima solicitação de notificações</string>
   <string name="title_setup_success">Está tudo pronto!</string>
   <string name="setup_success_description">Clique no botão abaixo para conectar</string>

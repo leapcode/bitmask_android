@@ -104,7 +104,7 @@
   <string name="warning_corrupted_provider_cert">保存されたプロバイダーの証明書が無効です。 商用CA証明書を使用して%sを更新する（推奨）か、プロバイダーの証明書を更新することができます。</string>
   <string name="warning_expired_provider_cert">保存されたプロバイダーの証明書が有効期限切れです。 商用CA証明書を使用して%sを更新する（推奨）か、プロバイダー証明書を更新することができます。</string>
   <string name="downloading_vpn_certificate_failed">VPN証明書のダウンロードに失敗しました。 もう一度やり直すか、別のプロバイダーを選択してください。</string>
-  <string name="vpn_certificate_is_invalid">VPN証明書が不正です。 新しくダウンロードし直してください。</string>
+  <string name="vpn_certificate_is_invalid">VPN証明書を更新する時間です。接続を安全にするために、新しい証明書をダウンロードしてください。これは、通常の繰り返し行われる処理です。</string>
   <string name="vpn_certificate_user_message">VPN証明書が不正です。 ログインして新しくダウンロードし直してください。</string>
   <string name="save_battery">電池節約</string>
   <string name="subtitle_save_battery">VPNホットスポットがオンの間無効にします</string>
@@ -210,7 +210,7 @@
   <string name="select_provider_description">VPNを使用するとインターネットサービスプロバイダーからVPNプロバイダーへ、信頼されなければならない組織が移ります。Bitmaskは、プライバシーの保護と擁護の明瞭な歴史があるプロバイダーに限って接続します。</string>
   <string name="provider_description_riseup">プロバイダーRiseupは、解放的社会変革に粘り強く取り組む事業団体です。我々は新方式の民主主義を創り、通信の安全を意図して自己制御による自己決定を実践します。</string>
   <string name="next">次へ</string>
-  <string name="add_provider_description">Bitmaskは公開一覧に記載されていない信用されたプロバイダーに接続します。以下に、プロバイダーのurlを入力してください。</string>
+  <string name="add_provider_description">Bitmaskは、公開一覧に記載されていないプロバイダーに接続できます。追加するプロバイダーは、あなたが知っていて、信頼しているものであることを確かめてください。</string>
   <string name="add_provider_prompt">ここに、プロバイダーのURLを入力してください。</string>
   <string name="invite_code_provider_description">Bitmaskは非公開の招待文字列を使用してプロバイダーに接続できます。</string>
   <string name="invite_code_provider_prompt">ここに、信用する招待文字列を入力してください。</string>
