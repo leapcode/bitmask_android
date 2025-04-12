@@ -1,3 +1,14 @@
+1.5.3 Obfuscation update release
+features:
+- provide support for quic as obfuscation protocol
+- improve bridge hopping mode
+bugfixes:
+- reduce obfuscated connection failure rates after changing settings
+- fix updating VPN certificate via APIv5
+- improve invite code validation
+- fix minor UI bugs in location selection and censorship circumvention settings
+- remove camera permission for custom branded clients
+
 1.5.2RC2 Obfuscation Update beta release
 bugfixes:
 - fix parsing invite code parameters, fixes bucket authentication
