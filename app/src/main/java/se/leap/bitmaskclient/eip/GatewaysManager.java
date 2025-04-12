@@ -314,6 +314,15 @@ public class GatewaysManager {
         return null;
     }
 
+    public boolean hasLocationsForOpenVPN() {
+        for (Gateway gateway : gateways.values()) {
+            if (gateway.supportsTransport(OPENVPN, null)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Load getLoadForLocation(@Nullable String name, TransportType transportType) {
         Location location = getLocation(name);
         if (location == null) {

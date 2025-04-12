@@ -48,8 +48,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
@@ -144,10 +142,11 @@ public class GatewaySelectionFragment extends Fragment implements PropertyChange
     }
 
     private void initBridgesHint(@NonNull View view) {
+        boolean allowResettingBridges = getUseBridges() && gatewaysManager.hasLocationsForOpenVPN();
         bridgesHint = view.findViewById(R.id.manual_subtitle);
-        bridgesHint.setVisibility(getUseBridges() ? VISIBLE : GONE);
+        bridgesHint.setVisibility(allowResettingBridges ? VISIBLE : GONE);
         disableBridges = view.findViewById(R.id.disable_bridges);
-        disableBridges.setVisibility(getUseBridges() ? VISIBLE : GONE);
+        disableBridges.setVisibility(allowResettingBridges ? VISIBLE : GONE);
         disableBridges.setOnClickListener(v -> {
             useBridges(false);
         });
