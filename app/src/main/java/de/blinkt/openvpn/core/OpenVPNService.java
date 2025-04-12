@@ -378,19 +378,19 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         Connection connection = mProfile.mConnections[0];
         VpnStatus.setCurrentlyConnectingProfile(mProfile);
 
-        // Set a flag that we are starting a new VPN
-        mStarting = true;
-        // Stop the previous session by interrupting the thread.
-        stopOldOpenVPNProcess();
-        // An old running VPN should now be exited
-        mStarting = false;
-
         // stop old running obfsvpn client
         if (!stopObfsvpn()) {
             VpnStatus.logError("Failed to stop already running obfsvpn client");
             endVpnService();
             return;
         }
+
+        // Set a flag that we are starting a new VPN
+        mStarting = true;
+        // Stop the previous session by interrupting the thread.
+        stopOldOpenVPNProcess();
+        // An old running VPN should now be exited
+        mStarting = false;
 
         // optionally start start obfsvpn and adapt openvpn config to the port obfsvpn is listening to
         Connection.TransportType transportType = connection.getTransportType();
