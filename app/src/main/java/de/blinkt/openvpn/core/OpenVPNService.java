@@ -382,6 +382,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if (!stopObfsvpn()) {
             VpnStatus.logError("Failed to stop already running obfsvpn client");
             endVpnService();
+            VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
             return;
         }
 
@@ -404,6 +405,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 e.printStackTrace();
                 VpnStatus.logException(e);
                 endVpnService();
+                VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 return;
             }
         }
@@ -416,6 +418,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         } catch (IOException e) {
             VpnStatus.logException("Error writing config file", e);
             endVpnService();
+            VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
             return;
         }
 
