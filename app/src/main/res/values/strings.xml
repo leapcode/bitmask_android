@@ -59,7 +59,6 @@
     <string name="certificate_error">This is not a trusted %s provider.</string>
     <string name="service_is_down_error">The service is down.</string>
     <string name="configuring_provider">Configuring provider</string>
-    <string name="incorrectly_downloaded_certificate_message">Your anonymous certificate was not downloaded</string>
     <string name="downloading_certificate_message">Downloading VPN certificate</string>
     <string name="updating_certificate_message">Updating VPN certificate</string>
     <string name="login.riseup.warning">Riseup users will need to create a separate account to use the VPN service</string>
@@ -105,7 +104,6 @@
     <string name="warning_expired_provider_cert">Stored provider certificate is expired. You can either update %s (recommended) or update the provider certificate using a commercial CA certificate.</string>
     <string name="downloading_vpn_certificate_failed">Downloading the VPN certificate failed. Try again or choose another provider.</string>
     <string name="vpn_certificate_is_invalid">It\'s time to update your VPN certificate. Download a new certificate to keep your connection secure. This is a routine update.</string>
-    <string name="vpn_certificate_user_message">The VPN certificate is invalid. Please log in to download a new one.</string>
     <string name="save_battery">Save battery</string>
     <string name="subtitle_save_battery">Disabled while VPN Hotspot is on</string>
     <string name="save_battery_message">Background data connections will hibernate when your phone is inactive.</string>
