@@ -10,9 +10,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.RECEIVER_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_EXCEPTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
-import static se.leap.bitmaskclient.providersetup.ProviderApiManagerV5.PROXY_HOST;
-import static se.leap.bitmaskclient.providersetup.ProviderApiManagerV5.SOCKS_PROXY_SCHEME;
-import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_TOR_TIMEOUT;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.SETUP_ERRORS.ERROR_TOR_TIMEOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
@@ -25,7 +23,6 @@ import android.util.Log;
 import androidx.core.content.IntentCompat;
 
 import org.jetbrains.annotations.Blocking;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.concurrent.TimeoutException;

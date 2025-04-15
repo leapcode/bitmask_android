@@ -12,8 +12,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
+
+import se.leap.bitmaskclient.base.models.Introducer.IntroducerException;
 
 
 @RunWith(RobolectricTestRunner.class)
@@ -40,7 +41,7 @@ public class IntroducerTest {
             assertEquals(intro.getFullyQualifiedDomainName(), "ft1.example.org");
             assertEquals("solitech_w4gOlm+sbF8spFL8E1Q6dg==", intro.getAuthToken());
             assertEquals("obfsvpnintro://37.2.240.90:443?fqdn=ft1.example.org&kcp=1&cert=XXXXXXX&auth=solitech_w4gOlm%2BsbF8spFL8E1Q6dg%3D%3D", intro.toUrl());
-        } catch (URISyntaxException | UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -48,36 +49,36 @@ public class IntroducerTest {
     @Test
     public void testFromUrl_homograph_attack() {
         String code = "obfsvpnintro://37.2.240.90:443?fqdn=ft1.bitmasк.net&kcp=0&cert=XXXXXXX&auth=solitech_w4gOlm%2BseC5spDL8E1Q6dg";
-        assertThrows(IllegalArgumentException.class, () -> Introducer.fromUrl(code));
+        assertThrows(IntroducerException.class, () -> Introducer.fromUrl(code));
     }
 
     @Test
     public void testFromUrl_invalid_fqdn() {
         String code = "obfsvpnintro://37.2.240.90:443?fqdn=file://var/wwww&kcp=0&cert=XXXXXXX&auth=solitech_w4gOlm%2BseC5spDL8E1Q6dg";
-        assertThrows(IllegalArgumentException.class, () -> Introducer.fromUrl(code));
+        assertThrows(IntroducerException.class, () -> Introducer.fromUrl(code));
     }
 
     @Test
     public void testFromUrl_missing_fqdn() {
         String code = "obfsvpnintro://37.2.240.90:443?fqdn=&kcp=0&cert=XXXXXXX&auth=solitech_w4gOlm%2BseC5spDL8E1Q6dg";
-        assertThrows(IllegalArgumentException.class, () -> Introducer.fromUrl(code));
+        assertThrows(IntroducerException.class, () -> Introducer.fromUrl(code));
 
         String code2 = "obfsvpnintro://37.2.240.90:443?kcp=0&cert=XXXXXXX&auth=solitech_w4gOlm%2BseC5spDL8E1Q6dg";
-        assertThrows(IllegalArgumentException.class, () -> Introducer.fromUrl(code2));
+        assertThrows(IntroducerException.class, () -> Introducer.fromUrl(code2));
     }
 
     @Test
     public void testFromUrl_missing_cert() {
         String code = "obfsvpnintro://37.2.240.90:443?fqdn=ft1.bitmask.net&kcp=0&cert=&auth=solitech_w4gOlm%2BseC5spDL8E1Q6dg";
-        assertThrows(IllegalArgumentException.class, () -> Introducer.fromUrl(code));
+        assertThrows(IntroducerException.class, () -> Introducer.fromUrl(code));
     }
 
     @Test
     public void testFromUrl_missing_auth() {
         String code = "obfsvpnintro://37.2.240.90:443?fqdn=ft1.bitmask.net&kcp=0&cert=XXXXXXX&auth=";
-        assertThrows(IllegalArgumentException.class, () -> Introducer.fromUrl(code));
+        assertThrows(IntroducerException.class, () -> Introducer.fromUrl(code));
 
         String code2 = "obfsvpnintro://37.2.240.90:443?fqdn=ft1.bitmask.net&kcp=0&cert=XXXXXXX";
-        assertThrows(IllegalArgumentException.class, () -> Introducer.fromUrl(code2));
+        assertThrows(IntroducerException.class, () -> Introducer.fromUrl(code2));
     }
 }

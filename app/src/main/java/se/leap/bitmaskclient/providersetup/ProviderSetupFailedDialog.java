@@ -16,8 +16,20 @@
  */
 package se.leap.bitmaskclient.providersetup;
 
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERROR_EXTRA;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INITIAL_ACTION;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_PROVIDER_DETAILS;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.SETUP_ERRORS.DEFAULT;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.SETUP_ERRORS.valueOf;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -33,16 +45,6 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.INITIAL_ACTION;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_PROVIDER_DETAILS;
-import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.DEFAULT;
-import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.valueOf;
-
 /**
  * Implements a dialog to show why a download failed.
  *
@@ -56,21 +58,24 @@ public class ProviderSetupFailedDialog extends DialogFragment {
     private final static String KEY_DOWNLOAD_ERROR = "key_download_error";
     private final static String KEY_INITAL_ACTION = "key_inital_action";
     private String reasonToFail;
-    private DOWNLOAD_ERRORS downloadError = DEFAULT;
+    private SETUP_ERRORS setupError = DEFAULT;
     private String initialAction;
+
+    private String errorExtra;
 
     private Provider provider;
 
     /**
      * Represent error types that need different error handling actions
      */
-    public enum DOWNLOAD_ERRORS {
+    public enum SETUP_ERRORS {
         DEFAULT,
         ERROR_CORRUPTED_PROVIDER_JSON,
         ERROR_INVALID_CERTIFICATE,
         ERROR_CERTIFICATE_PINNING,
         ERROR_NEW_URL_NO_VPN_PROVIDER,
-        ERROR_TOR_TIMEOUT
+        ERROR_TOR_TIMEOUT,
+        ERROR_QR_CODE_SCANNING
     }
 
     /**
@@ -98,9 +103,13 @@ public class ProviderSetupFailedDialog extends DialogFragment {
             }
 
             if (errorJson.has(ERRORID)) {
-                dialogFragment.downloadError = valueOf(errorJson.getString(ERRORID));
+                dialogFragment.setupError = valueOf(errorJson.getString(ERRORID));
             } else if (testNewURL) {
-                dialogFragment.downloadError = DOWNLOAD_ERRORS.ERROR_NEW_URL_NO_VPN_PROVIDER;
+                dialogFragment.setupError = SETUP_ERRORS.ERROR_NEW_URL_NO_VPN_PROVIDER;
+            }
+
+            if (errorJson.has(ERROR_EXTRA)) {
+                dialogFragment.errorExtra = errorJson.getString(ERROR_EXTRA);
             }
 
             if (errorJson.has(INITIAL_ACTION)) {
@@ -126,7 +135,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
         builder.setMessage(reasonToFail)
                 .setNegativeButton(R.string.cancel, (dialog, id)
                         -> interfaceWithConfigurationWizard.cancelSettingUpProvider());
-        switch (downloadError) {
+        switch (setupError) {
             case ERROR_CORRUPTED_PROVIDER_JSON:
                 builder.setPositiveButton(R.string.update_provider_details, (dialog, which)
                         -> interfaceWithConfigurationWizard.updateProviderDetails());
@@ -140,6 +149,15 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                 builder.setPositiveButton(R.string.retry, (dialog, id)
                         -> interfaceWithConfigurationWizard.addAndSelectNewProvider(provider.getMainUrl()));
                 break;
+            case ERROR_QR_CODE_SCANNING:
+                builder.setNegativeButton(android.R.string.cancel, null);
+                builder.setPositiveButton(R.string.error_invite_copy, ((dialog, id) -> {
+                    ClipboardManager clipboard = (ClipboardManager)
+                            getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText(getContext().getString(R.string.error), errorExtra);
+                    clipboard.setPrimaryClip(clip);
+                }));
+                break;
             case ERROR_TOR_TIMEOUT:
                 builder.setPositiveButton(R.string.retry, (dialog, id) -> {
                     handleTorTimeoutError();
@@ -148,6 +166,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                     PreferenceHelper.useSnowflake(false);
                     handleTorTimeoutError();
                 }));
+                break;
             default:
                 builder.setPositiveButton(R.string.retry, (dialog, id)
                         -> interfaceWithConfigurationWizard.retrySetUpProvider(provider));
@@ -212,7 +231,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
         super.onSaveInstanceState(outState);
         outState.putParcelable(KEY_PROVIDER, provider);
         outState.putString(KEY_REASON_TO_FAIL, reasonToFail);
-        outState.putString(KEY_DOWNLOAD_ERROR, downloadError.toString());
+        outState.putString(KEY_DOWNLOAD_ERROR, setupError.toString());
         outState.putString(KEY_INITAL_ACTION, initialAction);
     }
 
@@ -227,7 +246,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
             this.reasonToFail = savedInstanceState.getString(KEY_REASON_TO_FAIL);
         }
         if (savedInstanceState.containsKey(KEY_DOWNLOAD_ERROR)) {
-            this.downloadError = valueOf(savedInstanceState.getString(KEY_DOWNLOAD_ERROR));
+            this.setupError = valueOf(savedInstanceState.getString(KEY_DOWNLOAD_ERROR));
         }
         if (savedInstanceState.containsKey(KEY_INITAL_ACTION)) {
             this.initialAction = savedInstanceState.getString(KEY_INITAL_ACTION);

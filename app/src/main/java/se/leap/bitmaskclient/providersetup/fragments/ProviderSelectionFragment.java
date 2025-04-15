@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
@@ -26,9 +28,9 @@ import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.databinding.FProviderSelectionBinding;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
 import se.leap.bitmaskclient.providersetup.fragments.helpers.AbstractQrScannerHelper;
-import se.leap.bitmaskclient.providersetup.helpers.QrScannerHelper;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModelFactory;
+import se.leap.bitmaskclient.providersetup.helpers.QrScannerHelper;
 
 public class ProviderSelectionFragment extends BaseSetupFragment implements CancelCallback, AbstractQrScannerHelper.ScanResultCallback {
 
@@ -231,6 +233,13 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
             binding.editCustomProvider.setText(introducer.toUrl());
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onScanError(JSONObject error) {
+        if (setupActivityCallback != null) {
+            setupActivityCallback.onError(error.toString());
         }
     }
 }

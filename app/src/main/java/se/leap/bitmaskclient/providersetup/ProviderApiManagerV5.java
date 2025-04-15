@@ -19,7 +19,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.QUIETLY_UPDATE_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.SETUP_ERRORS.ERROR_INVALID_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_BRIDGES;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_GATEWAYS;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_V5_SERVICE_JSON;

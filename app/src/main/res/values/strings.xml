@@ -265,4 +265,16 @@
     <string name="tunnelling_description">Censors can block access to the open internet. Choose a circumvention option to bypass blocks.</string>
     <string name="port_hopping">Port Hopping</string>
     <string name="port_hopping_description">"Censors use traffic analysis to block access to the open internet. Port Hopping can make this harder for them. "</string>
+    <string name="error_invite_title">Oops, there\'s something wrong with this invite code:</string>
+    <string name="error_invite">Invalid invite code: %1$s</string>
+    <string name="error_invite_copy">Copy invite code</string>
+    <string name="error_invite_hint">You can copy and share the code with your provider to request support.</string>
+    <string name="error_invite_unknown_type">the invite code type %1$s is unknown.</string>
+    <string name="error_invite_address_format">the invite proxy address doesn\'t follow the format ipaddr:port.</string>
+    <string name="error_invite_certificate_length">the certificate has the wrong number of characters (%1$s).</string>
+    <string name="error_invite_certificate_missing">the invite proxy certificate is missing.</string>
+    <string name="error_invite_fqdn_length">the invite code should contain a fully qualified domain name, but got %1$s.</string>
+    <string name="error_invite_fqdn_missing">the fully qualified domain name is missing.</string>
+    <string name="error_invite_auth_missing">the authentication token is missing.</string>
+    <string name="error_invite_fqdn_invalid">the invite code contains invalid characters in %1$s</string>
 </resources>

@@ -75,6 +75,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             ERRORS = "errors",
             ERRORID = "errorId",
             INITIAL_ACTION = "initalAction",
+            ERROR_EXTRA = "errorExtra",
             BACKEND_ERROR_KEY = "error",
             BACKEND_ERROR_MESSAGE = "message",
             USER_MESSAGE = "userMessage",
