@@ -83,10 +83,6 @@ android {
     buildConfigField 'boolean', 'actionbar_capitalize_title', 'true'
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    dexOptions {
-      jumboMode true
-      multiDexEnabled true
-    }
 
     ndk {
       abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
@@ -272,20 +268,19 @@ android {
       applicationIdSuffix ".beta"
       appSuffix = " Beta"
       buildConfigField "Boolean", "DEBUG_MODE", "true"
-      testCoverageEnabled = false
 
       // tor-android doesn't know this build-type, fallback to release in that case
       matchingFallbacks = ['release']
+      enableUnitTestCoverage false
+      enableAndroidTestCoverage false
     }
     debug {
-      testCoverageEnabled = false
       buildConfigField "Boolean", "DEBUG_MODE", "true"
+      enableUnitTestCoverage false
+      enableAndroidTestCoverage false
     }
   }
 
-  lintOptions {
-    abortOnError false
-  }
 
   sourceSets {
     main {
@@ -380,6 +375,9 @@ android {
       // Gradle ignores any variants that satisfy the conditions above.
       setIgnore(true)
     }
+  }
+  lint {
+    abortOnError false
   }
 }
 
