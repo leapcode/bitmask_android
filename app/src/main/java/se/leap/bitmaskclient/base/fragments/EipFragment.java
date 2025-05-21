@@ -30,8 +30,10 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -41,6 +43,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import androidx.annotation.ColorRes;
@@ -59,6 +62,7 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collections;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
@@ -150,6 +154,8 @@ public class EipFragment extends Fragment implements PropertyChangeListener {
         mainButton = binding.mainButton;
         locationButton = binding.gatewayLocationButton;
         locationButton.setTextColor(R.color.black800);
+        ViewHelper.applyInsetsToViewMargin(locationButton, false, false, false, true);
+        excludeBackGesture(binding);
         mainDescription = binding.mainDescription;
         subDescription = binding.subDescription;
         stateView = binding.stateView;
@@ -187,6 +193,19 @@ public class EipFragment extends Fragment implements PropertyChangeListener {
             handleIcon();
         });
         return binding.getRoot();
+    }
+
+    private void excludeBackGesture(FEipBinding binding) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return;
+        ViewTreeObserver treeObserver = binding.gestureSuppressView.getViewTreeObserver();
+        treeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                binding.gestureSuppressView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                Rect rect = new Rect(0, 0, binding.gestureSuppressView.getWidth(), binding.gestureSuppressView.getHeight());
+                binding.gestureSuppressView.setSystemGestureExclusionRects(Collections.singletonList(rect));
+            }
+        });
     }
 
     @Override

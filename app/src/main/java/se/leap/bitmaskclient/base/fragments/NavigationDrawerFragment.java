@@ -46,11 +46,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.core.os.LocaleListCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -58,7 +56,6 @@ import androidx.fragment.app.Fragment;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Locale;
-import java.util.Map;
 
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
@@ -67,6 +64,7 @@ import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
 import se.leap.bitmaskclient.base.views.IconTextEntry;
 import se.leap.bitmaskclient.eip.EipStatus;
@@ -127,6 +125,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         restoreFromSavedInstance(savedInstanceState);
         TetheringObservable.getInstance().addObserver(this);
         EipStatus.getInstance().addObserver(this);
+        ViewHelper.applyInsetsToViewMargin(drawerView, true, true, true, false);
         return drawerView;
     }
 
@@ -169,6 +168,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         // set a custom shadow that overlays the main content when the drawer opens
         this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         toolbar = this.drawerLayout.findViewById(R.id.toolbar);
+        ViewHelper.applyInsetsToViewPadding(toolbar, true, true, true, false);
 
         setupEntries();
         setupActionBarDrawerToggle(activity);

@@ -66,13 +66,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintGuide_percent="0.7" />
 
+
+
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
         app:srcCompat="@drawable/bg_disconnected" />
-
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/main_description"
@@ -127,6 +128,16 @@
         app:layout_constraintVertical_bias="1"
         app:srcCompat="@drawable/state_disconnected"
         />
+
+    <View
+        android:id="@+id/gesture_suppress_view"
+        android:layout_width="36dp"
+        android:layout_height="200dp"
+        app:layout_constraintTop_toTopOf="@id/state_view"
+        app:layout_constraintBottom_toBottomOf="@id/state_view"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
 
     <se.leap.bitmaskclient.base.views.MainButton
         android:id="@+id/main_button"

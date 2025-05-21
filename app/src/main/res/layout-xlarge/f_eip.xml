@@ -119,6 +119,15 @@
         app:srcCompat="@drawable/state_disconnected"
         />
 
+    <View
+        android:id="@+id/gesture_suppress_view"
+        android:layout_width="36dp"
+        android:layout_height="200dp"
+        app:layout_constraintTop_toTopOf="@id/state_view"
+        app:layout_constraintBottom_toBottomOf="@id/state_view"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
     <se.leap.bitmaskclient.base.views.MainButton
         android:id="@+id/main_button"
         android:layout_width="0dp"

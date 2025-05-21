@@ -2,22 +2,28 @@ package se.leap.bitmaskclient.base.utils;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
@@ -29,8 +35,15 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.views.ActionBarTitle;
@@ -94,7 +107,7 @@ public class ViewHelper {
         setActivityBarColor(activity, R.color.colorPrimary, R.color.colorPrimaryDark, R.color.colorActionBarTitleFont);
     }
 
-    public static void setActivityBarColor(Activity activity, @ColorRes int primaryColor, @ColorRes int secondaryColor, @ColorRes int textColor) {
+    public static void setActivityBarColor(Activity activity, @ColorRes int primaryColorRes, @ColorRes int secondaryColorRes, @ColorRes int textColor) {
         if (!(activity instanceof AppCompatActivity)) {
             return;
         }
@@ -103,16 +116,12 @@ public class ViewHelper {
         if (bar == null) {
             return;
         }
-        int color = ContextCompat.getColor(activity, secondaryColor);
-        bar.setBackgroundDrawable(new ColorDrawable(color));
-        Window window = activity.getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(activity, primaryColor));
-
+        int secondaryColor = ContextCompat.getColor(activity, secondaryColorRes);
+        bar.setBackgroundDrawable(new ColorDrawable(secondaryColor));
+        setStatusBarColor(activity, primaryColorRes);
         int actionBarTextColor;
         if (textColor == 0) {
-            actionBarTextColor = isBrightColor(color) ? R.color.actionbar_connectivity_state_text_color_dark : R.color.actionbar_connectivity_state_text_color_light;
+            actionBarTextColor = isBrightColor(secondaryColor) ? R.color.actionbar_connectivity_state_text_color_dark : R.color.actionbar_connectivity_state_text_color_light;
         } else {
             actionBarTextColor = textColor;
         }
@@ -130,6 +139,72 @@ public class ViewHelper {
         }
     }
 
+    public static void applyInsetsToViewPadding(View view, boolean left,  boolean top, boolean right, boolean bottom) {
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            if (left) {
+                view.setPadding(insets.left, view.getPaddingTop(), view.getPaddingRight(), view.getPaddingBottom());
+            }
+            if (right) {
+                view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), insets.right, view.getPaddingBottom());
+            }
+            if (bottom) {
+                view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), view.getPaddingRight(), insets.bottom);
+            }
+            if (top) {
+                view.setPadding(view.getPaddingLeft(), insets.top, view.getPaddingRight(), view.getPaddingBottom());
+            }
+
+            // Return CONSUMED if you don't want the window insets to keep passing
+            // down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
+    }
+
+    public static void applyInsetsToViewMargin(View view, boolean left, boolean top, boolean right, boolean bottom) {
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            if (left) {
+                mlp.leftMargin = insets.left;
+            }
+            if (right) {
+                mlp.rightMargin = insets.right;
+            }
+            if (bottom) {
+                mlp.bottomMargin = insets.bottom;
+            }
+            if (top) {
+                mlp.topMargin = insets.top;
+            }
+            v.setLayoutParams(mlp);
+
+            // Return CONSUMED if you don't want the window insets to keep passing
+            // down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
+    }
+
+    private static void setStatusBarColor(Activity activity, int colorRes) {
+        Window window = activity.getWindow();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(activity, colorRes));
+        } else {
+            // in Androiid 15+, the status bar is transparent. Hence we need to make sure that the status bar icons
+            // have enough contrast to be visible above the the underlying UI
+            WindowInsetsController controller = window.getInsetsController();
+            if (controller != null) {
+                int color = ContextCompat.getColor(activity, colorRes);
+                if (isBrightColor(color)) {
+                    controller.setSystemBarsAppearance(APPEARANCE_LIGHT_STATUS_BARS, APPEARANCE_LIGHT_STATUS_BARS);
+                } else {
+                    controller.setSystemBarsAppearance(0, APPEARANCE_LIGHT_STATUS_BARS);
+                }
+            }
+        }
+    }
 
     public static boolean isBrightColor(int color) {
         if (android.R.color.transparent == color)
