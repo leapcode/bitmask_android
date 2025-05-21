@@ -155,7 +155,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         });
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setUserInputEnabled(false);
-
+        ViewHelper.applyInsetsToViewMargin(binding.bottomNavigation, true, false, true, true);
 
         binding.setupNextButton.setOnClickListener(v -> {
             int currentPos = binding.viewPager.getCurrentItem();
@@ -265,6 +265,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     private void setupActionBar() {
         setSupportActionBar(binding.toolbar);
+        ViewHelper.applyInsetsToViewPadding(binding.toolbar, false, true, false, false);
         final ActionBar actionBar = getSupportActionBar();
         Context context = actionBar.getThemedContext();
         actionBar.setDisplayOptions(DISPLAY_SHOW_CUSTOM);
