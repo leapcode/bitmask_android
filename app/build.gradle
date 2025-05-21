@@ -34,9 +34,9 @@ android {
     // however we don't calculate the versionCode here, because F-Droid doesn't like that
     versionCode 182000
     versionName "1.5.3"
-    compileSdk 34
+    compileSdk 35
     minSdkVersion 21
-    targetSdkVersion 34
+    targetSdkVersion 35
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 
@@ -397,37 +397,37 @@ dependencies {
   testImplementation group: 'com.tngtech.java', name: 'junit-dataprovider', version: '1.10.0'
 
   androidTestImplementation 'org.mockito:mockito-core:3.9.0'
-  androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
   androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.0'
-  androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.0'
-  androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+  androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
+  androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
 
   androidTestImplementation 'tools.fastlane:screengrab:2.1.1'
   testImplementation 'tools.fastlane:screengrab:2.1.1'
 
   testImplementation 'org.json:json:20180813'
-  androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+  androidTestImplementation 'androidx.test.ext:junit:1.2.1'
   debugImplementation 'com.squareup.leakcanary:leakcanary-android-core:2.9.1'
-  debugImplementation 'androidx.fragment:fragment-testing:1.6.2'
-  debugImplementation 'androidx.test:core:1.5.0'
+  debugImplementation 'androidx.fragment:fragment-testing:1.8.6'
+  debugImplementation 'androidx.test:core:1.6.1'
 
-  implementation 'com.google.code.gson:gson:2.10.1'
+  implementation 'com.google.code.gson:gson:2.13.1'
   implementation 'com.squareup.okhttp3:okhttp:4.10.0'
   implementation 'com.squareup.okhttp3:okhttp-dnsoverhttps:4.10.0'
   implementation 'org.conscrypt:conscrypt-android:2.5.2'
   implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
-  implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+  implementation 'androidx.security:security-crypto:1.1.0-alpha07'
   implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
-  implementation 'androidx.annotation:annotation:1.7.0'
+  implementation 'androidx.annotation:annotation:1.9.1'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-  implementation 'androidx.core:core:1.12.0'
-  implementation 'androidx.appcompat:appcompat:1.6.1'
-  implementation 'com.google.android.material:material:1.10.0'
-  implementation 'androidx.fragment:fragment:1.6.2'
-  implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+  implementation 'androidx.core:core:1.16.0'
+  implementation 'androidx.appcompat:appcompat:1.7.0'
+  implementation 'com.google.android.material:material:1.12.0'
+  implementation 'androidx.fragment:fragment:1.8.6'
+  implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
   implementation 'androidx.multidex:multidex:2.0.1'
   implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
-  implementation 'androidx.lifecycle:lifecycle-process:2.7.0'
+  implementation 'androidx.lifecycle:lifecycle-process:2.9.0'
   implementation 'de.hdodenhof:circleimageview:3.1.0'
   // swagger dependencies
   implementation 'io.swagger:swagger-annotations:1.5.17'
@@ -500,7 +500,7 @@ subprojects {
   afterEvaluate {project ->
     if (project.hasProperty("android")) {
       android {
-        compileSdkVersion 34
+        compileSdkVersion 35
       }
     }
   }
