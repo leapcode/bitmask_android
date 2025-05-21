@@ -207,7 +207,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 activity.invalidateOptionsMenu();
             }
         };
-        setDrawerToggleColor(activity, ContextCompat.getColor(activity, R.color.amber200));
+        setDrawerToggleColor(activity, ContextCompat.getColor(drawerView.getContext(), R.color.colorActionBarTitleFont));
     }
 
     private void setupEntries() {
