@@ -95,8 +95,8 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FConfigureProviderBinding.inflate(inflater, container, false);
-        binding.detailContainer.setVisibility(getUseSnowflake() ? VISIBLE : GONE);
-        binding.tvCircumventionDescription.setText(getUseSnowflake() ? getString(description_configure_provider_circumvention, getString(app_name)) : getString(description_configure_provider, getString(app_name)));
+        binding.detailContainer.setVisibility(!VpnStatus.isVPNActive() && hasSnowflakePrefs() && getUseSnowflake() ? VISIBLE : GONE);
+        binding.tvCircumventionDescription.setText(hasSnowflakePrefs() && getUseSnowflake() ? getString(description_configure_provider_circumvention, getString(app_name)) : getString(description_configure_provider, getString(app_name)));
         binding.detailHeaderContainer.setOnClickListener(v -> {
             binding.ivExpand.animate().setDuration(250).rotation(isExpanded ? -90 : 0);
             showConnectionDetails();
@@ -133,7 +133,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         super.onFragmentSelected();
         ignoreProviderAPIUpdates = false;
         binding.detailContainer.setVisibility(!VpnStatus.isVPNActive() && hasSnowflakePrefs() && getUseSnowflake() ? VISIBLE : GONE);
-        binding.tvCircumventionDescription.setText(getUseSnowflake() ? getString(description_configure_provider_circumvention, getString(app_name)) : getString(description_configure_provider, getString(app_name)));
+        binding.tvCircumventionDescription.setText(hasSnowflakePrefs() && getUseSnowflake() ? getString(description_configure_provider_circumvention, getString(app_name)) : getString(description_configure_provider, getString(app_name)));
         if (!isDefaultBitmask()) {
             Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.setup_progress_spinner, null);
             binding.progressSpinner.setAnimatedSpinnerDrawable(drawable);
