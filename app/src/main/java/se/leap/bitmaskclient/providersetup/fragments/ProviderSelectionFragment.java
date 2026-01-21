@@ -14,6 +14,8 @@ import android.widget.RadioButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import org.json.JSONObject;
@@ -92,6 +94,14 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
         binding.editCustomProvider.setVisibility(viewModel.getEditProviderVisibility());
         binding.syntaxCheck.setVisibility(viewModel.getEditProviderVisibility());
         binding.qrScanner.setVisibility(viewModel.getQrScannerVisibility());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollView, (v, insets) -> {
+            int imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+            int systemBarsHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+            binding.scrollView.setPadding(binding.scrollView.getPaddingLeft(), binding.scrollView.getPaddingTop(), binding.scrollView.getPaddingRight(), Math.max(imeHeight - (int) v.getContext().getResources().getDimension(R.dimen.setup_bottom_bar), systemBarsHeight));
+            return insets;
+        });
+
         return binding.getRoot();
     }
 
