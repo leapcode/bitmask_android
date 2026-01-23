@@ -171,12 +171,6 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             return currentDownload;
         }
 
-        //provider certificate invalid
-        if (currentDownload.containsKey(ERRORS)) {
-            currentDownload.putParcelable(PROVIDER_KEY, provider);
-            return currentDownload;
-        }
-
         BitmaskMobile bm;
         try {
             bm = new BitmaskMobile(provider.getMainUrl(), new PreferenceHelper.SharedPreferenceStore());
