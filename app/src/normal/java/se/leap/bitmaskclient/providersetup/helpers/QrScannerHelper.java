@@ -57,6 +57,7 @@ public class QrScannerHelper extends AbstractQrScannerHelper {
         options.setBeepEnabled(false);
         options.setBarcodeImageEnabled(false);
         options.setOrientationLocked(false);
+        options.setPrompt("");
         scannerActivityResultLauncher.launch(options);
     }
 }
