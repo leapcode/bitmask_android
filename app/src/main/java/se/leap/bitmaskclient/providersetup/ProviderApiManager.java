@@ -2,6 +2,7 @@ package se.leap.bitmaskclient.providersetup;
 
 import static se.leap.bitmaskclient.R.string.malformed_url;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPersistedProviderUpdates;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.MISSING_NETWORK_CONNECTION;

@@ -17,25 +17,7 @@
 
 package se.leap.bitmaskclient.providersetup;
 
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_BRIDGES;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_EIPSERVICE;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_GATEWAYS;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_PROVIDER;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_HASHES;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_SEEN;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_UPDATED;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.base.models.Provider.CA_CERT;
-import static se.leap.bitmaskclient.base.models.Provider.GEOIP_URL;
-import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_API_IP;
-import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_IP;
 import static se.leap.bitmaskclient.base.utils.CertificateHelper.getFingerprintFromCertificate;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.getDomainFromMainURL;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getFromPersistedProvider;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getLongFromPersistedProvider;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getStringSetFromPersistedProvider;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -47,12 +29,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 /**
  * Implements the logic of the http api calls. The methods of this class needs to be called from
@@ -132,88 +112,6 @@ public abstract class ProviderApiManagerBase {
         }
 
         return result;
-    }
-
-    protected void getPersistedProviderUpdates(Provider provider) {
-        String providerDomain = getDomainFromMainURL(provider.getMainUrl());
-        if (providerDomain == null) {
-            return;
-        }
-        if (hasUpdatedProviderDetails(providerDomain)) {
-            provider.setCaCert(getPersistedProviderCA(providerDomain));
-            provider.define(getPersistedProviderDefinition(providerDomain));
-            provider.setPrivateKeyString(getPersistedPrivateKey(providerDomain));
-            provider.setVpnCertificate(getPersistedVPNCertificate(providerDomain));
-            provider.setProviderApiIp(getPersistedProviderApiIp(providerDomain));
-            provider.setProviderIp(getPersistedProviderIp(providerDomain));
-            provider.setGeoipUrl(getPersistedGeoIp(providerDomain)); // TODO: do we really need to persist the Geoip URL??
-            provider.setLastMotdSeen(getPersistedMotdLastSeen(providerDomain));
-            provider.setMotdLastSeenHashes(getPersistedMotdHashes(providerDomain));
-            provider.setLastMotdUpdate(getPersistedMotdLastUpdate(providerDomain));
-            provider.setMotdJson(getPersistedMotd(providerDomain));
-            provider.setModelsProvider(getFromPersistedProvider(PROVIDER_MODELS_PROVIDER, providerDomain));
-            provider.setService(getFromPersistedProvider(PROVIDER_MODELS_EIPSERVICE, providerDomain));
-            provider.setGateways(getFromPersistedProvider(PROVIDER_MODELS_GATEWAYS, providerDomain));
-            provider.setBridges(getFromPersistedProvider(PROVIDER_MODELS_BRIDGES, providerDomain));
-        }
-    }
-
-    protected String getPersistedPrivateKey(String providerDomain) {
-        return getFromPersistedProvider(PROVIDER_PRIVATE_KEY, providerDomain);
-    }
-
-    protected String getPersistedVPNCertificate(String providerDomain) {
-        return getFromPersistedProvider(PROVIDER_VPN_CERTIFICATE, providerDomain);
-    }
-
-    protected JSONObject getPersistedProviderDefinition(String providerDomain) {
-        try {
-            return new JSONObject(getFromPersistedProvider(Provider.KEY, providerDomain));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return new JSONObject();
-        }
-    }
-
-    protected String getPersistedProviderCA(String providerDomain) {
-        return getFromPersistedProvider(CA_CERT, providerDomain);
-    }
-
-    protected String getPersistedProviderApiIp(String providerDomain) {
-        return getFromPersistedProvider(PROVIDER_API_IP, providerDomain);
-    }
-
-    protected String getPersistedProviderIp(String providerDomain) {
-        return getFromPersistedProvider(PROVIDER_IP, providerDomain);
-    }
-
-    protected String getPersistedGeoIp(String providerDomain) {
-        return getFromPersistedProvider(GEOIP_URL, providerDomain);
-    }
-
-    protected JSONObject getPersistedMotd(String providerDomain) {
-        try {
-            return new JSONObject(getFromPersistedProvider(PROVIDER_MOTD, providerDomain));
-        } catch (JSONException e) {
-            return new JSONObject();
-        }
-    }
-
-    protected long getPersistedMotdLastSeen(String providerDomain) {
-        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_SEEN, providerDomain);
-    }
-
-    protected long getPersistedMotdLastUpdate(String providerDomain) {
-        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_UPDATED, providerDomain);
-    }
-
-    protected Set<String> getPersistedMotdHashes(String providerDomain) {
-        return getStringSetFromPersistedProvider(PROVIDER_MOTD_HASHES, providerDomain);
-    }
-
-
-    protected boolean hasUpdatedProviderDetails(String domain) {
-        return PreferenceHelper.hasKey(Provider.KEY + "." + domain) && PreferenceHelper.hasKey(CA_CERT + "." + domain);
     }
 
    }

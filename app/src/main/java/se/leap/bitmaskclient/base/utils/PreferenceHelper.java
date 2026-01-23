@@ -54,6 +54,10 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_PORT_HOPPING;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SYSTEM_PROXY;
 import static se.leap.bitmaskclient.base.models.Constants.USE_TUNNEL;
+import static se.leap.bitmaskclient.base.models.Provider.CA_CERT;
+import static se.leap.bitmaskclient.base.models.Provider.GEOIP_URL;
+import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_API_IP;
+import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_IP;
 import static se.leap.bitmaskclient.base.utils.BitmaskCoreProvider.getBitmaskMobile;
 
 import android.content.Context;
@@ -208,15 +212,20 @@ public class PreferenceHelper {
         Set<String> providerDomains = getCustomProviderDomains();
         HashMap<String, Provider> customProviders = new HashMap<>();
         for (String domain : providerDomains) {
-            String mainURL = preferences.getString(Provider.MAIN_URL + "." + domain, null);
-            if (mainURL != null) {
+            String mainURL = getFromPersistedProvider(Provider.MAIN_URL, domain);
+            if (!mainURL.isEmpty()) {
                 Introducer introducer = null;
                 try {
                    introducer = Introducer.fromUrl(BitmaskCoreProvider.getBitmaskMobile().getIntroducerURLByDomain(domain));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                customProviders.put(mainURL, Provider.createCustomProvider(mainURL, domain, introducer));
+                Provider customProvider = new Provider(mainURL);
+                customProvider.setIntroducer(introducer);
+                if (hasUpdatedProviderDetails(domain)) {
+                    getPersistedProviderUpdates(customProvider);
+                }
+                customProviders.put(mainURL, customProvider);
             }
         }
 
@@ -292,6 +301,10 @@ public class PreferenceHelper {
                     putStringSet(PROVIDER_MOTD_HASHES + "." + providerDomain, provider.getMotdLastSeenHashes()).
                     putLong(PROVIDER_MOTD_LAST_SEEN + "." + providerDomain, provider.getLastMotdSeen()).
                     putLong(PROVIDER_MOTD_LAST_UPDATED + "." + providerDomain, provider.getLastMotdUpdate()).
+                    putString(PROVIDER_MODELS_GATEWAYS + "." + providerDomain, provider.getGatewaysJson()).
+                    putString(PROVIDER_MODELS_BRIDGES + "." + providerDomain, provider.getBridgesJson()).
+                    putString(PROVIDER_MODELS_EIPSERVICE + "." + providerDomain, provider.getServiceJson()).
+                    putString(PROVIDER_MODELS_PROVIDER + "." + providerDomain, provider.getModelsProviderJson()).
                     apply();
         }
     }
@@ -339,6 +352,10 @@ public class PreferenceHelper {
                     remove(PROVIDER_MOTD_HASHES + "." + providerDomain).
                     remove(PROVIDER_MOTD_LAST_SEEN + "." + providerDomain).
                     remove(PROVIDER_MOTD_LAST_UPDATED + "." + providerDomain).
+                    remove(PROVIDER_MODELS_PROVIDER + "." + providerDomain).
+                    remove(PROVIDER_MODELS_EIPSERVICE + "." + providerDomain).
+                    remove(PROVIDER_MODELS_GATEWAYS + "." + providerDomain).
+                    remove(PROVIDER_MODELS_BRIDGES + "." + providerDomain).
                     apply();
         }
     }
@@ -360,6 +377,10 @@ public class PreferenceHelper {
                     remove(PROVIDER_MOTD_HASHES).
                     remove(PROVIDER_MOTD_LAST_SEEN).
                     remove(PROVIDER_MOTD_LAST_UPDATED).
+                    remove(PROVIDER_MODELS_PROVIDER).
+                    remove(PROVIDER_MODELS_EIPSERVICE).
+                    remove(PROVIDER_MODELS_GATEWAYS).
+                    remove(PROVIDER_MODELS_BRIDGES).
                     apply();
         }
     }
@@ -691,6 +712,84 @@ public class PreferenceHelper {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static void getPersistedProviderUpdates(Provider provider) {
+        String providerDomain = provider.getDomain();
+        if (hasUpdatedProviderDetails(providerDomain)) {
+            provider.setCaCert(getPersistedProviderCA(providerDomain));
+            provider.define(getPersistedProviderDefinition(providerDomain));
+            provider.setPrivateKeyString(getPersistedPrivateKey(providerDomain));
+            provider.setVpnCertificate(getPersistedVPNCertificate(providerDomain));
+            provider.setProviderApiIp(getPersistedProviderApiIp(providerDomain));
+            provider.setProviderIp(getPersistedProviderIp(providerDomain));
+            provider.setGeoipUrl(getPersistedGeoIp(providerDomain)); // TODO: do we really need to persist the Geoip URL??
+            provider.setLastMotdSeen(getPersistedMotdLastSeen(providerDomain));
+            provider.setMotdLastSeenHashes(getPersistedMotdHashes(providerDomain));
+            provider.setLastMotdUpdate(getPersistedMotdLastUpdate(providerDomain));
+            provider.setMotdJson(getPersistedMotd(providerDomain));
+            provider.setModelsProvider(getFromPersistedProvider(PROVIDER_MODELS_PROVIDER, providerDomain));
+            provider.setService(getFromPersistedProvider(PROVIDER_MODELS_EIPSERVICE, providerDomain));
+            provider.setGateways(getFromPersistedProvider(PROVIDER_MODELS_GATEWAYS, providerDomain));
+            provider.setBridges(getFromPersistedProvider(PROVIDER_MODELS_BRIDGES, providerDomain));
+        }
+    }
+
+    public static String getPersistedPrivateKey(String providerDomain) {
+        return getFromPersistedProvider(PROVIDER_PRIVATE_KEY, providerDomain);
+    }
+
+    public static String getPersistedVPNCertificate(String providerDomain) {
+        return getFromPersistedProvider(PROVIDER_VPN_CERTIFICATE, providerDomain);
+    }
+
+    public static JSONObject getPersistedProviderDefinition(String providerDomain) {
+        try {
+            return new JSONObject(getFromPersistedProvider(Provider.KEY, providerDomain));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new JSONObject();
+        }
+    }
+
+    public static String getPersistedProviderCA(String providerDomain) {
+        return getFromPersistedProvider(CA_CERT, providerDomain);
+    }
+
+    public static String getPersistedProviderApiIp(String providerDomain) {
+        return getFromPersistedProvider(PROVIDER_API_IP, providerDomain);
+    }
+
+    public static String getPersistedProviderIp(String providerDomain) {
+        return getFromPersistedProvider(PROVIDER_IP, providerDomain);
+    }
+
+    public static String getPersistedGeoIp(String providerDomain) {
+        return getFromPersistedProvider(GEOIP_URL, providerDomain);
+    }
+
+    public static JSONObject getPersistedMotd(String providerDomain) {
+        try {
+            return new JSONObject(getFromPersistedProvider(PROVIDER_MOTD, providerDomain));
+        } catch (JSONException e) {
+            return new JSONObject();
+        }
+    }
+
+    public static long getPersistedMotdLastSeen(String providerDomain) {
+        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_SEEN, providerDomain);
+    }
+
+    public static long getPersistedMotdLastUpdate(String providerDomain) {
+        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_UPDATED, providerDomain);
+    }
+
+    public static Set<String> getPersistedMotdHashes(String providerDomain) {
+        return getStringSetFromPersistedProvider(PROVIDER_MOTD_HASHES, providerDomain);
+    }
+
+    public static boolean hasUpdatedProviderDetails(String domain) {
+        return PreferenceHelper.hasKey(Provider.KEY + "." + domain) && PreferenceHelper.hasKey(CA_CERT + "." + domain);
     }
 
     public static void setExcludedApps(Set<String> apps) {

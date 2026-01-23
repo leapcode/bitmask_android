@@ -47,7 +47,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.util.ArrayList;
@@ -981,7 +980,11 @@ public final class Provider implements Parcelable {
     }
 
     public void setIntroducer(String introducerUrl) throws NullPointerException, IllegalArgumentException {
-       this.introducer = Introducer.fromUrl(introducerUrl);
+        this.introducer = Introducer.fromUrl(introducerUrl);
+    }
+
+    public void setIntroducer(Introducer introducer) {
+        this.introducer = introducer;
     }
 
     /**
