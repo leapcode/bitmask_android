@@ -131,7 +131,9 @@ public final class Provider implements Parcelable {
             GEOIP_URL = "geoip_url",
             MOTD_URL = "motd_url";
 
-    private static final String API_TERM_NAME = "name";
+    private static final String
+            API_TERM_NAME = "name",
+            DEFAULT_LANGUAGE = "default_language";
 
     public Provider() { }
 
@@ -508,19 +510,11 @@ public final class Provider implements Parcelable {
         // Should we pass the locale in, or query the system here?
         String lang = Locale.getDefault().getLanguage();
         String name = "";
-        try {
-            if (definition != null)
-                name = definition.getJSONObject(API_TERM_NAME).getString(lang);
-            else throw new JSONException("Provider not defined");
-        } catch (JSONException e) {
-            try {
-                name = definition.getJSONObject(API_TERM_NAME).getString("en");
-            } catch (JSONException e2) {
-                if (mainUrl != null) {
-                    String host = getHostFromUrl(mainUrl);
-                    name = host.substring(0, host.indexOf("."));
-                }
-            }
+        if (modelsProvider != null) {
+            name = modelsProvider.getName().getOrDefault(lang, modelsProvider.getDefaultLanguage());
+        }
+        if (name == null || name.isEmpty()) {
+            name = getHostFromUrl(mainUrl);
         }
 
         return name;
@@ -529,15 +523,18 @@ public final class Provider implements Parcelable {
     public String getDescription() {
         String lang = Locale.getDefault().getLanguage();
         String desc = null;
-        try {
-            desc = definition.getJSONObject("description").getString(lang);
-        } catch (JSONException e) {
-            // TODO: handle exception!!
+        if (definition.has("description")) {
             try {
-                desc = definition.getJSONObject("description").getString(definition.getString("default_language"));
-            } catch (JSONException e2) {
-                // TODO: i can't believe you're doing it again!
+                desc = definition.getJSONObject("description").getString(lang);
+            } catch (JSONException e) {
+                try {
+                    desc = definition.getJSONObject("description").getString(definition.getString(DEFAULT_LANGUAGE));
+                } catch (JSONException e2) {
+                    // TODO: i can't believe you're doing it again!
+                }
             }
+        } else if (modelsProvider != null) {
+            desc = modelsProvider.getDescription().getOrDefault(lang, modelsProvider.getDescription().get(modelsProvider.getDefaultLanguage()));
         }
 
         return desc;

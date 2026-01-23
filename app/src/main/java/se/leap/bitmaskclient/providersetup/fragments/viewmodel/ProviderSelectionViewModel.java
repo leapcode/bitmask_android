@@ -162,7 +162,7 @@ public class ProviderSelectionViewModel extends ViewModel {
         if ("calyx.net".equals(domain)) {
             return "The Calyx Institute";
         }
-        return domain;
+        return getProvider(pos).getName();
     }
 
     private String getProviderNameForGeneralDescription(Provider p) {
@@ -176,7 +176,7 @@ public class ProviderSelectionViewModel extends ViewModel {
         if ("calyx.net".equals(domain)) {
             return "Calyx";
         }
-        return domain;
+        return p.getName();
     }
 
     public CharSequence getHint(Context context) {
