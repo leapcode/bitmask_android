@@ -196,16 +196,8 @@ public class PreferenceHelper {
         }
     }
 
-    public static void persistProviderAsync(Provider provider) {
-        synchronized (LOCK) {
-            storeProviderInPreferences(provider, true);
-        }
-    }
-
     public static void storeProviderInPreferences(Provider provider) {
-        synchronized (LOCK) {
-            storeProviderInPreferences(provider, false);
-        }
+        storeProviderInPreferences(provider, false);
     }
 
     /**

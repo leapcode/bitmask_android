@@ -258,7 +258,7 @@ public class StartActivity extends Activity{
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
             if (resultCode == RESULT_OK && data != null && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
-                storeProviderInPreferences( provider);
+                storeProviderInPreferences(provider);
                 ProviderObservable.getInstance().updateProvider(provider);
                 EipCommand.startVPN(this, false);
                 showNextActivity(provider);
@@ -296,7 +296,7 @@ public class StartActivity extends Activity{
             lastSeenHashes.add(hash);
             p.setMotdLastSeenHashes(lastSeenHashes);
             p.setLastMotdSeen(System.currentTimeMillis());
-            PreferenceHelper.persistProviderAsync(p);
+            PreferenceHelper.storeProviderInPreferences(p, true);
             ProviderObservable.getInstance().updateProvider(p);
         }
         showMotdFragment(message);
