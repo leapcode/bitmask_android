@@ -76,7 +76,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
     private boolean ignoreProviderAPIUpdates = false;
     private TorLogAdapter torLogAdapter;
 
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
 
     public static ConfigureProviderFragment newInstance(int position) {
