@@ -167,7 +167,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState != SCROLL_STATE_IDLE) {
                     torLogAdapter.postponeUpdate = true;
-                } else if (newState == SCROLL_STATE_IDLE && getFirstVisibleItemPosion() == 0) {
+                } else if (newState == SCROLL_STATE_IDLE && getFirstVisibleItemPosition() == 0) {
                     torLogAdapter.postponeUpdate = false;
                 }
             }
@@ -177,8 +177,12 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         binding.torState.setText(getLastTorLog());
     }
 
-    private int getFirstVisibleItemPosion() {
-        return ((LinearLayoutManager) binding.connectionDetailLogs.getLayoutManager()).findFirstVisibleItemPosition();
+    private int getFirstVisibleItemPosition() {
+        try {
+            return ((LinearLayoutManager) binding.connectionDetailLogs.getLayoutManager()).findFirstVisibleItemPosition();
+        } catch (NullPointerException npe) {
+            return 0;
+        }
     }
 
     @Override
