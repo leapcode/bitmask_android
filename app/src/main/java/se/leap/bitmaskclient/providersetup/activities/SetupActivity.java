@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -69,6 +70,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
     public static final String EXTRA_SWITCH_PROVIDER = "EXTRA_SWITCH_PROVIDER";
     private static final String TAG = SetupActivity.class.getSimpleName();
     ActivitySetupBinding binding;
+    @Nullable
     Provider provider;
     private int currentPosition = 0;
     private boolean switchProvider = false;
@@ -160,7 +162,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         binding.setupNextButton.setOnClickListener(v -> {
             int currentPos = binding.viewPager.getCurrentItem();
             int newPos = currentPos + 1;
-            if (newPos == CIRCUMVENTION_SETUP_FRAGMENT && provider.hasIntroducer()) {
+            if (newPos == CIRCUMVENTION_SETUP_FRAGMENT && provider != null && provider.hasIntroducer()) {
                 newPos = newPos + 1; // skip configuration of `CIRCUMVENTION_SETUP_FRAGMENT` when invite code provider is selected
             }
             if (newPos >= binding.viewPager.getAdapter().getItemCount()) {
@@ -409,9 +411,13 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     @Override
     public void updateProviderDetails() {
-        provider.reset();
-        deleteProviderDetailsFromPreferences(provider.getDomain());
-        binding.viewPager.setCurrentItem(adapter.getFragmentPostion(CONFIGURE_PROVIDER_FRAGMENT));
+        if (provider != null) {
+            provider.reset();
+            deleteProviderDetailsFromPreferences(provider.getDomain());
+            binding.viewPager.setCurrentItem(adapter.getFragmentPostion(CONFIGURE_PROVIDER_FRAGMENT));
+        } else {
+            cancel();
+        }
     }
 
     @Override
