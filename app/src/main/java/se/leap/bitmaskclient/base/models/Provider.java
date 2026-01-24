@@ -66,6 +66,7 @@ import io.swagger.client.model.ModelsProvider;
 import motd.IStringCollection;
 import motd.Motd;
 import se.leap.bitmaskclient.BuildConfig;
+import se.leap.bitmaskclient.base.utils.MapCompat;
 
 /**
  * @author Sean Leonard <meanderingcode@aetherislands.net>
@@ -509,14 +510,32 @@ public final class Provider implements Parcelable {
         // Should we pass the locale in, or query the system here?
         String lang = Locale.getDefault().getLanguage();
         String name = "";
-        if (modelsProvider != null) {
-            name = modelsProvider.getName().getOrDefault(lang, modelsProvider.getDefaultLanguage());
+        if (apiVersion < 5) {
+            name = getApiv3Name(lang);
+        } else if (modelsProvider != null) {
+            name = MapCompat.getOrDefault(modelsProvider.getName(), lang, modelsProvider.getDefaultLanguage());
         }
         if (name == null || name.isEmpty()) {
             name = getHostFromUrl(mainUrl);
         }
 
         return name;
+    }
+
+    private String getApiv3Name(String language) {
+        String name = null;
+        if (definition == null) {
+            return null;
+        }
+        try {
+            return definition.getJSONObject(API_TERM_NAME).getString(language);
+        } catch (JSONException e) {
+            try {
+                String defaultLanguage = definition.getString(DEFAULT_LANGUAGE);
+                return definition.getJSONObject(API_TERM_NAME).getString(defaultLanguage);
+            } catch (JSONException ignored) { }
+        }
+        return null;
     }
 
     public String getDescription() {
@@ -533,7 +552,7 @@ public final class Provider implements Parcelable {
                 }
             }
         } else if (modelsProvider != null) {
-            desc = modelsProvider.getDescription().getOrDefault(lang, modelsProvider.getDescription().get(modelsProvider.getDefaultLanguage()));
+            desc = MapCompat.getOrDefault(modelsProvider.getDescription(), lang, modelsProvider.getDescription().get(modelsProvider.getDefaultLanguage()));
         }
 
         return desc;
