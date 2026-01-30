@@ -73,7 +73,7 @@ RUN gem install bundler fastlane
 # ------------------------------------------------------
 # --- Install Android NDK (for running C code)
 
-#ENV ANDROID_NDK_VERSION "r21e"
+#ENV ANDROID_NDK_VERSION "r28c"
 #ENV ANDROID_NDK_HOME ${ANDROID_HOME}/android-ndk-${ANDROID_NDK_VERSION}
 #ENV ANDROID_NDK_URL http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip
 #ENV ANDROID_SDK_ROOT ${ANDROID_HOME}/latest/cmdline-tools

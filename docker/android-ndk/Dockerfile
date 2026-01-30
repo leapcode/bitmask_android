@@ -32,9 +32,9 @@ RUN apt-get update -qq && \
 # ------------------------------------------------------
 # --- Install Android NDK (for running C code)
 
-ENV ANDROID_NDK_VERSION "r21e"
-ENV ANDROID_NDK_VERSION_NUMBER "21.4.7075529"
-ENV ANDROID_NDK_URL http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip
+ENV ANDROID_NDK_VERSION "r28c"
+ENV ANDROID_NDK_VERSION_NUMBER "28.2.13676358"
+ENV ANDROID_NDK_URL http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux.zip
 ENV ANDROID_SDK_ROOT ${ANDROID_HOME}/latest/cmdline-tools
 
 RUN echo $JAVA_HOME
@@ -58,8 +58,8 @@ RUN sdkmanager --list
 RUN sdkmanager "cmake;3.10.2.4988404"
 
 # Install Go environment
-ENV GO_VERSION=go1.22.2.linux-amd64
-ENV EXPECTED_FP=5901c52b7a78002aeff14a21f93e0f064f74ce1360fce51c6ee68cd471216a17
+ENV GO_VERSION=go1.24.12.linux-amd64
+ENV EXPECTED_FP=bddf8e653c82429aea7aec2520774e79925d4bb929fe20e67ecc00dd5af44c50
 ENV GO_DOWNLOAD_URL=https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz
 ENV GOROOT=/usr/local/go
 ENV GOBIN=/usr/local/go/bin
