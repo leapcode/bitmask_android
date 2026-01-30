@@ -1,6 +1,6 @@
 FROM registry.0xacab.org/leap/bitmask_android/android-sdk:latest
 
-MAINTAINER LEAP Encryption Access Project <info@leap.se>
+LABEL Author="LEAP Encryption Access Project <info@leap.se>""
 LABEL Description="Android SDK baseimage based on debian:bullseye" Vendor="LEAP" Version="34"
 
 # Make sure debconf doesn't complain about lack of interactivity

@@ -13,8 +13,8 @@ DIR_GOLIBS=./bitmask-core-android/lib/
 #FILE_X86=./go/out/x86/piedispatcherlib
 #FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib
 DIR_TORLIBS=./tor-android/external/lib
-EXPECTED_NDK_VERSION="21.4.7075529"
-EXPECTED_ANDROID_NDK_RELEASE_VERSION="r21e"
+EXPECTED_NDK_VERSION="28.2.13676358"
+EXPECTED_ANDROID_NDK_RELEASE_VERSION="r28c"
 if [[ -z $BUILD_TOR ]]; then BUILD_TOR=true; fi
 if [[ -z $BUILD_OPENVPN_LIBS ]]; then BUILD_OPENVPN_LIBS=true; fi
 

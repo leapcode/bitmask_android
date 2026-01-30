@@ -1,6 +1,6 @@
 FROM registry.0xacab.org/leap/bitmask_android/android-sdk:latest
 
-MAINTAINER LEAP Encryption Access Project <info@leap.se>
+LABEL Author="LEAP Encryption Access Project <info@leap.se>"
 LABEL Description="Android NDK image based on android-sdk baseimage" Vendor="LEAP" Version="r21e"
 
 # Make sure debconf doesn't complain about lack of interactivity

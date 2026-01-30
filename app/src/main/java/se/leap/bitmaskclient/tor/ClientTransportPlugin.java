@@ -38,6 +38,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
@@ -47,7 +48,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import IPtProxy.Controller;
 import IPtProxy.IPtProxy;
+import IPtProxy.OnTransportEvents;
 
 public class ClientTransportPlugin implements ClientTransportPluginInterface, PropertyChangeListener {
     public static String TAG = ClientTransportPlugin.class.getSimpleName();
@@ -61,12 +64,27 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Pr
     private String logfilePath;
     Handler handler;
     HandlerThread handlerThread;
+    Controller controller;
 
     public ClientTransportPlugin(Context context) {
         this.contextRef = new WeakReference<>(context);
         handlerThread = new HandlerThread("clientTransportPlugin", Thread.MIN_PRIORITY);
         loadCdnFronts(context);
-        IPtProxy.setStateLocation(context.getApplicationContext().getCacheDir() + "/pt_state");
+        controller = initializeController(context.getApplicationContext());
+    }
+
+    private Controller initializeController(Context context)  {
+        File ptDir = new File(context.getApplicationContext().getCacheDir(), "/pt_state");
+        return IPtProxy.newController(ptDir.getAbsolutePath(), true, false, "DEBUG", new OnTransportEvents() {
+            @Override
+            public void connected(String s) { }
+
+            @Override
+            public void error(String s, Exception e) { }
+
+            @Override
+            public void stopped(String s, Exception e) { }
+        });
     }
 
     @Override
@@ -127,7 +145,19 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Pr
      @return Port number where Snowflake will listen on, if no error happens during start up.
  */
     private long startSnowflake(String ice, String url, String fronts, String ampCache, String sqsQueueURL, String sqsCredsStr, String logFile, boolean logToStateDir, boolean keepLocalAddresses, boolean unsafeLogging, long maxPeers) {
-        return IPtProxy.startSnowflake(ice, url, fronts, ampCache, sqsQueueURL, sqsCredsStr, logFile, logToStateDir, keepLocalAddresses, unsafeLogging, maxPeers);
+        try {
+            if (ice != null) controller.setSnowflakeIceServers(ice);
+            if (url != null) controller.setSnowflakeBrokerUrl(url);
+            if (fronts != null) controller.setSnowflakeFrontDomains(fronts);
+            if (ampCache != null) controller.setSnowflakeAmpCacheUrl(ampCache);
+            if (sqsQueueURL != null) controller.setSnowflakeSqsUrl(sqsQueueURL);
+            if (sqsCredsStr != null) controller.setSnowflakeSqsCreds(sqsCredsStr);
+            controller.setSnowflakeMaxPeers(5);
+            controller.start(IPtProxy.Snowflake, "");
+            return  new URL("https://"+controller.localAddress(IPtProxy.Snowflake)).getPort();
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     private void retryConnectionAttempt(boolean useAmpCache) {
@@ -173,13 +203,15 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Pr
             logFileObserver = null;
         }
         TorStatusObservable.getInstance().deleteObserver(this);
+        controller.stop(IPtProxy.Snowflake);
+        controller = null;
         handlerThread.quit();
         handler = null;
         handlerThread = null;
     }
 
     private void stopConnectionAttempt() {
-        IPtProxy.stopSnowflake();
+        controller.stop(IPtProxy.Snowflake);
         try {
             TorStatusObservable.waitUntil(this::isSnowflakeOff, 10);
         } catch (InterruptedException | TimeoutException e) {
@@ -231,7 +263,7 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Pr
         if (matcher.matches()) {
             try {
                 String strippedString = matcher.group(3).trim();
-                if (strippedString.length() > 0) {
+                if (!strippedString.isEmpty()) {
                     TorStatusObservable.logSnowflakeMessage(contextRef.get(), strippedString);
                 }
             } catch (IndexOutOfBoundsException | IllegalStateException | NullPointerException e) {

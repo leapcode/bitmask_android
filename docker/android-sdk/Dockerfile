@@ -1,6 +1,6 @@
 FROM 0xacab.org:4567/leap/docker/debian:bullseye_amd64
 
-MAINTAINER LEAP Encryption Access Project <info@leap.se>
+LABEL Author="LEAP Encryption Access Project <info@leap.se>"
 LABEL Description="Android SDK baseimage based on debian:bullseye" Vendor="LEAP" Version="33.0.0"
 
 # ------------------------------------------------------
