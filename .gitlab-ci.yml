@@ -96,6 +96,38 @@ screenshot:
     expire_in: 3 days
   allow_failure: true
 
+sync-source-strings-to-l10n:
+  stage: .pre
+  image:
+    name: alpine/git
+    entrypoint: [""]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - app/src/main/res/values/strings.xml
+  before_script:
+
+  script:
+    - git config --global user.name "L10N Bot"
+    - git config --global user.email "leap-code-o-matic@leap.se"
+    - NEW_BRANCH="source-update-$CI_COMMIT_SHORT_SHA"
+
+    # shallow clone l10n repo
+    - git clone --depth 1 -b bitmask https://oauth2:${bitmask_2_l10n}@0xacab.org/leap/l10n.git
+    - cd l10n
+    
+    # make new branch - copy files
+    - git checkout -b $NEW_BRANCH
+    - mkdir -p android/values
+    - cp ../app/src/main/res/values/strings.xml bitmask/
+    
+    # commit upon changes
+    - git add bitmask/strings.xml
+    - git commit -m "Update source strings from bitmask_android $CI_COMMIT_SHORT_SHA" || exit 0
+    
+    # push and mr
+    - git push -o merge_request.create -o merge_request.target=bitmask origin $NEW_BRANCH
+    
 #ui_test:
 #  image: "0xacab.org:4567/leap/bitmask_android/android-emulator:latest"
 #  stage: test
