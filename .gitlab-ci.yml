@@ -97,7 +97,7 @@ screenshot:
   allow_failure: true
 
 sync-source-strings-to-l10n:
-  stage: .pre
+  stage: .post
   image:
     name: alpine/git
     entrypoint: [""]
