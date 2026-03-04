@@ -198,7 +198,7 @@ You can execute all unit tests from the command line with:
 
 ## Localization and translate <a name="Localization"></a>
 
-All the localizations happen in Transifex. How to generate, push, pull the translations are detailed in src/README.md
+Localizations happens in weblate. How to generate, push, pull the translations are detailed in src/README.md
 
 ## Supported Versions <a name="supported-versions"></a>
 
@@ -215,6 +215,6 @@ Please file bug tickets on our main [development platform](https://0xacab.org/le
 
 Please fork this repository and contribute back using [pull requests](https://0xacab.org/leap/bitmask_android/merge_requests).
 
-Our preferred method for receiving translations is our [Transifex project](https://www.transifex.com/otf/bitmask). Localization Lab helps us with on-boarding volunteers. If you are new to translations and Transifex we've got a [short how-to](https://wiki.localizationlab.org/index.php/Bitmask).
+Our preferred method for receiving translations is [this weblate platform](https://localizationlab.weblate.cloud/projects/bitmask/). Localization Lab helps us a lot here, including onboarding new volunteers. If you are new to translations and weblate, we've got a [short how-to](https://wiki.localizationlab.org/index.php/Bitmask).
 
 Any contributions, large or small, major features, bug fixes, additional language translations, unit/integration tests are welcomed and appreciated but will be thoroughly reviewed and discussed.
