@@ -31,10 +31,10 @@ translated.
 
 ## Notes:
 
-Translations that aren't completed (enough), won't be downloaded. Configure in .tx/config
-The scripts create empty json files, because transifex needs them to even check.
-Keep your API tokens at hand.
-You need the tx cli client from transifex, pyton3, ptyhon3-babel
+Translations that aren't completed (enough), won't be integrated.
+When there are new strings in this Android project at ../app/src/main/res/values/strings.xml in the main branch,
+they will be updated in the bitmask branch here: https://0xacab.org/leap/l10n/-/tree/bitmask?ref_type=heads
+Webhooks are configured to have weblate updating https://localizationlab.weblate.cloud/projects/bitmask/bitmask-android/
 
 ## How to update FROM the google play store:
 
