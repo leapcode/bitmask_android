@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.databinding.FSetupSuccessBinding;
+import se.leap.bitmaskclient.tor.TorServiceCommand;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 public class SetupSuccessFragment extends BaseSetupFragment {
 
@@ -39,6 +41,9 @@ public class SetupSuccessFragment extends BaseSetupFragment {
         super.onFragmentSelected();
         setupActivityCallback.setNavigationButtonHidden(true);
         setupActivityCallback.setCancelButtonHidden(true);
+        if (TorStatusObservable.isRunning()) {
+            TorServiceCommand.stopTorServiceAsync(this.requireContext());
+        }
     }
 
 }
