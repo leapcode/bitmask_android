@@ -1,0 +1,3 @@
+ice stun:stun.antisip.com:3478,stun:stun.epygi.com:3478,stun:stun.uls.co.za:3478,stun:stun.voipgate.com:3478,stun:stun.nextcloud.com:3478,stun:stun.bethesda.net:3478,stun:stun.nextcloud.com:443
+sqsqueue https://sqs.us-east-2.amazonaws.com/490393006362/snowflake-broker
+sqscreds eyJhd3MtYWNjZXNzLWtleS1pZCI6IkFLSUFYRUxOVE9FTkdCWVU3NkVBIiwiYXdzLXNlY3JldC1rZXkiOiJHdTlTWm9xTVg2WENIa2dZazlHZnBvYlpoVFZMdzNpL0N5cFdVVGZOIn0=

@@ -15,13 +15,7 @@ package se.leap.bitmaskclient.tor;
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.BROKER_REPLIED_SUCCESS;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.NEGOTIATING_RENDEZVOUS_VIA_AMP_CACHE;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.NEGOTIATING_RENDEZVOUS_VIA_HTTP;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.RETRY_AMP_CACHE_RENDEZVOUS;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.RETRY_HTTP_RENDEZVOUS;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.SENDING_DATA;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.STARTED;
+
 import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.STOPPED;
 
 import android.content.Context;
@@ -59,33 +53,14 @@ public class TorStatusObservable {
 
     public enum SnowflakeStatus {
         STARTED,
-        NEGOTIATING_RENDEZVOUS_VIA_HTTP,
-        NEGOTIATING_RENDEZVOUS_VIA_AMP_CACHE,
-        RETRY_HTTP_RENDEZVOUS,
-        RETRY_AMP_CACHE_RENDEZVOUS,
-        BROKER_REPLIED_SUCCESS,
-        SENDING_DATA,
+        CONNECTED,
+        RECONNECTING,
         STOPPED
     }
 
     // indicates if the user has cancelled Tor, the actual TorStatus can still be different until
     // the TorService has sent the shutdown signal
     private boolean cancelled = false;
-
-    public static final String LOG_TAG_TOR = "[TOR]";
-    public static final String LOG_TAG_SNOWFLAKE = "[SNOWFLAKE]";
-    public static final String SNOWFLAKE_STARTED = "--- Starting Snowflake Client ---";
-    public static final String SNOWFLAKE_STOPPED_COLLECTING = "---- SnowflakeConn: end collecting snowflakes ---";
-    public static final String SNOWFLAKE_COPY_LOOP_STOPPED = "copy loop ended";
-    public static final String SNOWFLAKE_SOCKS_ERROR = "SOCKS accept error";
-    public static final String SNOWFLAKE_NEGOTIATING_HTTP = "Negotiating via HTTP rendezvous...";
-    public static final String SNOWFLAKE_NEGOTIATING_AMP_CACHE = "Negotiating via AMP cache rendezvous...";
-    public static final String SNOWFLAKE_CONNECTION_CLOSING = "WebRTC: Closing";
-    public static final String SNOWFLAKE_HTTP_RESPONSE_200 = "HTTP rendezvous response: 200";
-    public static final String SNOWFLAKE_AMP_CACHE_RESPONSE_200 = "AMP cache rendezvous response: 200";
-
-    public static final String SNOWFLAKE_SENDING_DATA = "Traffic Bytes (in|out):";
-
 
     private static TorStatusObservable instance;
     private TorStatus status = TorStatus.OFF;
@@ -97,7 +72,6 @@ public class TorStatusObservable {
     private int port = -1;
     private int socksPort = -1;
     private int bootstrapPercent = -1;
-    private int retrySnowflakeRendezVous = 0;
     private final Vector<String> lastLogs = new Vector<>(100);
 
     private TorStatusObservable() {
@@ -118,6 +92,18 @@ public class TorStatusObservable {
 
     public static SnowflakeStatus getSnowflakeStatus() {
         return getInstance().snowflakeStatus;
+    }
+
+    public static void setSnowflakeStatus(TorStatusObservable.SnowflakeStatus snowflakeStatus) {
+        setSnowflakeStatus(snowflakeStatus, null);
+    }
+
+    public static void setSnowflakeStatus(TorStatusObservable.SnowflakeStatus snowflakeStatus, String snowflakeLog) {
+        if (snowflakeLog != null) {
+            getInstance().lastSnowflakeLog = snowflakeLog;
+        }
+        getInstance().snowflakeStatus = snowflakeStatus;
+        instance.notifyObservers();
     }
 
     /**
@@ -163,46 +149,8 @@ public class TorStatusObservable {
         if (getInstance().status != TorStatus.OFF) {
             getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getBootstrapProgress());
         }
-        //TODO: implement proper state signalling in IPtProxy
         message = message.trim();
-        if (SNOWFLAKE_STARTED.equals(message)) {
-            getInstance().snowflakeStatus = STARTED;
-            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_started);
-        } else if (SNOWFLAKE_NEGOTIATING_HTTP.equals(message)) {
-            getInstance().snowflakeStatus = NEGOTIATING_RENDEZVOUS_VIA_HTTP;
-            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_negotiating_rendezvous_http);
-        } else if (SNOWFLAKE_NEGOTIATING_AMP_CACHE.equals(message)) {
-            getInstance().snowflakeStatus = NEGOTIATING_RENDEZVOUS_VIA_AMP_CACHE;
-            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_negotiating_rendezvous_amp_cache);
-        } else if (SNOWFLAKE_STOPPED_COLLECTING.equals(message) ||
-                SNOWFLAKE_COPY_LOOP_STOPPED.equals(message) ||
-                message.contains(SNOWFLAKE_SOCKS_ERROR)) {
-            getInstance().snowflakeStatus = STOPPED;
-            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_socks_error);
-        } else if (SNOWFLAKE_CONNECTION_CLOSING.equals(message)) {
-            if (getInstance().snowflakeStatus == NEGOTIATING_RENDEZVOUS_VIA_HTTP) {
-                if (getInstance().retrySnowflakeRendezVous < 3) {
-                    getInstance().retrySnowflakeRendezVous += 1;
-                } else {
-                    getInstance().retrySnowflakeRendezVous = 0;
-                    getInstance().snowflakeStatus = RETRY_AMP_CACHE_RENDEZVOUS;
-                }
-            } else if (getInstance().snowflakeStatus == NEGOTIATING_RENDEZVOUS_VIA_AMP_CACHE) {
-                if (getInstance().retrySnowflakeRendezVous < 3) {
-                    getInstance().retrySnowflakeRendezVous += 1;
-                } else {
-                    getInstance().retrySnowflakeRendezVous = 0;
-                    getInstance().snowflakeStatus = RETRY_HTTP_RENDEZVOUS;
-                }
-            }
-        } else if (SNOWFLAKE_AMP_CACHE_RESPONSE_200.equals(message) || SNOWFLAKE_HTTP_RESPONSE_200.equals(message)) {
-            getInstance().snowflakeStatus = BROKER_REPLIED_SUCCESS;
-            getInstance().retrySnowflakeRendezVous = 0;
-            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_broker_success);
-        } else if (message.contains(SNOWFLAKE_SENDING_DATA)) {
-            getInstance().snowflakeStatus = SENDING_DATA;
-            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_sending_data);
-        }
+        getInstance().lastSnowflakeLog = message;
         Log.d(TAG, "snowflake status " + getInstance().snowflakeStatus);
         instance.notifyObservers();
     }

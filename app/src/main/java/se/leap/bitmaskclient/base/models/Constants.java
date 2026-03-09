@@ -44,6 +44,8 @@ public interface Constants {
     String PREFERRED_CITY = "preferred_city";
     // ATTENTION: this key is also used in bitmask-core for persistence
     String COUNTRYCODE = "COUNTRYCODE";
+    // ATTENTION: this key is also used in bitmask-core
+    String GEOIP_LOOKUP_URL = "";
     String USE_SNOWFLAKE = "use_snowflake";
     String PREFER_UDP = "prefer_UDP";
     String GATEWAY_PINNING = "gateway_pinning";

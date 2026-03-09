@@ -20,6 +20,7 @@ import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.base.models.Constants.EXCLUDED_APPS;
 import static se.leap.bitmaskclient.base.models.Constants.FIRST_TIME_USER_DATE;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAY_PINNING;
+import static se.leap.bitmaskclient.base.models.Constants.GEOIP_LOOKUP_URL;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_DONATION_REMINDER_DATE;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_UPDATE_CHECK;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_USED_PROFILE;
@@ -218,7 +219,7 @@ public class PreferenceHelper {
                 try {
                    introducer = Introducer.fromUrl(BitmaskCoreProvider.getBitmaskMobile().getIntroducerURLByDomain(domain));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.w(TAG, "introducer lookup: " + e.getMessage());
                 }
                 Provider customProvider = new Provider(mainURL);
                 customProvider.setIntroducer(introducer);
@@ -668,6 +669,13 @@ public class PreferenceHelper {
 
     public static void setBaseCountry(String countryCode) {
         putString(COUNTRYCODE, countryCode);
+    }
+
+    public static void setGeoIPLookupURL(String url) {
+        putString(GEOIP_LOOKUP_URL, url);
+    }
+    public static String getGeoIPLookupURL() {
+        return getString(GEOIP_LOOKUP_URL, null);
     }
 
     public static String getPreferredCity() {

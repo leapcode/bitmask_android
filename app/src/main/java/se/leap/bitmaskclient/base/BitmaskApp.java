@@ -28,6 +28,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProvider
 import android.content.IntentFilter;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -44,6 +45,7 @@ import java.security.Security;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.ClientTransportPluginProvider;
 import se.leap.bitmaskclient.base.utils.PRNGFixes;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
@@ -61,10 +63,10 @@ public class BitmaskApp extends MultiDexApplication implements DefaultLifecycleO
     private ProviderObservable providerObservable;
     private DownloadBroadcastReceiver downloadBroadcastReceiver;
     private TorStatusObservable torStatusObservable;
-
     private ProviderSetupObservable providerSetupObservable;
 
     private PreferenceHelper preferenceHelper;
+
 
 
     @Override
@@ -85,6 +87,7 @@ public class BitmaskApp extends MultiDexApplication implements DefaultLifecycleO
         providerObservable.updateProvider(getSavedProviderFromSharedPreferences());
         torStatusObservable = TorStatusObservable.getInstance();
         providerSetupObservable = ProviderSetupObservable.getInstance();
+        ClientTransportPluginProvider.init(this);
         EipSetupObserver.init(this);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);

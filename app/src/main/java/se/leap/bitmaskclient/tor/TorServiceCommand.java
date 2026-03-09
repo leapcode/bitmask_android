@@ -33,6 +33,7 @@ import org.torproject.jni.TorService;
 
 import java.util.concurrent.TimeoutException;
 
+import se.leap.bitmaskclient.base.utils.ClientTransportPluginProvider;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 public class TorServiceCommand {
@@ -159,7 +160,7 @@ public class TorServiceCommand {
         if (PreferenceHelper.getUseSnowflake()) {
             Log.d(TAG, "serviceConnection is still null");
             if (!TorService.hasClientTransportPlugin()) {
-                TorService.setClientTransportPlugin(new ClientTransportPlugin(context.getApplicationContext()));
+                TorService.setClientTransportPlugin(ClientTransportPluginProvider.get());
             }
             return new TorServiceConnection(context);
         }
