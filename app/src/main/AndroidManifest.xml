@@ -34,7 +34,7 @@
         android:localeConfig="@xml/locales_config">
         <activity
             android:name=".providersetup.activities.SetupActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"
             android:exported="false" />
