@@ -8,8 +8,8 @@ android {
   namespace = "se.leap.bitmaskclient"
 
   compileOptions {
-    targetCompatibility = JavaVersion.VERSION_17
-    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_21
   }
 
   viewBinding {
@@ -35,7 +35,7 @@ android {
     versionCode 182000
     versionName "1.5.3"
     compileSdk 35
-    minSdkVersion 21
+    minSdkVersion 24
     targetSdkVersion 35
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
