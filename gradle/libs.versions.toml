@@ -3,25 +3,100 @@ androidx-junit = "1.3.0"
 androidx-localbroadcast = "1.1.0"
 androidx-rules = "1.7.0"
 androidx-runner = "1.7.0"
+annotation = "1.9.1"
 appcompat = "1.7.1"
+appcompat-version = "1.7.1"
+bcprov-jdk15on = "1.70"
+circleimageview = "3.1.0"
 commons-io = "2.21.0"
 commons-net = "3.12.0"
+conscrypt-android = "2.5.3"
+conscrypt-openjdk-uber = "2.5.2"
+constraintlayout = "2.2.1"
+core = "1.6.1"
+core-version = "1.16.0"
 dokka = "2.1.0"
+espresso-contrib = "3.7.0"
+espresso-core = "3.7.0"
+fragment-testing = "1.8.9"
+gson = "2.13.2"
+gson-fire = "1.9.0"
+json = "20251224"
 jtorctl = "0.4.5.7"
-kotlin = "2.3.0"
+junit = "4.13.2"
+junit-dataprovider = "1.13.1"
+junit-version = "1.3.0"
+kotlin = "2.3.10"
+leakcanary-android-core = "2.14"
+legacy-support-core-utils = "1.0.0"
+lifecycle-process = "2.10.0"
+material = "1.13.0"
+mockito-core = "3.6.0"
+mockito-core-version = "3.9.0"
+multidex = "2.0.1"
 netcipher = "2.1.0"
 nmcp = "1.4.4"
+okhttp = "4.10.0"
+powermock-api-mockito2 = "2.0.9"
+robolectric = "4.16.1"
+screengrab = "2.1.1"
+security-crypto = "1.1.0"
+swagger-annotations = "1.6.16"
+threetenbp = "1.7.2"
+uiautomator = "2.3.0"
+zxing-android-embedded = "4.3.0"
 
 [libraries]
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-appcompat-v170 = { module = "androidx.appcompat:appcompat", version.ref = "appcompat-version" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-core = { module = "androidx.test:core", version.ref = "core" }
+androidx-espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso-contrib" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core" }
+androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso-core" }
+androidx-fragment = { module = "androidx.fragment:fragment", version.ref = "fragment-testing" }
+androidx-fragment-testing = { module = "androidx.fragment:fragment-testing", version.ref = "fragment-testing" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+androidx-junit-v121 = { module = "androidx.test.ext:junit", version.ref = "junit-version" }
+androidx-legacy-support-core-utils = { module = "androidx.legacy:legacy-support-core-utils", version.ref = "legacy-support-core-utils" }
+androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacy-support-core-utils" }
+androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle-process" }
 androidx-localbroadcast = { module = "androidx.localbroadcastmanager:localbroadcastmanager", version.ref = "androidx-localbroadcast" }
+androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 androidx-rules = { module = "androidx.test:rules", version.ref = "androidx-rules" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "androidx-runner" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
+androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
+bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "bcprov-jdk15on" }
+circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commons-net" }
+conscrypt-android = { module = "org.conscrypt:conscrypt-android", version.ref = "conscrypt-android" }
+conscrypt-openjdk-uber = { module = "org.conscrypt:conscrypt-openjdk-uber", version.ref = "conscrypt-openjdk-uber" }
+core = { module = "androidx.core:core", version.ref = "core-version" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+gson-fire = { module = "io.gsonfire:gson-fire", version.ref = "gson-fire" }
+json = { module = "org.json:json", version.ref = "json" }
 jtorctl = { module = "info.guardianproject:jtorctl", version.ref = "jtorctl" }
+junit = { module = "junit:junit", version.ref = "junit" }
+junit-dataprovider = { module = "com.tngtech.java:junit-dataprovider", version.ref = "junit-dataprovider" }
+leakcanary-android-core = { module = "com.squareup.leakcanary:leakcanary-android-core", version.ref = "leakcanary-android-core" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito-core" }
+mockito-core-v390 = { module = "org.mockito:mockito-core", version.ref = "mockito-core-version" }
 netcipher = { module = "info.guardianproject.netcipher:netcipher", version.ref = "netcipher" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-dnsoverhttps = { module = "com.squareup.okhttp3:okhttp-dnsoverhttps", version.ref = "okhttp" }
+powermock-api-mockito2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "powermock-api-mockito2" }
+powermock-core = { module = "org.powermock:powermock-core", version.ref = "powermock-api-mockito2" }
+powermock-module-junit4 = { module = "org.powermock:powermock-module-junit4", version.ref = "powermock-api-mockito2" }
+powermock-module-junit4-rule = { module = "org.powermock:powermock-module-junit4-rule", version.ref = "powermock-api-mockito2" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+screengrab = { module = "tools.fastlane:screengrab", version.ref = "screengrab" }
+swagger-annotations = { module = "io.swagger:swagger-annotations", version.ref = "swagger-annotations" }
+threetenbp = { module = "org.threeten:threetenbp", version.ref = "threetenbp" }
+zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxing-android-embedded" }
 
 [plugins]
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
