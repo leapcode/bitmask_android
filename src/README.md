@@ -1,10 +1,17 @@
 # Updating l10n, metadata, f-droid, google play store
 
-Easy to get confused, app strings, store strings, transifex, play store…
+Easy to get confused, app strings, store strings, weblate, play store…
 
 # Update app strings
 
-Any string that will be changed in the source language (en_US) in the  master branch, will be picked up by transifex. Translators get notified about source string changes, best to put many changes at once. Notify translators, beta test users and localization lab about an upcoming release and request contributions.
+Any string that appear in the master branch, will create a merge request in the
+localization branch at
+https://localizationlab.weblate.cloud/projects/bitmask/bitmask-android/ . Translators get
+notified about source string changes in weblate. The reasoning: the CI only creates a
+merge request when the other build pieces work (think of broken strings &$\). The merge request nudges another pair of
+eyes to have a second look before publishing to weblate. Because there usually isn't a
+very tight release schedule or only a short time window before release, this avoids too
+many untranslated strings. A beta release can also have new strings and give feedback.
 
 # Metadata: F-Droid compatible fastlane metadata directory
 
@@ -19,13 +26,14 @@ Keep an eye on this [issue](https://gitlab.com/fdroid/fdroidserver/-/issues/829)
 
 1. Fetch content from google play (en_US) with scripts/fetch-play-metadata.py
 1. Check if there are changes with what fastlane creates in src/normal/fastlane/metadata/.. 
-1. Now is a good moment to do a round of `APP` translation pulls. The
-scripts/pulltranslations.py checks which translations for the app exist, to make sure
-that we don't push metadata translations to the play store without having the app
-translated.
-1. tx push se.leap.riseupvpn-desc.json -l en
-1. wait for localization, answer questions, fix wording. Repeat when necessary.
-1. Pull from transifex: tx pull -f --keep-new-files
+1. Check out the translated metadata: `git clone -b bitmask-playstore https://0xacab.org/leap/l10n.git (the other branches for custom builds)
+1. When there were any changes on weblate, they should be at https://0xacab.org/leap/l10n/-/tree/bitmask-playstore?ref_type=heads (or the RiseupVPN, for flavors). Maybe still as a merge request. Reach out to translators if there are important strings missing.
+1. You want to double check: if the app is only half translated, you probably do not want to push an app store localization.
+1. Pull store metadata translations from the l10n git repo scripts/pullTranslations.py main (or custom flavor)
+
+
+1. Pull translations to this repository, from your earlier git clones: 
+
 1. prepare for upload and store digestion: scripts/prepareForTx.py
 1. use fastlane to push to the google store
 

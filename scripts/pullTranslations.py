@@ -1,164 +1,272 @@
 #!/usr/bin/env python3
-""
+"""
+Pull store metadata translations from the l10n git repo and split into
+fastlane-compatible files. Creates a MR against bitmask_android.
+"""
 __author__ = "kwadronaut, cyberta"
-__copyright__ = "Copyright 2023, LEAP"
-__license__ = "GPL3 or later3 or later3 or later"
-__version__ = "2"
+__copyright__ = "Copyright 2026, LEAP"
+__license__ = "GPL3 or later"
+__version__ = "3"
 
 import os
 import re
-import argparse
 import json
+import shutil
 import subprocess
 import sys
+import argparse
+import tempfile
+import urllib.request
+import urllib.error
 
 def get_script_path():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
 
 
-# Set the path to the res directory containing different language folders
-main_res_dir = get_script_path() + "/../app/src/main/res"
-custom_res_dir = get_script_path() + "/../app/src/custom/res"
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
 
-# List all valid locale folders in the res directory
-# We don't want to create a translated store listing without localized app
-def list_locales(app_type):
-    locales = []
-    if app_type == "main":
-        res_dir = main_res_dir
-    elif app_type == "custom":
-        res_dir = custom_res_dir
-    else:
-        raise ValueError("Invalid app type. Use 'main' or 'custom'.")
+APP_CONFIG = {
+    "main": {
+        "l10n_branch": "bitmask-playstore",
+        "metadata_dir": "src/normalProductionFat/fastlane/metadata/android",
+    },
+    "custom": {
+        "l10n_branch": "bitmask.riseupvpn-playstore-metadata",
+        "metadata_dir": "src/customProductionFat/fastlane/metadata/android",
+    },
+}
 
-    valid_locale_pattern = re.compile(r'^values-(?P<language>[a-z]{2})(-(?P<script>[a-zA-Z]{4}))?(-r(?P<region>[a-zA-Z]{2}))?$')
-    for folder in os.listdir(res_dir):
-        if valid_locale_pattern.match(folder):
-            locale_code = valid_locale_pattern.match(folder).group(0)
-            locales.append(locale_code)
+L10N_REPO = "https://0xacab.org/leap/l10n.git"
+GITLAB_API = "https://0xacab.org/api/v4"
+BITMASK_ANDROID_PROJECT_ID = "leap%2Fbitmask_android"  
 
-    # add default locale
-    locales.append("en-US")
+# Play Store doesn't support Cuban Spanish, but maybe other store do
+SKIP_LOCALES = {"es_CU"}
 
-    return locales
+# Explicit locale mappings: l10n filename stem -> Play Store / fastlane dir name
+# Only entries that differ from the default (underscore->dash) need to be here
+LOCALE_MAP = {
+    "en":      "en-US",
+    "zh_Hans": "zh-CN",
+    "zh_Hant": "zh-TW",
+    "pt_BR":   "pt-BR",
+}
 
-# Create empty JSON file for each locale metadata directory
-# If there's no file, tx will skip the translations
-def create_metadata_files(locales, app_type):
-    if app_type == "main":
-        metadata_dir = get_script_path() + "/../src/normalProductionFat/fastlane/metadata/android"
-    elif app_type == "custom":
-        metadata_dir = get_script_path() + "/../src/customProductionFat/fastlane/metadata/android"
-    else:
-        raise ValueError("Invalid app type. Use 'main' or 'custom'.")
-    for locale_code in locales:
-        locale_dir_name = map_android_locale_dir_to_metadata_dir(locale_code)
-        file_path = os.path.join(metadata_dir, locale_dir_name, f"store-meta-{locale_dir_name}.json")
-        if not os.path.exists(file_path):  # Check if the file already exists
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(file_path, "w", encoding="utf-8") as file:
-                file.write("{}")  # Write an empty JSON object to the file
 
-def map_android_locale_dir_to_metadata_dir(locale_code):
-        locale_region_pattern = re.compile(r'^values-(?P<language>[a-z]{2})(-r(?P<region>[a-zA-Z]{2}))$')
-        pattern_match = locale_region_pattern.match(locale_code)
-        if pattern_match:
-            # locale directory contains a region, replace values-<language>-r<region> with <language>-<region>
-            locale_dir_name = locale_code.replace("values-" + pattern_match.group("language") + "-r", pattern_match.group("language") + "-")
-            # print(f"locale with region suffix: '{locale_code}' - new metadata locale dir name: {locale_dir_name}")
+# ---------------------------------------------------------------------------
+# Locale helpers
+# ---------------------------------------------------------------------------
+
+def stem(filename):
+    """Return filename without .json extension."""
+    return filename.replace(".json", "")
+
+
+def to_fastlane_locale(locale_stem):
+    """Map a l10n locale stem to a Play Store / fastlane directory."""
+    if locale_stem in SKIP_LOCALES:
+        return None
+    if locale_stem in LOCALE_MAP:
+        return LOCALE_MAP[locale_stem]
+    # default: replace underscore with dash
+    return locale_stem.replace("_", "-")
+
+
+# ---------------------------------------------------------------------------
+# Cloning the l10n repo
+# ---------------------------------------------------------------------------
+
+def clone_l10n_repo(branch, token=None):
+    """
+    Shallow-clone the l10n repo at branch into a temp directory.
+    Returns the path to the cloned directory.
+    """
+    tmpdir = tempfile.mkdtemp(prefix="l10n_")
+    repo_url = L10N_REPO
+    if token:
+        # token into URL 
+        repo_url = repo_url.replace("https://", f"https://l10n-lab-weblate:{token}@")
+
+    cmd = [
+        "git", "clone",
+        "--depth", "1",
+        "--branch", branch,
+        repo_url,
+        tmpdir,
+    ]
+    print(f"Cloning l10n repo (branch: {branch}) ...")
+    subprocess.run(cmd, check=True)
+    return tmpdir
+
+
+# ---------------------------------------------------------------------------
+# Processing JSON files
+# ---------------------------------------------------------------------------
+
+def process_locale_files(l10n_dir, metadata_dir):
+    """
+    Read each <locale>.json from l10n_dir, map to fastlane locale name,
+    write title.txt / full_description.txt / short_description.txt.
+    """
+    processed = []
+    skipped = []
+
+    for filename in sorted(os.listdir(l10n_dir)):
+        if not filename.endswith(".json"):
+            continue
+
+        locale_stem = stem(filename)
+        fastlane_locale = to_fastlane_locale(locale_stem)
+
+        if fastlane_locale is None:
+            skipped.append(locale_stem)
+            continue
+
+        json_path = os.path.join(l10n_dir, filename)
+        with open(json_path, "r", encoding="utf-8") as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError as e:
+                print(f"  WARNING: skipping {filename}: {e}")
+                continue
+
+        if not data:
+            skipped.append(locale_stem)
+            continue
+
+        locale_dir = os.path.join(metadata_dir, fastlane_locale)
+        os.makedirs(locale_dir, exist_ok=True)
+
+        wrote_any = False
+        for key, out_filename in [
+            ("title",             "title.txt"),
+            ("full_description",  "full_description.txt"),
+            ("short_description", "short_description.txt"),
+        ]:
+            value = data.get(key)
+            if value:
+                out_path = os.path.join(locale_dir, out_filename)
+                with open(out_path, "w", encoding="utf-8") as f:
+                    f.write(value)
+                wrote_any = True
+
+        if wrote_any:
+            processed.append(f"{locale_stem} -> {fastlane_locale}")
         else:
-            # Remove "values-" prefix from the locale directory name
-            locale_dir_name = locale_code.replace("values-", "")
-            # print(f"new metadata locale dir name: '{locale_dir_name}'")
-        return locale_dir_name
+            skipped.append(locale_stem)
+
+    print(f"\nProcessed: {', '.join(processed)}")
+    if skipped:
+        print(f"Skipped:   {', '.join(skipped)}")
 
 
-# Split JSON data and save to separate files for each locale
-def split_json_and_save(locales, metadata_dir):
-    for locale_code in locales:
-        locale_dir_name = map_android_locale_dir_to_metadata_dir(locale_code)
-        json_file_path = os.path.join(metadata_dir, locale_dir_name, f"store-meta-{locale_dir_name}.json")
+# ---------------------------------------------------------------------------
+# GitLab MR
+# ---------------------------------------------------------------------------
 
-        if os.path.exists(json_file_path):
-            with open(json_file_path, "r", encoding="utf-8") as json_file:
-                json_data = json.load(json_file)
+def create_mr(token, source_branch, target_branch="master", app_type="main"):
+    """Open a merge request on bitmask_android via the GitLab API."""
+    url = f"{GITLAB_API}/projects/{BITMASK_ANDROID_PROJECT_ID}/merge_requests" payload = json.dumps({
+        "source_branch": source_branch,
+        "target_branch": target_branch,
+        "title": f"chore: update {app_type} Play Store translations",
+        "description": "Automated update from the l10n repo (Weblate).",
+        "remove_source_branch": True,
+    }).encode("utf-8")
 
-            title = json_data.get("title")
-            full_description = json_data.get("full_description")
-            short_description = json_data.get("short_description")
-
-            if title:
-                title_file_path = os.path.join(metadata_dir, locale_dir_name, "title.txt")
-                with open(title_file_path, "w", encoding="utf-8") as title_file:
-                    title_file.write(title)
-
-            if full_description:
-                full_description_file_path = os.path.join(metadata_dir, locale_dir_name, "full_description.txt")
-                with open(full_description_file_path, "w", encoding="utf-8") as full_description_file:
-                    full_description_file.write(full_description)
-
-            if short_description:
-                short_description_file_path = os.path.join(metadata_dir, locale_dir_name, "short_description.txt")
-                with open(short_description_file_path, "w", encoding="utf-8") as short_description_file:
-                    short_description_file.write(short_description)
-
-# delete directories that doesn't contain any meta data
-def clean_empty_dirs(locales, metadata_dir_name):
-    print("cleanup")
-    for locale in locales:
-        metadata_locale_dir = map_android_locale_dir_to_metadata_dir(locale)
-        json_file_path = os.path.join(metadata_dir_name, metadata_locale_dir, f"store-meta-{metadata_locale_dir}.json")
-        if os.path.exists(json_file_path):
-            remove = False
-            with open(json_file_path, "r", encoding="utf-8") as json_file:
-                json_data = json.load(json_file)
-                # print(f"'{json_file_path}': '{json.dumps(json_data, sort_keys=True)}' ")
-
-                if json.dumps(json_data, sort_keys=True) == "{}":
-                    remove = True
-                    # print(f"cleaning up empty json")
-
-            if remove:
-               # remove the empty json
-               os.remove(json_file_path)
-               print(f"removing empty json at '{json_file_path}'")
-
-               # remove the directory if it's empty
-               try:
-                os.rmdir(os.path.join(metadata_dir_name, metadata_locale_dir))
-                print(f"Removed dir '{os.path.join(metadata_dir_name, metadata_locale_dir)}'")
-               except OSError:
-                print(f"Skipped removal of dir '{os.path.join(metadata_dir_name, metadata_locale_dir)}'. Not empty.")
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "PRIVATE-TOKEN": token,
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req) as resp:
+            mr = json.loads(resp.read())
+            print(f"\nMR created: {mr['web_url']}")
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        print(f"\nFailed to create MR: {e.code} {body}", file=sys.stderr)
 
 
+def commit_and_push(repo_root, source_branch, app_type):
+    """Stage changes, commit, push to a new branch."""
+    def git(*args):
+        subprocess.run(["git", "-C", repo_root] + list(args), check=True)
+
+    git("checkout", "-b", source_branch)
+    git("add", APP_CONFIG[app_type]["metadata_dir"])
+
+    result = subprocess.run(
+        ["git", "-C", repo_root, "diff", "--cached", "--quiet"],
+        capture_output=True,
+    )
+    if result.returncode == 0:
+        print("No changes to commit.")
+        return False
+
+    git("commit", "-m", f"chore: update {app_type} Play Store translations from Weblate")
+    git("push", "origin", source_branch)
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Pull translations from transifex for app and app store localization.')
-    parser.add_argument('app_type', choices=['main', 'custom'], help='Type of the app (main or custom)')
+    parser = argparse.ArgumentParser(
+        description="Pull Play Store translations from l10n repo and create MR."
+    )
+    parser.add_argument(
+        "app_type",
+        choices=["main", "custom"],
+        help="'main' for Bitmask, 'custom' for RiseupVPN",
+    )
+    parser.add_argument(
+        "--token",
+        default=os.environ.get("L10N_GITLAB_TOKEN"),
+        help="GitLab token for l10n-lab-weblate (or set L10N_GITLAB_TOKEN env var)",
+    )
+    parser.add_argument(
+        "--target-branch",
+        default="master",
+        help="Target branch for the MR (default: master)",
+    )
+    parser.add_argument(
+        "--mr-branch",
+        default=None,
+        help="Source branch name for the MR (default: auto-generated)",
+    )
     args = parser.parse_args()
 
-    if args.app_type == "main":
-        metadata_dir = get_script_path() + "/../src/normalProductionFat/fastlane/metadata/android"
-    elif args.app_type == "custom":
-        metadata_dir = get_script_path() + "/../src/customProductionFat/fastlane/metadata/android"
-    else:
-        raise ValueError("Invalid app type. Use 'main' or 'custom'.")
+    config = APP_CONFIG[args.app_type]
+    repo_root = os.path.abspath(os.path.join(get_script_path(), ".."))
+    metadata_dir = os.path.join(repo_root, config["metadata_dir"])
+    mr_branch = args.mr_branch or f"translations/{args.app_type}-playstore-update"
 
-    locales_list = list_locales(args.app_type)
-    if not locales_list:
-        raise ValueError(f"No valid locales found in the '{args.app_type}' app's 'res' directory.")
+    # 1. Clone l10n repo
+    l10n_dir = clone_l10n_repo(config["l10n_branch"], token=args.token)
 
-    # create empty meta data files in case they don't exist yet
-    create_metadata_files(locales_list, args.app_type)
-    print(f"Empty JSON files created for each locale in the '{args.app_type}' app.")
+    try:
+        # 2. Process JSON files -> fastlane txt files
+        print(f"\nWriting fastlane metadata to: {metadata_dir}")
+        process_locale_files(l10n_dir, metadata_dir)
 
-    # pull from transifex
-    command = "tx pull -af"
-    subprocess.run(command, shell = True, executable="/bin/bash")
+        # 3. Commit & push
+        pushed = commit_and_push(repo_root, mr_branch, args.app_type)
 
-    # parse the meta data jsons and create separate files, compatible with the fastlane file scheme
-    split_json_and_save(locales_list, metadata_dir)
-    print(f"JSON data split and saved to separate files for each locale in the '{args.app_type}' app.")
-
-    # remove directories that doesn't contain any localizations or other fastlane meta data files
-    clean_empty_dirs(locales_list, metadata_dir)
+        # 4. Open MR
+        if pushed:
+            if args.token:
+                create_mr(args.token, mr_branch, args.target_branch, args.app_type)
+            else:
+                print("\nNo token provided — skipping MR creation.")
+                print(f"Push branch '{mr_branch}' and open MR manually.")
+    finally:
+        shutil.rmtree(l10n_dir, ignore_errors=True)
