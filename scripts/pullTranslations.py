@@ -168,7 +168,8 @@ def process_locale_files(l10n_dir, metadata_dir):
 
 def create_mr(token, source_branch, target_branch="master", app_type="main"):
     """Open a merge request on bitmask_android via the GitLab API."""
-    url = f"{GITLAB_API}/projects/{BITMASK_ANDROID_PROJECT_ID}/merge_requests" payload = json.dumps({
+    url = f"{GITLAB_API}/projects/{BITMASK_ANDROID_PROJECT_ID}/merge_requests"
+    payload = json.dumps({
         "source_branch": source_branch,
         "target_branch": target_branch,
         "title": f"chore: update {app_type} Play Store translations",

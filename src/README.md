@@ -30,16 +30,11 @@ Keep an eye on this [issue](https://gitlab.com/fdroid/fdroidserver/-/issues/829)
 1. When there were any changes on weblate, they should be at https://0xacab.org/leap/l10n/-/tree/bitmask-playstore?ref_type=heads (or the RiseupVPN, for flavors). Maybe still as a merge request. Reach out to translators if there are important strings missing.
 1. You want to double check: if the app is only half translated, you probably do not want to push an app store localization.
 1. Pull store metadata translations from the l10n git repo scripts/pullTranslations.py main (or custom flavor)
-
-
-1. Pull translations to this repository, from your earlier git clones: 
-
-1. prepare for upload and store digestion: scripts/prepareForTx.py
 1. use fastlane to push to the google store
 
 ## Notes:
 
-Translations that aren't completed (enough), won't be integrated.
+Translations that aren't completed (enough), shouldn't be integrated.
 When there are new strings in this Android project at ../app/src/main/res/values/strings.xml in the main branch,
 they will be updated in the bitmask branch here: https://0xacab.org/leap/l10n/-/tree/bitmask?ref_type=heads
 Webhooks are configured to have weblate updating https://localizationlab.weblate.cloud/projects/bitmask/bitmask-android/
@@ -57,7 +52,6 @@ You need an API token from the Google Play store. If you don't have one yet, we 
 fastlane supply init -j <YOUR-API-DETAILS.json> -p se.leap.<PROJECTNAME> -m src/customProductionFat/fastlane/metadata/
 
 apt install pythong3-babel
-
 
 ## Getting API token
 
