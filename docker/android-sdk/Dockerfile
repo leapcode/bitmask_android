@@ -1,7 +1,7 @@
-FROM 0xacab.org:4567/leap/docker/debian:bullseye_amd64
+FROM 0xacab.org:4567/leap/docker/debian:bookworm_amd64
 
 LABEL Author="LEAP Encryption Access Project <info@leap.se>"
-LABEL Description="Android SDK baseimage based on debian:bullseye" Vendor="LEAP" Version="33.0.0"
+LABEL Description="Android SDK baseimage based on debian:bookworm" Vendor="LEAP" Version="35.0.0"
 
 # ------------------------------------------------------
 # --- Install System Dependencies
@@ -24,7 +24,7 @@ RUN apt-get update -qq && \
     # the basics
     curl unzip git locales \
     # java stuff \
-    openjdk-17-jdk maven && \
+    openjdk-21-jdk maven && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -81,10 +81,10 @@ RUN echo y | sdkmanager "platform-tools" # echo y to accept google licenses
 RUN sdkmanager "extras;android;m2repository"
 
 # Install Build Tools (Please keep in descending order)
-RUN sdkmanager "build-tools;34.0.0"
+RUN sdkmanager "build-tools;35.0.0"
 
 # Install Target SDK Packages (Please keep in descending order)
-RUN sdkmanager "platforms;android-34"
+RUN sdkmanager "platforms;android-35"
 
 RUN echo "accept all licenses"
 # Accept all licenses

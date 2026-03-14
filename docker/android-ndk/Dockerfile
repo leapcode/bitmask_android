@@ -1,7 +1,7 @@
 FROM registry.0xacab.org/leap/bitmask_android/android-sdk:latest
 
 LABEL Author="LEAP Encryption Access Project <info@leap.se>"
-LABEL Description="Android NDK image based on android-sdk baseimage" Vendor="LEAP" Version="r21e"
+LABEL Description="Android NDK image based on android-sdk baseimage" Vendor="LEAP" Version="r28c"
 
 # Make sure debconf doesn't complain about lack of interactivity
 ENV DEBIAN_FRONTEND noninteractive
@@ -55,7 +55,7 @@ RUN echo y | sdkmanager --licenses
 RUN sdkmanager --list
 
 # Install Android cmake
-RUN sdkmanager "cmake;3.10.2.4988404"
+RUN sdkmanager "cmake;4.1.2"
 
 # Install Go environment
 ENV GO_VERSION=go1.24.12.linux-amd64
