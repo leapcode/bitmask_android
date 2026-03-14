@@ -141,6 +141,9 @@ build:
   stage: build
   script:
     - ./scripts/cleanProject.sh
+    - lsb_release -a
+    - g++ --version
+    - apt-get install libstdc++-13-dev
     - ./scripts/build_deps.sh >> build_deps.log 2>&1
     - ./gradlew clean assembleNormalProductionFatDebug -debug >> build.log 2>&1
   artifacts:
