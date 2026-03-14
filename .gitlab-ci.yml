@@ -59,11 +59,13 @@ unit_test:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: test
   script:
-    - ./scripts/prepareForTests.sh
-    - ./gradlew testCustomProductionFatReleaseUnitTest testNormalProductionFatReleaseUnitTest
+    - ./scripts/prepareForTests.sh >> prepareForTests.log 2>&1
+    - ./gradlew testCustomProductionFatReleaseUnitTest testNormalProductionFatReleaseUnitTest >> unittests.log 2>&1
   artifacts:
     paths:
       - app/build/reports/tests
+      - unittests.log
+      - prepareForTests.log
     when: on_failure
     expire_in: 3 days
 
