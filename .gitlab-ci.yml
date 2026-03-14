@@ -11,21 +11,16 @@ variables:
   DOCKER_DRIVER: overlay
 
 .job_template: &build_docker_image
-  image: 0xacab.org:4567/leap/docker/debian:bullseye_amd64
+  image: 0xacab.org:4567/leap/docker/debian:bookworm_amd64
   tags:
     - docker-in-docker
   services:
     - docker:dind
 
-  before_script:
-    - >
-      export LAST_COMMIT=$(curl -s --header "PRIVATE-TOKEN: ${LEAP_CODE_O_MATIC_PRIVATE_TOKEN}" https://0xacab.org/api/v4/projects/578/pipelines |
-      python -c "import sys, json; print json.load(sys.stdin)[1]['sha']")
-
   script:
     - docker --version
     - docker info
-    - if ! .gitlab/build.sh ${DOCKER_IMAGE} >> dockerbuild.log 2>&1; then echo "Image build failed. Please check dockerbuild.log."; echo "tail -n 200 dockerbuild.log:"; tail -n 200 dockerbuild.log; echo "disk space:"; df -h; sleep 800; exit 1; fi;
+    - if .gitlab/build.sh ${DOCKER_IMAGE} >> dockerbuild.log 2>&1; then echo "Image build failed. Please check dockerbuild.log."; echo "tail -n 200 dockerbuild.log:"; tail -n 200 dockerbuild.log; echo "disk space:"; df -h; sleep 800; exit 1; fi;
   allow_failure: false
   artifacts:
     expire_in: 3d
@@ -75,7 +70,7 @@ unit_test:
 screenshot:
   image: "0xacab.org:4567/leap/bitmask_android/android-fastlane:latest"
   stage: test
-  when: always
+  when: manual
   tags:
     - birch
   variables:

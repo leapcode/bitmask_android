@@ -21,8 +21,11 @@ function quit {
     exit 1
 }
 
-if git show HEAD~1 --name-only | grep "$DOCKERFILE"; then
+if [ $(git show HEAD --name-only | grep "$DOCKERFILE") ]; then
+  echo "Dockerfile $DOCKERFILE changed"
   docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY" || quit
+  echo "login into CI registry successful..."
   docker build -t "$TARGET" -f "$DOCKERFILE" docker/ || quit
+  echo "build $TARGET successful"
   docker push "$TARGET" || quit
 fi

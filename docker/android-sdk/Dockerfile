@@ -24,11 +24,19 @@ RUN apt-get update -qq && \
     # the basics
     curl unzip git locales \
     # java stuff \
-    openjdk-21-jdk maven && \
+    maven && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+ENV JAVA_PKG=https://download.oracle.com/java/21/archive/jdk-21.0.8_linux-x64_bin.tar.gz \
+      JAVA_HOME=/usr/java/jdk-21
+RUN set -eux; \
+  JAVA_SHA256=d87272944278713fc7a120cf024d2818d136b5debc750aa17045e3c6f045b867 ; \
+  curl --output /tmp/jdk.tgz "$JAVA_PKG" && \
+  echo "$JAVA_SHA256 */tmp/jdk.tgz" | sha256sum -c; \
+  mkdir -p "$JAVA_HOME"; \
+  tar --extract --file /tmp/jdk.tgz --directory "$JAVA_HOME" --strip-components 1
 # ------------------------------------------------------
 # --- Set Locales
 
