@@ -54,9 +54,6 @@ ENV ANDROID_HOME=/opt/android-sdk-linux
 ENV ANDROID_SDK_URL=https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
 ENV ANDROID_SDK_ROOT=${ANDROID_HOME}
 
-RUN echo $JAVA_HOME
-RUN java --version
-
 # Install SDK Tools
 RUN curl -L $ANDROID_SDK_URL -o sdk-tools.zip  \
     && mkdir -p /opt/android-sdk-linux \
@@ -68,8 +65,8 @@ RUN curl -L $ANDROID_SDK_URL -o sdk-tools.zip  \
     && rm -f sdk-tools.zip
 
 # Update PATH
-ENV PATH ${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/cmdline-tools:${ANDROID_HOME}/cmd-tools/bin:${ANDROID_HOME}/platform-tools
-ENV ANDROID_SDK_ROOT ${ANDROID_HOME}/cmdline-tools/latest
+ENV PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/cmdline-tools:${ANDROID_HOME}/cmd-tools/bin:${ANDROID_HOME}/platform-tools:${JAVA_HOME}/bin
+ENV ANDROID_SDK_ROOT=${ANDROID_HOME}/cmdline-tools/latest
 
 # Debug location and path
 
