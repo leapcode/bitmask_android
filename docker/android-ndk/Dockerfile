@@ -4,7 +4,7 @@ LABEL Author="LEAP Encryption Access Project <info@leap.se>"
 LABEL Description="Android NDK image based on android-sdk baseimage" Vendor="LEAP" Version="r28c"
 
 # Make sure debconf doesn't complain about lack of interactivity
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # ------------------------------------------------------
 # --- Install System Dependencies
@@ -32,10 +32,10 @@ RUN apt-get update -qq && \
 # ------------------------------------------------------
 # --- Install Android NDK (for running C code)
 
-ENV ANDROID_NDK_VERSION "r28c"
-ENV ANDROID_NDK_VERSION_NUMBER "28.2.13676358"
-ENV ANDROID_NDK_URL http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux.zip
-ENV ANDROID_SDK_ROOT ${ANDROID_HOME}/latest/cmdline-tools
+ENV ANDROID_NDK_VERSION="r28c"
+ENV ANDROID_NDK_VERSION_NUMBER="28.2.13676358"
+ENV ANDROID_NDK_URL="http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux.zip"
+ENV ANDROID_SDK_ROOT="${ANDROID_HOME}/latest/cmdline-tools"
 
 RUN echo $JAVA_HOME
 RUN java --version
@@ -46,8 +46,8 @@ RUN curl -L $ANDROID_NDK_URL -o ndk.zip  \
     && rm -rf ndk.zip \
     && mv $ANDROID_HOME/ndk/android-ndk-${ANDROID_NDK_VERSION}/ $ANDROID_HOME/ndk/$ANDROID_NDK_VERSION_NUMBER
 
-ENV ANDROID_NDK_HOME ${ANDROID_HOME}/ndk/$ANDROID_NDK_VERSION_NUMBER
-ENV PATH ${PATH}:${ANDROID_NDK_HOME}
+ENV ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/$ANDROID_NDK_VERSION_NUMBER
+ENV PATH=${PATH}:${ANDROID_NDK_HOME}
 
 RUN echo "accept all licenses"
 # Accept all licenses

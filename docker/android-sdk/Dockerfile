@@ -7,7 +7,7 @@ LABEL Description="Android SDK baseimage based on debian:bookworm" Vendor="LEAP"
 # --- Install System Dependencies
 
 # Make sure debconf doesn't complain about lack of interactivity
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Need docker package in order to do Docker-in-Docker (DIND)
 RUN apt-get update -qq && \
@@ -45,15 +45,14 @@ RUN locale-gen en_US.UTF-8
 
 # Set Default Locale
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG en_US.UTF-8
+ENV LANG=en_US.UTF-8
 
 # ------------------------------------------------------
 # --- Install Android SDK Tools
 
-ENV ANDROID_HOME /opt/android-sdk-linux
-ENV ANDROID_SDK_URL https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
-ENV ANDROID_SDK_ROOT ${ANDROID_HOME}
-ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
+ENV ANDROID_HOME=/opt/android-sdk-linux
+ENV ANDROID_SDK_URL=https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
+ENV ANDROID_SDK_ROOT=${ANDROID_HOME}
 
 RUN echo $JAVA_HOME
 RUN java --version
