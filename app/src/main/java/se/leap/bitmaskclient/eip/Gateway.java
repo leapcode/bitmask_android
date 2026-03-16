@@ -90,12 +90,12 @@ public class Gateway {
      * and create a VpnProfile belonging to it.
      */
     public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway)
-            throws ConfigParser.ConfigParseError, JSONException, IOException {
+            throws ConfigParser.ConfigParseError, JSONException, IOException, NumberFormatException {
         this(eipDefinition, secrets, gateway, null);
     }
 
     public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, JSONObject load)
-            throws ConfigParser.ConfigParseError, JSONException, IOException {
+            throws ConfigParser.ConfigParseError, JSONException, IOException, NumberFormatException {
 
         this.gateway = gateway;
         this.secrets = secrets;
@@ -106,7 +106,7 @@ public class Gateway {
         this.host = gateway.optString(HOST);
         JSONObject location = getLocationInfo(gateway, eipDefinition);
         this.locationName = location.optString(NAME);
-        this.timezone = location.optInt(TIMEZONE);
+        this.timezone = Integer.parseInt(location.optString(TIMEZONE));
         VpnConfigGenerator.Configuration configuration = getProfileConfig(Transport.createTransportsFrom(gateway, apiVersion));
         this.generalConfiguration = getGeneralConfiguration(eipDefinition);
         this.name = configuration.profileName;

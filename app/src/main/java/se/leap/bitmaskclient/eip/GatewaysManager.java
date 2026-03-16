@@ -454,7 +454,7 @@ public class GatewaysManager {
                     ), null, PINNED_OBFUSCATION_PROXY, capabilities);
                     Gateway gateway = new Gateway(eipDefinition, secrets, new JSONObject(gatewayJson.toString()));
                     addGateway(gateway);
-                } catch (JSONException | ConfigParser.ConfigParseError | IOException e) {
+                } catch (JSONException | ConfigParser.ConfigParseError | IOException | NumberFormatException e) {
                     e.printStackTrace();
                 }
             } else {
@@ -465,7 +465,7 @@ public class GatewaysManager {
                         if (gateways.get(aux.getHost()) == null) {
                             addGateway(aux);
                         }
-                    } catch (JSONException | IOException e) {
+                    } catch (JSONException | IOException | NumberFormatException e) {
                         e.printStackTrace();
                         VpnStatus.logError("Unable to parse gateway config!");
                     } catch (ConfigParser.ConfigParseError e) {
