@@ -16,7 +16,7 @@ import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = {Build.VERSION_CODES.LOLLIPOP, Build.VERSION_CODES.P})
+@Config(sdk = {Build.VERSION_CODES.N, Build.VERSION_CODES.P})
 public class CredentialsParserTest {
 
     @Test
