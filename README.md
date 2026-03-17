@@ -23,7 +23,7 @@ Please see the [issues](https://0xacab.org/leap/bitmask_android/issues) section 
   * [Debug APKs](#debug-apks)
   * [Release APKs](#release-apks)
   * [Signed Release APKs](#signed-release-apks)
-  * [Localization](#localize)
+  * [Localization](#Localization)
 * [Supported Versions](#supported-versions)
 * [Acknowledgments](#acknowledgments)
 * [Contributing](#contributing)
@@ -39,20 +39,20 @@ We will assume for convenience that you are installing on a Debian- or Ubuntu-ba
 
 The Bitmask Android Client has the following system-level dependencies:
 
-* JDK 17
-* Android SDK Tools, v. 34.0.3, with these packages:
-  * Platform-Tools, v. 34.0.5
-  * Build-Tools, API v. 34
-  * Platforms 34
+* JDK 21
+* Android SDK Tools, v. 35.0.0, with these packages:
+  * Platform-Tools, v. 35.0.0
+  * Build-Tools, API v. 35
+  * Platforms 35
   * Android Support Repository
   * Google Support Repository
-  * NDK v. r21e (enables C code in Android)
+  * NDK v. r28c (enables C code in Android)
 * For running the app in an emulator, you will also need these packages:
   * Android Emulator
-  * System Images for Android APIs 30
+  * System Images for Android APIs
 * ics-openvpn submodule
 * tor-android submodule
-* bitmaskcore submodule
+* Bitmask Core Android submodule
 
 You can install them as follows:
 
@@ -62,7 +62,7 @@ Install with:
 
 ```bash
 sudo apt-get update -qq && \
-    apt-get install -y openjdk-17-jdk
+    apt-get install -y openjdk-21-jdk
 ```
 
 ### C Libraries <a name="c-libraries"></a>
@@ -77,7 +77,7 @@ sudo apt-get -y install make gcc swig file lib32stdc++6 lib32z1 autoconf autogen
 
 #### With Android Studio <a name="with-android-studio"></a>
 
-All of the Android SDK and NDK packages are downloadable through Android Studio, which (sadly) is probably the most hassle-free way to go about things.
+All the Android SDK and NDK packages are downloadable through Android Studio, which (sadly) is probably the most hassle-free way to go about things.
 
 You can download Android studio here:
 
@@ -95,7 +95,7 @@ Once you've installed Android SDK & NDK packages, you need to modify your PATH s
 
 ```shell
 export ANDROID_HOME=<path/where/you/installed/android/sdk>
-export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.4.7075529
+export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358
 export PATH=$ANDROID_NDK_HOME:$PATH
 export PATH=$ANDROID_HOME/platform-tools:$PATH
 export PATH=$ANDROID_HOME/tools/bin:$PATH
@@ -130,7 +130,7 @@ docker run --rm -it -v`pwd`:/bitmask_android -t registry.0xacab.org/leap/bitmask
 
 We depend on several [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to build Bitmask Android: 
 * [ics-openvpn](https://github.com/schwabe/ics-openvpn) as an interface to Android's OpenVPN implementation.
-* [bitmaskcore](https://0xacab.org/leap/android_libs/bitmaskcore.git) mainly as a library for Pluggable Transports (censorship circumvention functionality),
+* [Bitmask Core Android](https://0xacab.org/leap/android_libs/bitmask-core-android.git) as a LEAP provider API client and as a library for Pluggable Transports (censorship circumvention functionality)
 * [tor-android](https://0xacab.org/leap/android_libs/tor-android.git) to protect the communication to configuration servers from being blocked.
 In order to initialize and update these submodules run:
 
@@ -162,7 +162,7 @@ In order to temporarily disable building tor you can run:
 BUILD_TOR=false ./scripts/build_deps.sh
 ```
 ### Custom Builds
-Please refer to to the customization [README](/app/src/custom/README.md).
+Please refer to the customization [README](/app/src/custom/README.md).
 
 ### Debug APKs <a name="debug-apks"></a>
 
@@ -202,7 +202,7 @@ Localizations happens in weblate. How to generate, push, pull the translations a
 
 ## Supported Versions <a name="supported-versions"></a>
 
-Currently API 21 (Android 5.0) - API 34 (Android 14) are officially supported. Keep backwards compatibility in mind if you plan to contribute new features.
+Currently, API 24 (Android 7.0) - API 35 (Android 15) are officially supported. Keep backwards compatibility in mind if you plan to contribute new features.
 
 ## Acknowledgments <a name="acknowledgments"></a>
 
