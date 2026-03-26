@@ -1,0 +1,29 @@
+{
+  "api_uri": "https://beta.coopvpn.net",
+  "api_version": "5",
+  "api_versions": [
+    "5"
+  ],
+  "ask_for_donations": false,
+  "ca_cert_fingerprint": "",
+  "ca_cert_uri": "",
+  "default_language": "en",
+  "description": {
+    "en": "CoopVPN Beta is an emerging VPN provider working closely with the LEAP team. This is an early access release intended for testing and feedback."
+  },
+  "domain": "beta.coopvpn.net",
+  "donate_period": "",
+  "languages": [
+    "en"
+  ],
+  "name": {
+    "en": "CoopVPN Beta"
+  },
+  "service": {
+    "allow_anonymous": true,
+    "allow_registration": false
+  },
+  "services": [
+    "openvpn"
+  ]
+}
