@@ -183,6 +183,10 @@ public final class Provider implements Parcelable {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            if (this.apiVersion >= 5) {
+                setModelsProvider(definition);
+            }
         }
 
     }
