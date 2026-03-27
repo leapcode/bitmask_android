@@ -517,7 +517,7 @@ public final class Provider implements Parcelable {
         if (apiVersion < 5) {
             name = getApiv3Name(lang);
         } else if (modelsProvider != null) {
-            name = MapCompat.getOrDefault(modelsProvider.getName(), lang, modelsProvider.getDefaultLanguage());
+            name = MapCompat.getOrDefault(modelsProvider.getName(), lang, modelsProvider.getName().getOrDefault(modelsProvider.getDefaultLanguage(), modelsProvider.getDomain()));
         }
         if (name == null || name.isEmpty()) {
             name = getHostFromUrl(mainUrl);
