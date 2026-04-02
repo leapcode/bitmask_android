@@ -280,8 +280,11 @@ public class VpnNotificationManager {
         if (vpnServiceCallback != null) {
             vpnServiceCallback.onNotificationBuild(notificationId, notification);
         } else {
-            compatNotificationManager.notify(notificationId, notification);
-
+            try {
+                compatNotificationManager.notify(notificationId, notification);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
         }
     }
 
