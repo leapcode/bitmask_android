@@ -1093,7 +1093,13 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @Override
     public void onNotificationBuild(int notificationId, Notification notification) {
-        ServiceCompat.startForeground(this, notificationId, notification, FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED);
+        try {
+            ServiceCompat.startForeground(this, notificationId, notification, FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            VpnStatus.logError(e.getLocalizedMessage());
+            stopVPN(false);
+        }
     }
 
     public void trigger_url_open(String info) {
