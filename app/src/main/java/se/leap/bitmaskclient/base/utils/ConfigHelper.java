@@ -253,7 +253,7 @@ public class ConfigHelper {
     }
 
     public static int getPendingIntentFlags() {
-        int flags = PendingIntent.FLAG_CANCEL_CURRENT;
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             flags |= PendingIntent.FLAG_IMMUTABLE;
         }
