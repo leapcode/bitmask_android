@@ -393,7 +393,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         // An old running VPN should now be exited
         mStarting = false;
 
-        // optionally start start obfsvpn and adapt openvpn config to the port obfsvpn is listening to
+        // optionally start obfsvpn and adapt openvpn config to the port obfsvpn is listening to
         Connection.TransportType transportType = connection.getTransportType();
         if (mProfile.usePluggableTransports() && transportType.isPluggableTransport()) {
             try {
