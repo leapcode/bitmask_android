@@ -78,7 +78,7 @@ public class TorServiceCommand {
                 context.getApplicationContext().startService(torServiceIntent);
             }
             startedForeground = true;
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
