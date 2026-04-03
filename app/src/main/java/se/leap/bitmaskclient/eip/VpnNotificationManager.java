@@ -43,6 +43,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -283,7 +284,7 @@ public class VpnNotificationManager {
             try {
                 compatNotificationManager.notify(notificationId, notification);
             } catch (SecurityException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Failed to send notification", e);
             }
         }
     }
