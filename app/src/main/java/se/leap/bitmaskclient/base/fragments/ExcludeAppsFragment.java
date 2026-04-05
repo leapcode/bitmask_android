@@ -7,11 +7,9 @@ package se.leap.bitmaskclient.base.fragments;
 
 import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -31,14 +29,13 @@ import android.widget.SearchView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
 
 import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.utils.ApplicationInfoManager;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.SimpleCheckBox;
@@ -113,8 +110,8 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     class PackageAdapter extends BaseAdapter implements Filterable {
         private Vector<ApplicationInfo> mPackages;
         private final LayoutInflater mInflater;
-        private final PackageManager mPm;
-        private ItemFilter mFilter = new ItemFilter();
+        private final ApplicationInfoManager mAppInfoManager;
+        private final ItemFilter mFilter = new ItemFilter();
         private Vector<ApplicationInfo> mFilteredData;
 
 
@@ -132,7 +129,7 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
 
                 for (int i = 0; i < count; i++) {
                     ApplicationInfo pInfo = mPackages.get(i);
-                    CharSequence appName = pInfo.loadLabel(mPm);
+                    CharSequence appName = mAppInfoManager.loadLabel(pInfo);
 
                     if (TextUtils.isEmpty(appName))
                         appName = pInfo.packageName;
@@ -156,12 +153,10 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
                 mFilteredData = (Vector<ApplicationInfo>) results.values;
                 notifyDataSetChanged();
             }
-
         }
 
-
         PackageAdapter(Context c, VpnProfile vp) {
-            mPm = c.getPackageManager();
+            mAppInfoManager = new ApplicationInfoManager(c);
             mProfile = vp;
             mInflater = LayoutInflater.from(c);
 
@@ -170,40 +165,10 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
         }
 
         private void populateList(Activity c) {
-            List<ApplicationInfo> installedPackages = mPm.getInstalledApplications(PackageManager.GET_META_DATA);
-
-            // Remove apps not using Internet
-
-            int androidSystemUid = 0;
-            ApplicationInfo system = null;
-            Vector<ApplicationInfo> apps = new Vector<ApplicationInfo>();
-
-            try {
-                system = mPm.getApplicationInfo("android", PackageManager.GET_META_DATA);
-                androidSystemUid = system.uid;
-                apps.add(system);
-            } catch (PackageManager.NameNotFoundException e) {
-            }
-
-
-            for (ApplicationInfo app : installedPackages) {
-
-                if (mPm.checkPermission(Manifest.permission.INTERNET, app.packageName) == PackageManager.PERMISSION_GRANTED &&
-                        app.uid != androidSystemUid) {
-
-                    apps.add(app);
-                }
-            }
-
-            Collections.sort(apps, new ApplicationInfo.DisplayNameComparator(mPm));
+            Vector<ApplicationInfo> apps = mAppInfoManager.getApplicationInfos();
             mPackages = apps;
             mFilteredData = apps;
-            c.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    notifyDataSetChanged();
-                }
-            });
+            c.runOnUiThread(this::notifyDataSetChanged);
         }
 
         @Override
@@ -229,12 +194,12 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
             final ApplicationInfo mInfo = mFilteredData.get(position);
 
 
-            CharSequence appName = mInfo.loadLabel(mPm);
+            CharSequence appName = mAppInfoManager.loadLabel(mInfo);
 
             if (TextUtils.isEmpty(appName))
                 appName = mInfo.packageName;
             viewHolder.appName.setText(appName);
-            viewHolder.appIcon.setImageDrawable(mInfo.loadIcon(mPm));
+            viewHolder.appIcon.setImageDrawable(mAppInfoManager.loadDrawable(mInfo));
             viewHolder.checkBox.setTag(mInfo.packageName);
             viewHolder.checkBox.setOnCheckedChangeListener(ExcludeAppsFragment.this);
             viewHolder.checkBox.setChecked(apps.contains(mInfo.packageName));
@@ -272,32 +237,34 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.allowed_apps, menu);
         SearchView searchView = (SearchView) menu.findItem( R.id.app_search_widget ).getActionView();
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                mListView.setFilterText(query);
-                mListView.setTextFilterEnabled(true);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                mListView.setFilterText(newText);
-                if (TextUtils.isEmpty(newText))
-                    mListView.setTextFilterEnabled(false);
-                else
+        if (searchView != null) {
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    mListView.setFilterText(query);
                     mListView.setTextFilterEnabled(true);
+                    return true;
+                }
 
-                return true;
-            }
-        });
-        searchView.setOnCloseListener(() -> {
-            mListView.clearTextFilter();
-            mListAdapter.getFilter().filter("");
-            return false;
-        });
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    mListView.setFilterText(newText);
+                    if (TextUtils.isEmpty(newText))
+                        mListView.setTextFilterEnabled(false);
+                    else
+                        mListView.setTextFilterEnabled(true);
 
-        tintSearchViewChild(searchView);
+                    return true;
+                }
+            });
+            searchView.setOnCloseListener(() -> {
+                mListView.clearTextFilter();
+                mListAdapter.getFilter().filter("");
+                return false;
+            });
+
+            tintSearchViewChild(searchView);
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -332,4 +299,10 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
         return v;
     }
 
+    @Override
+    public void onDestroyView() {
+        mListView.setOnItemClickListener(null);
+        mListAdapter = null;
+        super.onDestroyView();
+    }
 }

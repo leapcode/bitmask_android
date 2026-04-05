@@ -45,6 +45,7 @@ import java.security.Security;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.ApplicationInfoManager;
 import se.leap.bitmaskclient.base.utils.ClientTransportPluginProvider;
 import se.leap.bitmaskclient.base.utils.PRNGFixes;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
@@ -103,6 +104,12 @@ public class BitmaskApp extends MultiDexApplication implements DefaultLifecycleO
             intentFilter.addCategory(CATEGORY_DEFAULT);
             LocalBroadcastManager.getInstance(this.getApplicationContext()).registerReceiver(downloadBroadcastReceiver, intentFilter);
         }
+        AppQueryReceiver.register(this);
+        new Thread(() -> {
+            ApplicationInfoManager applicationInfoManager = new ApplicationInfoManager(BitmaskApp.this);
+            applicationInfoManager.updateExcludedApps();
+        }).start();
+
     }
 
     @Override

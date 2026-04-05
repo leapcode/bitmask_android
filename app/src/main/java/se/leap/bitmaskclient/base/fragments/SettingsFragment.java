@@ -4,6 +4,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.R.string.advanced_settings;
 import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_AUTOMATICALLY;
+import static se.leap.bitmaskclient.base.models.Constants.EXCLUDED_APPS;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAY_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
@@ -409,8 +410,9 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             initFirewallEntry(getView());
         } else if (key.equals(GATEWAY_PINNING)) {
             initGatewayPinningEntry(rootView);
+        } else if (key.equals(EXCLUDED_APPS)) {
+            initExcludeAppsEntry(rootView);
         }
-
         if (key.equals(USE_OBFUSCATION_PINNING) || key.equals(USE_BRIDGES)) {
             initObfuscationPinningEntry(rootView);
         }
