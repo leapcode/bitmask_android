@@ -51,7 +51,6 @@ import se.leap.bitmaskclient.base.views.SimpleCheckBox;
 public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCheckedChangeListener {
     private static final String TAG = ExcludeAppsFragment.class.getSimpleName();
     private RecyclerView mRecyclerView;
-    private LinearLayout emptyView;
     private VpnProfile mProfile;
     private PackageAdapter mListAdapter;
 
@@ -269,8 +268,6 @@ public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCh
 
         mRecyclerView = v.findViewById(R.id.list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        emptyView = v.findViewById(R.id.loading_container);
-        emptyView.setVisibility(VISIBLE);
 
         mListAdapter = new PackageAdapter(getActivity(), mProfile);
         mRecyclerView.setAdapter(mListAdapter);
