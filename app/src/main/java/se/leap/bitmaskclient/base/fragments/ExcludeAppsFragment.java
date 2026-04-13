@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -38,7 +37,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
 
-import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.ApplicationInfoManager;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
@@ -130,6 +128,7 @@ public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCh
                             nlist.add(pInfo);
                     }
                 }
+                sortList(nlist);
                 results.values = nlist;
                 results.count = nlist.size();
 
@@ -153,6 +152,7 @@ public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCh
         @WorkerThread
         private void populateList(Activity c) {
             Vector<ApplicationInfo> appsList = mAppInfoManager.getApplicationInfos();
+            sortList(appsList);
             mPackages = appsList;
             mFilteredData = appsList;
             c.runOnUiThread(() -> {
@@ -161,6 +161,24 @@ public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCh
                 }
                 this.notifyDataSetChanged();
             });
+        }
+
+        private void sortList(Vector<ApplicationInfo> appsList) {
+            appsList.sort((info1, info2) -> {
+                boolean app1IsExcluded = apps.contains(info1.packageName);
+                boolean app2IsExcluded = apps.contains(info2.packageName);
+
+                // First, sort by the app exclusion boolean condition
+                if (app1IsExcluded != app2IsExcluded) {
+                    return Boolean.compare(app2IsExcluded, app1IsExcluded);
+                }
+
+                // If boolean conditions are equal, sort alphabetically by label
+                String label1 = mAppInfoManager.loadLabel(info1).toString();
+                String label2 = mAppInfoManager.loadLabel(info2).toString();
+                return label1.compareToIgnoreCase(label2);
+            });
+
         }
 
         @Override
