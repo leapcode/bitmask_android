@@ -412,6 +412,10 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             initGatewayPinningEntry(rootView);
         } else if (key.equals(EXCLUDED_APPS)) {
             initExcludeAppsEntry(rootView);
+            if (VpnStatus.isVPNActive()) {
+                EipCommand.startVPN(getContext(), false);
+                Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
+            }
         }
         if (key.equals(USE_OBFUSCATION_PINNING) || key.equals(USE_BRIDGES)) {
             initObfuscationPinningEntry(rootView);
