@@ -216,6 +216,10 @@ public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCh
         inflater.inflate(R.menu.allowed_apps, menu);
         SearchView searchView = (SearchView) menu.findItem(R.id.app_search_widget).getActionView();
         if (searchView != null) {
+            searchView.setOnSearchClickListener(v -> {
+                ViewHelper.showCustomActionBar(ExcludeAppsFragment.this, false);
+            });
+
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
@@ -235,6 +239,7 @@ public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCh
             });
             searchView.setOnCloseListener(() -> {
                 mListAdapter.getFilter().filter("");
+                ViewHelper.showCustomActionBar(this, true);
                 return false;
             });
 
@@ -250,8 +255,10 @@ public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCh
                 tintSearchViewChild((ViewGroup) v);
             }
             if (v instanceof ImageView) {
-                ((ImageView) v).setColorFilter(getResources().getColor(R.color.colorActionBarTitleFont),
+                ((ImageView) v).setColorFilter(ContextCompat.getColor(view.getContext(), R.color.colorActionBarTitleFont),
                         android.graphics.PorterDuff.Mode.SRC_IN);
+            } else if (v instanceof TextView) {
+                ((TextView) v).setTextColor(ContextCompat.getColor(view.getContext(), R.color.colorActionBarTitleFont));
             }
         }
     }
@@ -269,6 +276,7 @@ public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCh
         mRecyclerView.setAdapter(mListAdapter);
 
         ViewHelper.setActionBarSubtitle(this, exclude_apps_fragment_title);
+        ViewHelper.showCustomActionBar(this, true);
 
         new Thread(() -> mListAdapter.populateList(getActivity())).start();
 

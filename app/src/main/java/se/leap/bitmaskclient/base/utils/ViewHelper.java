@@ -57,6 +57,20 @@ public class ViewHelper {
     /**
      * Sets the subtitle of an activities action bar. The activity needs to be an AppCompatActivity.
      * @param fragment
+     */
+    public static void showCustomActionBar(Fragment fragment, Boolean isVisible) {
+        AppCompatActivity appCompatActivity = (AppCompatActivity) fragment.getActivity();
+        if (appCompatActivity != null) {
+            ActionBar actionBar = appCompatActivity.getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.getCustomView().setVisibility(isVisible ? VISIBLE : GONE);
+            }
+        }
+    }
+
+    /**
+     * Sets the subtitle of an activities action bar. The activity needs to be an AppCompatActivity.
+     * @param fragment
      * @param stringId
      */
     public static void setActionBarSubtitle(Fragment fragment, @StringRes int stringId) {
