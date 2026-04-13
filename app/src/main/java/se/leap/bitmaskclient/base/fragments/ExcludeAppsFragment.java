@@ -5,6 +5,7 @@
 
 package se.leap.bitmaskclient.base.fragments;
 
+import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
 
 import android.app.Activity;
@@ -18,16 +19,20 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Locale;
 import java.util.Set;
@@ -43,54 +48,41 @@ import se.leap.bitmaskclient.base.views.SimpleCheckBox;
 /**
  * Created by arne on 16.11.14.
  */
-public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemClickListener, SimpleCheckBox.OnCheckedChangeListener, View.OnClickListener {
-    private ListView mListView;
+public class ExcludeAppsFragment extends Fragment implements SimpleCheckBox.OnCheckedChangeListener {
+    private static final String TAG = ExcludeAppsFragment.class.getSimpleName();
+    private RecyclerView mRecyclerView;
+    private LinearLayout emptyView;
     private VpnProfile mProfile;
     private PackageAdapter mListAdapter;
 
     private Set<String> apps;
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        AppViewHolder avh = (AppViewHolder) view.getTag();
-        avh.checkBox.toggle();
-    }
-
-    @Override
-    public void onClick(View v) {
-
-    }
-
-    static class AppViewHolder {
+    static class AppViewHolder extends RecyclerView.ViewHolder {
         public ApplicationInfo mInfo;
-        public View rootView;
         public AppCompatTextView appName;
         public ImageView appIcon;
-        //public AppCompatTextView appSize;
-        //public AppCompatTextView disabled;
         public SimpleCheckBox checkBox;
 
-        static public AppViewHolder createOrRecycle(LayoutInflater inflater, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = inflater.inflate(R.layout.allowed_application_layout, parent, false);
-
-                // Creates a ViewHolder and store references to the two children views
-                // we want to bind data to.
-                AppViewHolder holder = new AppViewHolder();
-                holder.rootView = convertView;
-                holder.appName = convertView.findViewById(R.id.app_name);
-                holder.appIcon = convertView.findViewById(R.id.app_icon);
-                holder.checkBox = convertView.findViewById(R.id.app_selected);
-                convertView.setTag(holder);
-
-                return holder;
-            } else {
-                // Get the ViewHolder back to get fast access to the TextView
-                // and the ImageView.
-                return (AppViewHolder) convertView.getTag();
-            }
+        public AppViewHolder(@NonNull View itemView) {
+            super(itemView);
+            appName = itemView.findViewById(R.id.app_name);
+            appIcon = itemView.findViewById(R.id.app_icon);
+            checkBox = itemView.findViewById(R.id.app_selected);
+            itemView.setOnClickListener(v -> checkBox.toggle());
         }
 
+        public void bind(ApplicationInfo info, ApplicationInfoManager appInfoManager, Set<String> apps, SimpleCheckBox.OnCheckedChangeListener listener) {
+            mInfo = info;
+            CharSequence appLabelText = appInfoManager.loadLabel(info);
+            if (TextUtils.isEmpty(appLabelText)) {
+                appLabelText = info.packageName;
+            }
+            appName.setText(appLabelText);
+            appIcon.setImageDrawable(appInfoManager.loadDrawable(info));
+            checkBox.setTag(info.packageName);
+            checkBox.setOnCheckedChangeListener(listener);
+            checkBox.setChecked(apps.contains(info.packageName));
+        }
     }
 
     @Override
@@ -107,7 +99,7 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
         }
     }
 
-    class PackageAdapter extends BaseAdapter implements Filterable {
+    class PackageAdapter extends RecyclerView.Adapter<AppViewHolder> implements Filterable {
         private Vector<ApplicationInfo> mPackages;
         private final LayoutInflater mInflater;
         private final ApplicationInfoManager mAppInfoManager;
@@ -123,7 +115,6 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
 
                 FilterResults results = new FilterResults();
 
-
                 int count = mPackages.size();
                 final Vector<ApplicationInfo> nlist = new Vector<>(count);
 
@@ -134,9 +125,9 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
                     if (TextUtils.isEmpty(appName))
                         appName = pInfo.packageName;
 
-                    if (appName instanceof  String) {
+                    if (appName instanceof String) {
                         if (((String) appName).toLowerCase(Locale.getDefault()).contains(filterString))
-                                nlist.add(pInfo);
+                            nlist.add(pInfo);
                     } else {
                         if (appName.toString().toLowerCase(Locale.getDefault()).contains(filterString))
                             nlist.add(pInfo);
@@ -163,48 +154,35 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
             mPackages = new Vector<>();
             mFilteredData = mPackages;
         }
-
+        @WorkerThread
         private void populateList(Activity c) {
-            Vector<ApplicationInfo> apps = mAppInfoManager.getApplicationInfos();
-            mPackages = apps;
-            mFilteredData = apps;
-            c.runOnUiThread(this::notifyDataSetChanged);
+            Vector<ApplicationInfo> appsList = mAppInfoManager.getApplicationInfos();
+            mPackages = appsList;
+            mFilteredData = appsList;
+            c.runOnUiThread(() -> {
+                if (!appsList.isEmpty()) {
+                    mRecyclerView.setVisibility(VISIBLE);
+                }
+                this.notifyDataSetChanged();
+            });
         }
 
         @Override
-        public int getCount() {
+        public int getItemCount() {
             return mFilteredData.size();
         }
 
+        @NonNull
         @Override
-        public Object getItem(int position) {
-            return mFilteredData.get(position);
+        public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View itemView = mInflater.inflate(R.layout.allowed_application_layout, parent, false);
+            return new AppViewHolder(itemView);
         }
 
         @Override
-        public long getItemId(int position) {
-            return mFilteredData.get(position).packageName.hashCode();
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            AppViewHolder viewHolder = AppViewHolder.createOrRecycle(mInflater, convertView, parent);
-
-            viewHolder.mInfo = mFilteredData.get(position);
-            final ApplicationInfo mInfo = mFilteredData.get(position);
-
-
-            CharSequence appName = mAppInfoManager.loadLabel(mInfo);
-
-            if (TextUtils.isEmpty(appName))
-                appName = mInfo.packageName;
-            viewHolder.appName.setText(appName);
-            viewHolder.appIcon.setImageDrawable(mAppInfoManager.loadDrawable(mInfo));
-            viewHolder.checkBox.setTag(mInfo.packageName);
-            viewHolder.checkBox.setOnCheckedChangeListener(ExcludeAppsFragment.this);
-            viewHolder.checkBox.setChecked(apps.contains(mInfo.packageName));
-
-            return viewHolder.rootView;
+        public void onBindViewHolder(@NonNull AppViewHolder holder, int position) {
+            ApplicationInfo mInfo = mFilteredData.get(position);
+            holder.bind(mInfo, mAppInfoManager, apps, ExcludeAppsFragment.this);
         }
 
         @Override
@@ -236,29 +214,26 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.allowed_apps, menu);
-        SearchView searchView = (SearchView) menu.findItem( R.id.app_search_widget ).getActionView();
+        SearchView searchView = (SearchView) menu.findItem(R.id.app_search_widget).getActionView();
         if (searchView != null) {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    mListView.setFilterText(query);
-                    mListView.setTextFilterEnabled(true);
+                    mListAdapter.getFilter().filter(query);
                     return true;
                 }
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    mListView.setFilterText(newText);
-                    if (TextUtils.isEmpty(newText))
-                        mListView.setTextFilterEnabled(false);
-                    else
-                        mListView.setTextFilterEnabled(true);
-
+                    if (TextUtils.isEmpty(newText)) {
+                        mListAdapter.getFilter().filter("");
+                    } else {
+                        mListAdapter.getFilter().filter(newText);
+                    }
                     return true;
                 }
             });
             searchView.setOnCloseListener(() -> {
-                mListView.clearTextFilter();
                 mListAdapter.getFilter().filter("");
                 return false;
             });
@@ -285,13 +260,14 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.allowed_vpn_apps, container, false);
 
-        mListView = v.findViewById(android.R.id.list);
+        mRecyclerView = v.findViewById(R.id.list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        emptyView = v.findViewById(R.id.loading_container);
+        emptyView.setVisibility(VISIBLE);
 
         mListAdapter = new PackageAdapter(getActivity(), mProfile);
-        mListView.setAdapter(mListAdapter);
-        mListView.setOnItemClickListener(this);
+        mRecyclerView.setAdapter(mListAdapter);
 
-        mListView.setEmptyView(v.findViewById(R.id.loading_container));
         ViewHelper.setActionBarSubtitle(this, exclude_apps_fragment_title);
 
         new Thread(() -> mListAdapter.populateList(getActivity())).start();
@@ -301,7 +277,8 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onDestroyView() {
-        mListView.setOnItemClickListener(null);
+        Log.d(TAG, "onDestroyView");
+        mRecyclerView.setAdapter(null);
         mListAdapter = null;
         super.onDestroyView();
     }

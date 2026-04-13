@@ -5,16 +5,13 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import androidx.annotation.WorkerThread;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
-import java.util.function.Predicate;
 
 public class ApplicationInfoManager {
 
@@ -65,21 +62,19 @@ public class ApplicationInfoManager {
 
     public void onApplicationRemoved(String appPackage) {
         Set<String> excludedApps = PreferenceHelper.getExcludedApps();
-        Log.d(TAG, "remove appPackage: " + appPackage);
         excludedApps.remove(appPackage);
         PreferenceHelper.setExcludedApps(excludedApps);
     }
 
+    @WorkerThread
     public void updateExcludedApps() {
         Set<String> excludedApps = PreferenceHelper.getExcludedApps();
-        Log.d(TAG, "update excluded apps before: " + excludedApps.toString());
         List<ApplicationInfo> appInfos = getApplicationInfos();
         excludedApps.removeIf(s ->
                 appInfos.stream().noneMatch(
                         applicationInfo -> s.equals(applicationInfo.packageName)
                 )
         );
-        Log.d(TAG, "update excluded apps after: " + excludedApps.toString());
         PreferenceHelper.setExcludedApps(excludedApps);
     }
 }

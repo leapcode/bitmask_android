@@ -30,9 +30,9 @@
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"/>
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:visibility="gone"
-        android:id="@android:id/list"
+        android:id="@+id/list"
         android:drawSelectorOnTop="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
