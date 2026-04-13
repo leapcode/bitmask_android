@@ -16,8 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:background="@color/amber200"
         android:textStyle="bold"
-        android:textColor="@color/colorWarning"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:paddingStart="@dimen/activity_horizontal_margin"
         android:paddingEnd="@dimen/activity_horizontal_margin"
@@ -27,7 +27,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="1.5dp"
         android:background="?android:attr/listDivider"/>
 
     <androidx.recyclerview.widget.RecyclerView
