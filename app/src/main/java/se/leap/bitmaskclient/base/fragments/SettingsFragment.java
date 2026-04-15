@@ -16,8 +16,6 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.resetSnowflakeSettings;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
@@ -25,10 +23,10 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscatio
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseTunnel;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useManualBridgeSettings;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useManualDiscoverySettings;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useManualBridgeSettings;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
 import android.app.AlertDialog;
@@ -47,7 +45,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -69,6 +66,7 @@ import se.leap.bitmaskclient.firewall.FirewallManager;
 
 public class SettingsFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private static final String TAG = SettingsFragment.class.getSimpleName();
     private FirewallManager firewallManager;
     private IconTextEntry tethering;
     private IconSwitchEntry firewall;
@@ -101,7 +99,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void initAutomaticCircumventionEntry(View rootView) {
         IconSwitchEntry automaticCircumvention = rootView.findViewById(R.id.bridge_automatic_switch);
-        automaticCircumvention.setChecked(getUseBridges() && !useManualBridgeSettings());
+        automaticCircumvention.setChecked(getUseBridges() && !useManualBridgeSettings() && !useManualDiscoverySettings());
         automaticCircumvention.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
@@ -136,14 +134,19 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         manualConfigRoot.setVisibility(ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports() ? VISIBLE : GONE);
         IconTextEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
         SwitchCompat manualConfigurationSwitch = rootView.findViewById(R.id.bridge_manual_switch_control);
-        boolean useManualCircumventionSettings = useManualBridgeSettings() || useManualDiscoverySettings();
+        boolean useManualCircumventionSettings = (getUseBridges() && useManualBridgeSettings()) || useManualDiscoverySettings();
         manualConfigurationSwitch.setChecked(useManualCircumventionSettings);
         manualConfigurationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
-            resetManualConfig();
-            if (!useManualCircumventionSettings){
+            if (isChecked) {
+                useBridges(true);
+            } else {
+                resetManualConfig();
+            }
+            initAutomaticCircumventionEntry(rootView);
+            if (!useManualBridgeSettings() && !useManualDiscoverySettings()){
                 openManualConfigurationFragment();
             }
         });
@@ -167,11 +170,6 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             EipCommand.startVPN(getContext(), false);
             Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
         }
-        View rootView = getView();
-        if (rootView == null)  {
-            return;
-        }
-        initAutomaticCircumventionEntry(rootView);
     }
 
     private void openManualConfigurationFragment() {
