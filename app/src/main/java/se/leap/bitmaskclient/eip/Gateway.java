@@ -286,7 +286,7 @@ public class Gateway {
                 }
             }
         }
-        if (results.size() == 0) {
+        if (results.isEmpty()) {
             return null;
         }
         int randomIndex = (int) (Math.random() * (results.size()));
