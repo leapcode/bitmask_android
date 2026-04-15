@@ -30,6 +30,8 @@ import static se.leap.bitmaskclient.base.models.Constants.TIMEZONE;
 import static se.leap.bitmaskclient.base.models.Constants.VERSION;
 import static se.leap.bitmaskclient.base.models.Transport.createTransportsFrom;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -125,7 +127,12 @@ public class Gateway {
         this.remoteIpAddress = modelsGateway.getIpAddr();
         this.remoteIpAddressV6 = modelsGateway.getIp6Addr();
         this.host = modelsGateway.getHost();
-        ModelsLocation modelsLocation = eipService.getLocations().get(modelsGateway.getLocation());
+        ModelsLocation modelsLocation = null;
+        try {
+            modelsLocation = eipService.getLocations().get(modelsGateway.getLocation());
+        } catch (NullPointerException npe) {
+            Log.e(TAG, "No locations configured in service endpoint. This smells like a provider misconfiguration.");
+        }
         if (modelsLocation != null) {
             this.locationName = modelsLocation.getDisplayName();
             this.timezone = Integer.parseInt(modelsLocation.getTimezone());
@@ -147,7 +154,12 @@ public class Gateway {
         this.modelsBridges.add(modelsBridge);
         remoteIpAddress = modelsBridge.getIpAddr();
         host = modelsBridge.getHost();
-        ModelsLocation modelsLocation = eipService.getLocations().get(modelsBridge.getLocation());
+        ModelsLocation modelsLocation = null;
+        try {
+            modelsLocation = eipService.getLocations().get(modelsBridge.getLocation());
+        } catch (NullPointerException npe) {
+            Log.e(TAG, "No locations configured in service endpoint. This smells like a provider misconfiguration.");
+        }
         if (modelsLocation != null) {
             this.locationName = modelsLocation.getDisplayName();
             this.timezone = Integer.parseInt(modelsLocation.getTimezone());
@@ -179,18 +191,23 @@ public class Gateway {
 
     private JSONObject getGeneralConfiguration(ModelsEIPService eipService) {
         JSONObject config = new JSONObject();
-        Map<String, Object> openvpnOptions =  eipService.getOpenvpnConfiguration();
-        Set<String> keys = openvpnOptions.keySet();
-        Iterator<String> i = keys.iterator();
-        while (i.hasNext()) {
-            try {
-                String key = i.next();
-                Object o = openvpnOptions.get(key);
-                config.put(key, o);
-            } catch (JSONException e) {
-                e.printStackTrace();
+        try {
+            Map<String, Object> openvpnOptions =  eipService.getOpenvpnConfiguration();
+            Set<String> keys = openvpnOptions.keySet();
+            Iterator<String> i = keys.iterator();
+            while (i.hasNext()) {
+                try {
+                    String key = i.next();
+                    Object o = openvpnOptions.get(key);
+                    config.put(key, o);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
+        } catch (NullPointerException npe) {
+            Log.e(TAG, "Failed to get openvpn configuration. This smells like a provider misconfiguration");
         }
+
 
         return config;
     }
