@@ -1,10 +1,9 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="retry">تلاش دوباره</string>
     <string name="repository_url_text">منبع کد قابل دسترس در  https://0xacab.org/leap/bitmask_android </string>
     <string name="leap_tracker">سامانهٔ پیگیری اشکالات قابل دسترس در https://0xacab.org/leap/bitmask_android/issues</string>
-    <string name="translation_project_text">از همکاری شما برای ترجمه استقبال می‌کنیم. پروژهٔ Transifex ما را در اینجا ببینید:
-https://www.transifex.com/projects/p/bitmask/</string>
+    <string name="translation_project_text">از همکاری شما برای ترجمه استقبال می‌کنیم. پروژهٔ Transifex ما را در اینجا ببینید: https://www.transifex.com/projects/p/bitmask/</string>
     <string name="switch_provider_menu_option">تعویض ارائه‌دهنده</string>
     <string name="info">اطلاعات</string>
     <string name="show_connection_details">نمایش جزئیات اتصال</string>
@@ -60,7 +59,6 @@ https://www.transifex.com/projects/p/bitmask/</string>
     <string name="certificate_error">این یک سرویس دهنده‌ی قابل اعتماد %s نیست.</string>
     <string name="service_is_down_error">سرور وی‌پی‌ان در دسترس نیست.</string>
     <string name="configuring_provider">در حال تنظیم کردن ارائه‌دهنده</string>
-    <string name="incorrectly_downloaded_certificate_message">گواهی ناشناسی شما دریافت نشد</string>
     <string name="downloading_certificate_message">دریافت گواهی وی‌پی‌ان</string>
     <string name="updating_certificate_message">به‌روز رسانی گواهی وی‌پی‌ان</string>
     <string name="login.riseup.warning">کاربران Riseup نیاز به ساختن حساب کاربری جداگانه‌ای برای استفاده از وی‌پی‌ان دارند</string>
@@ -102,8 +100,6 @@ https://www.transifex.com/projects/p/bitmask/</string>
     <string name="warning_corrupted_provider_cert">گواهی سرویس دهنده‌ی ذخیره شده نامعتبر است. شما می‌توانید %s را به روز رسانی کنید (گزینه پیشنهادی)  و یا گواهی سرویس دهنده را با استفاده از گواهی تجاری CA به روز رسانی کنید.</string>
     <string name="warning_expired_provider_cert">گواهی سرویس دهنده‌ی ذخیره شده تاریخ گذشته است. شما می‌توانید %s را به روز رسانی کنید (گزینه پیشنهادی)، ویا گواهی سرویس دهنده را با استفاده از گواهی تجاری CA به روز رسانی کنید.</string>
     <string name="downloading_vpn_certificate_failed">ناموفق در دریافت گواهی وی‌پی‌ان. لطفا دوباره تلاش کنید و یا ارائه‌دهنده دیگری را انتخاب کنید.</string>
-    <string name="vpn_certificate_is_invalid">گواهی وی‌پی‌ان نامعتبر است. تلاش کنید که گواهی جدیدی دریافت کنید.</string>
-    <string name="vpn_certificate_user_message">گواهی وی‌پی‌ان نامعتبر است. لطفا برای دریافت گواهی جدید وارد شوید. </string>
     <string name="save_battery">صرفه جویی در باطری</string>
     <string name="subtitle_save_battery">غیرفعال حین روشن بودن نقطه اتصال وی‌پی‌ان</string>
     <string name="save_battery_message">هنگامی که تلفن شما غیر فعال است، ارتباط اطلاعات پشت صحنه غیر فعال می‌شود.</string>
