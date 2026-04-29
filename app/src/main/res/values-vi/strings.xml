@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">Thử lại</string>
     <string name="repository_url_text">Mã nguồn có ở https://0xacab.org/leap/bitmask_android</string>
@@ -59,7 +59,6 @@
     <string name="certificate_error">Đây không phải là một nhà cung cấp %s được tin cậy.</string>
     <string name="service_is_down_error">Dịch vụ hiện không hoạt động.</string>
     <string name="configuring_provider">Đang thiết lập nhà cung cấp</string>
-    <string name="incorrectly_downloaded_certificate_message">Chứng chỉ nặc danh của bạn đã không được tải xuống</string>
     <string name="downloading_certificate_message">Đang tải xuống chứng chỉ VPN</string>
     <string name="updating_certificate_message">Đang cập nhật chứng chỉ VPN</string>
     <string name="login.riseup.warning">Những người dùng Riseup sẽ cần tạo một tài khoản riêng để sử dụng dịch vụ VPN</string>
@@ -101,8 +100,6 @@
     <string name="warning_corrupted_provider_cert">Chứng chỉ nhà cung cấp được lưu trữ là không hợp lệ. Bạn có thể cập nhật %s (được khuyến nghị) hoặc cập nhật chứng chỉ nhà cung cấp bằng một chứng chỉ CA thương mại.</string>
     <string name="warning_expired_provider_cert">Chứng chỉ nhà cung cấp được lưu trữ đã hết hạn. Bạn có thể cập nhật %s (được khuyến nghị) hoặc cập nhật chứng chỉ nhà cung cấp bằng một chứng chỉ CA thương mại.</string>
     <string name="downloading_vpn_certificate_failed">Tải xuống chứng chỉ VPN thất bại. Hãy thử lại hoặc chọn một nhà cung cấp khác.</string>
-    <string name="vpn_certificate_is_invalid">Chứng chỉ VPN không hợp lệ. Hãy thử tải xuống một chứng chỉ mới.</string>
-    <string name="vpn_certificate_user_message">Chứng chỉ VPN không hợp lệ. Vui lòng đăng nhập để tải xuống một chứng chỉ mới.</string>
     <string name="save_battery">Tiết kiệm pin</string>
     <string name="subtitle_save_battery">Bị tắt khi Điểm phát sỏng VPN được bật</string>
     <string name="save_battery_message">Các kết nối dữ liệu trong nền sẽ ngủ đông khi điện thoại của bạn không hoạt động.</string>
@@ -206,5 +203,4 @@
     <string name="details">Chi Tiết</string>
     <string name="tor_status">Trạng thái Tor</string>
     <string name="select_language">Chọn Ngôn Ngữ</string>
-    <string name="scan_qr_code">Quét mã QR</string>
 </resources>

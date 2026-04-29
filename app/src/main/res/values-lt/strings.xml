@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">Bandyti iš naujo</string>
     <string name="repository_url_text">Pradinis kodas prieinamas, adresu https://0xacab.org/leap/bitmask_android</string>
@@ -59,7 +59,6 @@
     <string name="certificate_error">Tai nėra patikimas %s teikėjas.</string>
     <string name="service_is_down_error">Paslauga neveikia.</string>
     <string name="configuring_provider">Konfigūruojamas teikėjas</string>
-    <string name="incorrectly_downloaded_certificate_message">Jūsų anoniminis liudijimas nebuvo atsisiųstas</string>
     <string name="downloading_certificate_message">Atsiunčiamas VPN liudijimas</string>
     <string name="updating_certificate_message">Atnaujinamas VPN liudijimas</string>
     <string name="login.riseup.warning">„Riseup“ naudotojai, norėdami naudotis VPN paslauga, turės susikurti atskirą paskyrą</string>
@@ -105,7 +104,6 @@
     <string name="warning_expired_provider_cert">Laikomas teikėjo liudijimas nebegalioja. Jūs galite arba atnaujinti %s (rekomenduojama), arba atnaujinti teikėjo liudijimą, naudodami komercinį LĮ liudijimą.</string>
     <string name="downloading_vpn_certificate_failed">Nepavyko atsisiųsti VPN liudijimo. Bandykite dar kartą arba pasirinkite kitą teikėją.</string>
     <string name="vpn_certificate_is_invalid">Metas atnaujinti jūsų VPN liudijimą. Atsisiųskite naują liudijimą, kad išlaikytumėte savo ryšį saugų. Tai yra įprastas atnaujinimas.</string>
-    <string name="vpn_certificate_user_message">VPN liudijimas negalioja. Prisijunkite norėdami atsisiųsti naują.</string>
     <string name="save_battery">Taupyti akumuliatoriaus energiją</string>
     <string name="subtitle_save_battery">Išjungta, kol įjungtas VPN viešosios interneto prieigos taškas</string>
     <string name="save_battery_message">Kai jūsų telefonas nebus aktyvus, foniniai duomenų ryšiai bus užmigdomi.</string>
@@ -212,7 +210,6 @@
     <string name="select_provider">Pasirinkite teikėją</string>
     <string name="provider_description_riseup">„Riseup“ teikia internetinio susisiekimo įrankius žmonėms ir grupėms, siekiantiems išvaduojamųjų socialinių pokyčių. Mes esame projektas, kurio tikslas – kurti demokratines alternatyvas ir praktikuoti apsisprendimo teisę, valdant mūsų asmenines saugias komunikacijos priemones.</string>
     <string name="next">Kitas</string>
-    <string name="add_provider_description">Bitmask jungiasi prie patikimų teikėjų, kurie nėra viešai išvardyti. Žemiau įveskite savo teikėjo URL adresą.</string>
     <string name="add_provider_prompt">Čia įrašykite teikėjo URL adresą.</string>
     <string name="invite_code_provider_description">Bitmask jums leidžia prisijungti prie teikėjų naudojant privatų pakvietimo kodą. </string>
     <string name="invite_code_provider_prompt">Čia įveskite savo patikimą pakvietimo kodą.</string>
@@ -220,7 +217,6 @@
     <string name="provider_description_calyx">„Calyx“ yra ne pelno siekianti švietimo ir tyrinėjimų organizacija, pasišventusi tyrinėti, testuoti, plėtoti ir įgyvendinti privatumo technologijas bei įrankius, skatinant žodžio laisvę, laisvą raišką, piliečių įsitraukimą ir teises į privatumą internete bei mobiliųjų komunikacijų pramonėje.</string>
     <string name="title_circumvention_setup">Ar jums reikia cenzūros apėjimo?</string>
     <string name="circumvention_setup_description">Jei gyvenate šalyje, kurioje internetas yra cenzūruojamas, galite naudoti mūsų cenzūros apėjimo parinktis, kad pasiektumėte visas interneto paslaugas. Šios parinktys sulėtins jūsų interneto ryšio greitį!</string>
-    <string name="circumvention_setup_hint">%s automatiškai bandys prijungti jus prie interneto, naudojant įvairias apėjimo technologijas. Jūs galite derinti šias parinktis išplėstiniuose nustatymuose.</string>
     <string name="use_standard_vpn">Naudoti standartinį %s</string>
     <string name="use_circumvention_tech">Naudoti apėjimo technologijas (lėčiau)</string>
     <string name="description_configure_provider">Tam, kad prisijungtų prie jūsų teikėjo, %1$s gauna visą reikiamą konfigūracijos informaciją. Tai vyksta tik pirmosios sąrankos metu.</string>
@@ -229,11 +225,6 @@
     <string name="tor_status">Tor būsena</string>
     <string name="snowflake_status">„Snowflake“ būsena</string>
     <string name="snowflake_started">Paleista „Snowflake“ kliento programėlė</string>
-    <string name="snowflake_negotiating_rendezvous_http">Derinamas „Snowflake“ įgaliotojo serverio pasimatymas (http)</string>
-    <string name="snowflake_negotiating_rendezvous_amp_cache">Derinamas „Snowflake“ įgaliotojo serverio pasimatymas (amp podėlis)</string>
-    <string name="snowflake_socks_error">„Snowflake“ SOCKS klaida</string>
-    <string name="snowflake_broker_success">„Snowflake“ įgaliotojo serverio pasimatymas sėkmingas</string>
-    <string name="snowflake_sending_data">Siunčiami duomenys per „Snowflake“</string>
     <string name="title_upcoming_connection_request">Būsima ryšio užklausa</string>
     <string name="title_upcoming_notifications_request">Būsima pranešimų užklausa</string>
     <string name="title_setup_success">Viskas paruošta!</string>
@@ -245,7 +236,6 @@
     <string name="validation_status_success">Gerai</string>
     <string name="validation_status_failure">Blogai</string>
     <string name="enter_invite_code">Įveskite pakvietimo kodą</string>
-    <string name="scan_qr_code">Skenuoti QR kodą</string>
     <string name="invalid_code">Neteisingas kodas</string>
     <string name="automatic_bridge">Automatiškai (rekomenduojama)</string>
     <string name="automatic_bridge_description">Bus bandoma užmegzti ryšį naudojant geriausius prieinamus tinklų tiltus bei protokolus.</string>

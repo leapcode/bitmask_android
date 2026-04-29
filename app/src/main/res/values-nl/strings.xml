@@ -1,9 +1,9 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">Opnieuw proberen</string>
     <string name="repository_url_text">Broncode is beschikbaar op https://0xacab.org/leap/bitmask_android</string>
     <string name="leap_tracker">Issue tracker https://0xacab.org/leap/bitmask_android/issues</string>
-    <string name="translation_project_text">Vertalingen zijnhartelijk welkom. Kijk voor meer info op https://wiki.localizationlab.org/index.php/Bitmask of ga direct naar onze Transifex pagina: https://www.transifex.com/projects/p/bitmask/</string>
+    <string name="translation_project_text">Vertalingen zijn hartelijk welkom. Kijk voor meer info op https://localizationlab.weblate.cloud/projects/bitmask/</string>
     <string name="switch_provider_menu_option">Provider wisselen</string>
     <string name="info">info</string>
     <string name="show_connection_details">Details van de verbinding weergeven</string>
@@ -14,7 +14,7 @@
     <string name="cert_from_keystore">Kreeg certificaat \'%s\' van de keystore</string>
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">Geen provider ingesteld</string>
-    <string name="status_unknown">Status onbekend</string>
+    <string name="status_unknown">Status onbekend.</string>
     <string name="eip_service_label">Versleutelde internettoegang met VPN</string>
     <string name="configuration_wizard_title">Service provider selecteren</string>
     <string name="add_provider">Nieuwe provider toevoegen</string>
@@ -61,7 +61,6 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
     <string name="certificate_error">Dit is geen vertrouwde %s provider.</string>
     <string name="service_is_down_error">Service is onbereikbaar.</string>
     <string name="configuring_provider">Provider wordt ingesteld</string>
-    <string name="incorrectly_downloaded_certificate_message">Je anonieme certificaat is niet gedownload</string>
     <string name="downloading_certificate_message">Downloading VPN-certificaat</string>
     <string name="updating_certificate_message">Updaten VPN-certificaat</string>
     <string name="login.riseup.warning">Riseup gebruikers moeten een apart account aanmaken om de VPN service te gebruiken</string>
@@ -99,15 +98,13 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
     <string name="void_vpn_title">Blokkeert verkeer</string>
     <string name="update_provider_details">Update provider details</string>
     <string name="update_certificate">Update certificaat</string>
-    <string name="warning_eip_json_corrupted">Updaten providerconfiguratie mislukt</string>
+    <string name="warning_eip_json_corrupted">Updaten providerconfiguratie mislukt.</string>
     <string name="eip_json_corrupted_user_message">Updaten providerconfiguratie mislukt. Login of probeer opnieuw.</string>
     <string name="warning_client_parsing_error_gateways">De provider-gateways werden niet herkend. Ze zijn mogelijk onjuist geconfigureerd.</string>
     <string name="warning_corrupted_provider_details">Opgeslagen providerdetails zijn corrupt. Je kan Bitmask %s (aanbevolen) of de provider details updaten met een commercieel CA-certificaat.</string>
     <string name="warning_corrupted_provider_cert">Opgeslagen providercertificaat is ongeldig. Je kan %s updaten (aanbevolen) of het provider certificaat updaten met een commercieel CA-certificaat.</string>
     <string name="warning_expired_provider_cert">Opgeslagen providercertificaat is verlopen. Je kan %s updaten (aanbevolen) of het provider certificaat updaten met een commercieel CA-certificaat.</string>
     <string name="downloading_vpn_certificate_failed">Downloaden van het VPN certificaat mislukt. Probeer opnieuw of kies een andere provider.</string>
-    <string name="vpn_certificate_is_invalid">VPN certificaat is ongeldig. Probeer een nieuw te downloaden.</string>
-    <string name="vpn_certificate_user_message">Het VPN certificaat in ongeldig. Gelieve opnieuw in te loggen om een nieuw te downloaden.</string>
     <string name="save_battery">Batterij besparen</string>
     <string name="subtitle_save_battery">Uitschakelen wanneer VPN Hotspot is ingeschakeld</string>
     <string name="save_battery_message">Dataverbindingen in de achtergrond worden in slaapstand gezet wanneer je telefoon inactief is.</string>
@@ -119,7 +116,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
     <string name="show_experimental">Toon experimentele functies</string>
     <string name="hide_experimental">Experimentele functies verbergen</string>
     <string name="experimental_features">Experimentele functies</string>
-    <string name="tethering_enabled_message">Zorg er eerst voor dat tethering is ingeschakeld in de  <![CDATA[<b>system settings</b>]]></string>
+    <string name="tethering_enabled_message">Zorg er eerst voor dat tethering is ingeschakeld in de <![CDATA[<b>system settings</b>]]>.</string>
     <string name="tethering_message">Deel je VPN met andere apparaten via:</string>
     <string name="tethering_wifi">Wifi-hotspot</string>
     <string name="tethering_usb">USB tethering</string>
@@ -132,7 +129,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
     <string name="donate_message">LEAP is afhankelijk van donaties en schenkingen. Doneer nu als je beveiligde communicatie op prijs stelt die zowel eenvoudig is voor de eindgebruikers als de provider. </string>
     <string name="donate_button_remind_later">Herinner mij later</string>
     <string name="donate_button_donate">Doneren</string>
-    <string name="obfuscated_connection">Gebruikt een versluierde verbinding</string>
+    <string name="obfuscated_connection">Gebruikt een versluierde verbinding.</string>
     <string name="obfuscated_connection_try">Probeer een versluierde verbinding op te zetten.</string>
     <string name="nav_drawer_obfuscated_connection">Gebruik bridges</string>
     <string name="nav_drawer_subtitle_obfuscated_connection">VPN-filters omzeilen</string>
@@ -141,7 +138,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
         <item quantity="one">%d onbeschermde app</item>
         <item quantity="other">%d onbeschermde apps</item>
     </plurals>
-    <string name="warning_no_more_gateways_use_pt">%s kon geen verbinding maken. Het kan zijn dat VPN-verbindingen worden geblokkeerd. Wil je je proberen te verbinden met versluierde verbindingen?</string>
+    <string name="warning_no_more_gateways_use_pt">%s kon geen verbinding maken. Het kan zijn dat VPN-verbindingen worden geblokkeerd. Wil je proberen verbinding te maken via versluierde verbindingen?</string>
     <string name="warning_no_more_gateways_no_pt">%s kon niet verbinden. Wil je opnieuw proberen?</string>
     <string name="warning_no_more_gateways_use_ovpn">%s kon geen verbinding maken met versluierde VPN-verbindingen. Wil je het opnieuw proberen met een standaard VPN?</string>
     <string name="warning_no_more_gateways_manual_gw_selection">%1$s kon niet verbinden met %2$s. Wil je proberen om automatisch met de beste locatie te verbinden?</string>
@@ -208,16 +205,15 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
     <string name="cancel_connection">Verbreek</string>
     <string name="unknown_location">Onbekende locatie</string>
     <string name="splash_footer">Ontwikkeld door LEAP</string>
-    <string name="welcome">Welkom</string>
+    <string name="welcome">Welkom!</string>
     <string name="select_provider">Selecteer je provider</string>
     <string name="provider_description_riseup">Riseup biedt online communicatiemiddelen voor mensen en groepen die werken aan sociale verandering. Wij zijn een project dat democratische alternatieven creëert en zelfbeschikking in de praktijk brengt door onze eigen veilige communicatiemiddelen te beheren.</string>
     <string name="next">Volgende</string>
-    <string name="add_provider_description">Bitmask maakt verbinding met betrouwbare aanbieders die niet openbaar vermeld zijn. Vul hieronder de URL van jouw aanbieder in.</string>
+    <string name="add_provider_prompt">Geef hier de URL van de provider in.</string>
     <string name="qr_scanner_prompt">QR-code scannen</string>
     <string name="provider_description_calyx">Calyx is een non-profit voor onderwijs en onderzoek die zich focust op het bestuderen, testen, ontwikkelen en implementeren van privacytechnologie en -hulpmiddelen om vrije meningsuiting, expressie, burgerparticipatie en privacyrechten op internet en in de mobiele communicatiesector te promoten.</string>
     <string name="title_circumvention_setup">Moet je censuur omzeilen?</string>
     <string name="circumvention_setup_description">Als je in ergens woont waar het internet gecensureerd is, kun je onze opties om censuur te ontwijken gebruiken en zo toegang te krijgen tot alle internetdiensten. Deze opties zullen je verbinding vertragen!</string>
-    <string name="circumvention_setup_hint">%s zal automatisch proberen te verbinden met het internet met verschillende censuur omzeilende technologieën. Dit kun je verfijnen in de geavanceerde instellingen.</string>
     <string name="use_standard_vpn">Gebruik standaard %s</string>
     <string name="use_circumvention_tech">Gebruik censuur omzeilende technologie (trager)</string>
     <string name="description_configure_provider">Om te verbinden met je provider, haalt %1$s, alle configuratie details op. Dit gebeurd alleen tijdens de eerste installatie.</string>
@@ -226,22 +222,30 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
     <string name="tor_status">Tor-status</string>
     <string name="snowflake_status">Snowflake status</string>
     <string name="snowflake_started">Snowflake client status</string>
-    <string name="snowflake_negotiating_rendezvous_http">Bezig met Snowflake proxy verbinding (http)</string>
-    <string name="snowflake_negotiating_rendezvous_amp_cache">Bezig met Snowflake proxy verbinding (amp cache)</string>
-    <string name="snowflake_socks_error">Snowflake SOCKS fout</string>
-    <string name="snowflake_broker_success">Snowflake proxy rendezvous succesvol</string>
-    <string name="snowflake_sending_data">Data versturen via Snowflake</string>
-    <string name="title_upcoming_connection_request">Nu volgt een verzoek om een verbinding te maken.</string>
-    <string name="title_upcoming_notifications_request">Nu volgt de vraag om meldingen toe te staan.</string>
+    <string name="title_upcoming_connection_request">Nu volgt een verzoek om een verbinding te maken</string>
+    <string name="title_upcoming_request">Aanstaand verzoek</string>
+    <string name="title_upcoming_notifications_request">Nu volgt de vraag om meldingen toe te staan</string>
     <string name="title_setup_success">Je bent klaar! </string>
     <string name="setup_success_description">Tik hieronder om een verbinding te maken</string>
     <string name="permission_rejected">Toestemmingsverzoek afgewezen.</string>
     <string name="login_not_supported">Je kunt in deze versie van de app niet inloggen, wat je nodig hebt om de VPN certificaten van deze provider te updaten.</string>
     <string name="select_language">Selecteer taal</string>
     <string name="validation_status_success">Goed</string>
+    <string name="validation_status_failure">Fout</string>
     <string name="enter_invite_code">Voer de uitnodigingscode in</string>
-    <string name="scan_qr_code">QR-code scannen</string>
     <string name="invalid_code">Ongeldige code</string>
     <string name="automatic_bridge">Automatisch (aanbevolen)</string>
     <string name="automatically_select">Automatisch geselecteerd</string>
+    <string name="vpn_certificate_is_invalid">Het is tijd om je VPN-certificaat te updaten. Download een nieuw certificaat om uw verbinding veilig te houden. Dit is een routine update.</string>
+    <string name="manual_bridge">Handmatige configuratie</string>
+    <string name="error_invite_title">Oeps, er is iets mis met deze uitnodigingscode:</string>
+    <string name="error_invite">Ongeldige uitnodigingscode: %1$s</string>
+    <string name="error_invite_copy">Uitnodigingscode kopiëren</string>
+    <string name="select_provider_description">Wanneer je een VPN gebruikt, draag je jouw vertrouwen over van de internetprovider naar uw VPN-provider. %1$s en %2$s hebben een duidelijke geschiedenis van privacybescherming en belangenbehartiging. Wanneer je een provider toevoegt of een uitnodigingscode gebruikt, zorg er dan voor dat je de provider kent en vertrouwt.</string>
+    <string name="add_provider_description">Via Bitmask kun je ook verbinden met niet-openbare providers. Voeg alleen een provider toe als je deze kent en vertrouwt.</string>
+    <string name="invite_code_provider_prompt">Voer hier je uitnodigingscode in.</string>
+    <string name="circumvention_setup_hint">%s zal automatisch proberen om je te verbinden met het internet met behulp van diverse omzeilingstechnieken, zoals Tor. Je kunt dit verder aanpassen in de geavanceerde instellingen.</string>
+    <string name="invite_code_provider_description">Met Bitmask kun je verbinding maken met providers via een privé-uitnodigingscode.</string>
+    <string name="title_upcoming_request_summary">Hierna volgen twee schermen waarin Android je om toestemming vraagt voor de VPN-verbinding en notificaties.</string>
+    <string name="title_upcoming_connection_request_summary_custom">Accepteer het verbindingsverzoek om %s te kunnen gebruiken.</string>
 </resources>

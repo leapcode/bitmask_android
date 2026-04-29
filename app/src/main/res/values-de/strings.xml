@@ -1,9 +1,9 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">Wiederholen</string>
     <string name="repository_url_text">Quelltext verfügbar unter: https://0xacab.org/leap/bitmask_android</string>
     <string name="leap_tracker">Fehlerticketsystem zugänglich unter https://0xacab.org/leap/bitmask_android/issues</string>
-    <string name="translation_project_text">Übersetzungen sind sehr willkommen. Schau dir unser Transifex Projekt unter https://www.transifex.com/projects/p/bitmask an.</string>
+    <string name="translation_project_text">Übersetzungen sind herzlich willkommen. Sieh dir unser Projekt unter https://localizationlab.weblate.cloud/projects/bitmask/ an.</string>
     <string name="switch_provider_menu_option">Provider wechseln</string>
     <string name="info">Info</string>
     <string name="show_connection_details">Zeige Verbindungsdetails</string>
@@ -59,7 +59,6 @@
     <string name="certificate_error">Das ist kein vertrauenswürdiger Provider für %s.</string>
     <string name="service_is_down_error">Service ist nicht verfügbar.</string>
     <string name="configuring_provider">Provider konfigurieren</string>
-    <string name="incorrectly_downloaded_certificate_message">Ihr anonymes Zertifikat wurde nicht heruntergeladen</string>
     <string name="downloading_certificate_message">VPN Zertifikat wird heruntergeladen.</string>
     <string name="updating_certificate_message">VPN Zertifikat wird aktualisiert.</string>
     <string name="login.riseup.warning">Riseup Benutzer*innen müssen einen separaten Account erstellen, um den VPN Service nutzen zu können.</string>
@@ -105,7 +104,6 @@
     <string name="warning_expired_provider_cert">Das gespeicherte Providerzertifikat ist abgelaufen. Du kannst entweder %s aktualisieren (Empfehlung) oder das Providerzertifikat mithilfe eines kommerziellen CA Zertifikates aktualisieren. </string>
     <string name="downloading_vpn_certificate_failed">Das Herunterladen des VPN Zertifikates ist fehlgeschlagen. Versuche es erneut oder wähle einen anderen Provider aus.</string>
     <string name="vpn_certificate_is_invalid">Es ist Zeit, dein VPN Zertifikat zu aktualisieren. Lade ein neues herunter, um dich weiterhin sicher zu verbinden. Dies ist ein Routineaktualisierung.</string>
-    <string name="vpn_certificate_user_message">Das VPN Zertifikat ist ungültig. Bitte melde dich an, um ein neues herunterzuladen.</string>
     <string name="save_battery">Batteriesparmodus</string>
     <string name="subtitle_save_battery">Deaktiviert während der VPN Hotspot an ist</string>
     <string name="save_battery_message">Datenverbindungen im Hintergrund bleiben inaktiv solange dein Handy inaktiv ist.</string>
@@ -127,7 +125,7 @@
     <string name="always_on_blocking_vpn_user_message">Aktiviere zusätzlich die Option \"Verbindungen nur über VPN zulassen\", um deine Privatsphäre optimal zu schützen.</string>
     <string name="donate_title">Spenden</string>
     <string name="donate_default_message">Spende noch heute, wenn du sichere Kommunikation wertschätzt, die sowohl für Endnutzer*innen als auch Menschen die den Service bereit stellen leicht nutzbar ist.</string>
-    <string name="donate_message">LEAP benötigt Spenden und Stipendien. Spende noch heute wenn du sichere Kommunikation wertschätzt, die sowohl für Enandwender*innen als auch Menschen die den Dienst anbieten leicht nutzbar ist.</string>
+    <string name="donate_message">LEAP benötigt Spenden und Stipendien. Spende noch heute wenn du sichere Kommunikation wertschätzt, die sowohl für Endandwender*innen als auch Menschen die den Dienst anbieten leicht nutzbar ist.</string>
     <string name="donate_button_remind_later">Später erinnern</string>
     <string name="donate_button_donate">Spenden</string>
     <string name="obfuscated_connection">Mit einer verschleierten Verbindung</string>
@@ -218,7 +216,6 @@
     <string name="provider_description_calyx">Calyx ist eine gemeinnützige Bildungs- und Forschungsorganisation, die sich dem Studium, der Erprobung, Entwicklung und Umsetzung von Technologien und Instrumenten zum Schutz der Privatsphäre widmet, um Rede- und Meinungsfreiheit, zivilgesellschaftliches Engagement und Datenschutzrechte im Internet und in der Mobilfunkbranche zu fördern.</string>
     <string name="title_circumvention_setup">Benötigst du die Umgehung von Zensur?</string>
     <string name="circumvention_setup_description">Wenn du an einem Ort lebst, wo das Internet zensiert wird, kannst du unsere Optionen zur Umgehung der Zensur nutzen, um auf alle Internetdienste zuzugreifen. Diese Optionen werden deine Verbindung verlangsamen!</string>
-    <string name="circumvention_setup_hint">%s versucht automatisch, dich mithilfe einer Reihe von Umgehungstechnologien mit dem Internet zu verbinden. Du kannst dies in den erweiterten Einstellungen genau anpassen.</string>
     <string name="use_standard_vpn">Benutze die Standardverbindung von %s</string>
     <string name="use_circumvention_tech">Benutze Umgehungstechnologie (langsamer)</string>
     <string name="description_configure_provider">Um eine Verbindung zu Ihrem Provider herzustellen, holt %1$s alle erforderlichen Konfigurationsinformationen ein. Dies geschieht nur während der Ersteinrichtung.</string>
@@ -227,11 +224,6 @@
     <string name="tor_status">Tor-Status</string>
     <string name="snowflake_status">Snowflake-Status</string>
     <string name="snowflake_started">Snowflake-Client gestartet</string>
-    <string name="snowflake_negotiating_rendezvous_http">Aushandlung eines Snowflake-Proxy-Rendezvous (http)</string>
-    <string name="snowflake_negotiating_rendezvous_amp_cache">Aushandlung eines Snowflake-Proxy-Rendezvous (AMP Cache)</string>
-    <string name="snowflake_socks_error">Snowflake SOCKS Fehler</string>
-    <string name="snowflake_broker_success">Snowflake-Proxy-Rendezvous erfolgreich</string>
-    <string name="snowflake_sending_data">Sende Daten über Snowflake</string>
     <string name="title_upcoming_connection_request">Bevorstehende Verbindungsanfrage</string>
     <string name="title_upcoming_request">Anstehende Anfragen</string>
     <string name="title_upcoming_request_summary">In den nächsten Schritten fragt dich Android um die Erlaubnis für die VPN-Nutzung und für das Anzeigen von Benachrichtigungen.</string>
@@ -248,7 +240,6 @@
     <string name="validation_status_success">Gut</string>
     <string name="validation_status_failure">ungültig</string>
     <string name="enter_invite_code">Einladungscode eingeben</string>
-    <string name="scan_qr_code">Lese QR Code</string>
     <string name="invalid_code">Ungültiger Code</string>
     <string name="automatic_bridge">Automatisch (empfohlen)</string>
     <string name="automatic_bridge_description">Die Verbindung wird mit den besten verfügbaren Brücken und Protokollen versucht.</string>
@@ -262,5 +253,19 @@
     <string name="tunnelling">Tunnelaufbau</string>
     <string name="tunnelling_description">Zensoren können den Zugang zum offenen Internet blockieren. Wähle eine der Optionen, um solche Sperren zu umgehen.</string>
     <string name="port_hopping">Springen über verschiedene Ports</string>
-    <string name="port_hopping_description">Zensoren nutzen die Analyse des Datenverkehrs, um den Zugang zum offenen Internet zu blockieren. Das Springen über verschiedene Ports kann dies für sie schwieriger machen. </string>
+    <string name="port_hopping_description">"Zensoren nutzen die Analyse des Datenverkehrs, um den Zugang zum offenen Internet zu blockieren. Das Springen über verschiedene Ports kann dies für sie schwieriger machen. "</string>
+    <string name="select_provider_description">Wenn du ein VPN benutzt, musst du deinem VPN Provider statt deines Internetanbieters vertrauen können. %1$s und %2$s haben in der Vergangenheit bewiesen, für guten Datenschutz einzustehen. Wenn du einen Provider mittels eines Einladungscodes hinzufügst, stelle sicher, dass du ihn kennst und ihm vertraust.</string>
+    <string name="circumvention_setup_hint">%s versucht dich mit Hilfe einer Reihe von Umgehungstechnologien, inklusive Tor, automatisch mit dem Internet zu verbinden. Du kannst dies in den erweiterten Einstellungen genauer konfigurieren.</string>
+    <string name="error_invite_title">Upsi, da ist etwas mit deinem Einladungscode falsch:</string>
+    <string name="error_invite">Ungültiger Einladungscode: %1$s</string>
+    <string name="error_invite_copy">Einladungscode kopieren</string>
+    <string name="error_invite_hint">Du kannst den Code kopieren und mit deinem Provider teilen, um Hilfe anzufragen.</string>
+    <string name="error_invite_unknown_type">der Einladungscode-Typ %1$s ist unbekannt.</string>
+    <string name="error_invite_address_format">die Adresse des Einladungsproxys entspricht nicht dem Format IP-Addresse:Port.</string>
+    <string name="error_invite_certificate_length">das Zertifikat hat eine falsche Anzahl an Zeichen (%1$s).</string>
+    <string name="error_invite_certificate_missing">das Zertifikat des Einladungsproxys fehlt.</string>
+    <string name="error_invite_fqdn_length">der Einladungscode sollte den vollständigen Namen der Domain enthalten, hat aber %1$s.</string>
+    <string name="error_invite_fqdn_missing">der vollständige Name der Domain fehlt.</string>
+    <string name="error_invite_auth_missing">der Authentifizierungstoken fehlt.</string>
+    <string name="error_invite_fqdn_invalid">der Einladungscode enthält ungültige Zeichen in %1$s</string>
 </resources>

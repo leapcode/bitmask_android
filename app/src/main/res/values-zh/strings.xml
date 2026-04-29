@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">重试</string>
     <string name="repository_url_text">源代码可在 https://0xacab.org/leap/bitmask_android 找到</string>
@@ -59,7 +59,6 @@
     <string name="certificate_error">这不是一个信任 %s 提供商。</string>
     <string name="service_is_down_error">此服务已下线。</string>
     <string name="configuring_provider">正在配置提供商</string>
-    <string name="incorrectly_downloaded_certificate_message">您的匿名证书未被下载</string>
     <string name="downloading_certificate_message">正在下载 VPN 证书</string>
     <string name="updating_certificate_message">正在更新 VPN 证书</string>
     <string name="login.riseup.warning">使用此 VPN 服务的 Riseup 用户需要创建一个单独的账号</string>
@@ -104,8 +103,6 @@
     <string name="warning_corrupted_provider_cert">存储的提供商证书无效。您可以更新 %s（推荐），或更新使用商业 CA 证书的提供商详情。</string>
     <string name="warning_expired_provider_cert">存储的提供商证书过期。您可以更新 %s（推荐），或更新使用商业 CA 证书的提供商详情。</string>
     <string name="downloading_vpn_certificate_failed">下载 VPN 证书失败。请重试或选择其他提供商。</string>
-    <string name="vpn_certificate_is_invalid">VPN 证书无效。尝试下载新的证书。</string>
-    <string name="vpn_certificate_user_message">VPN 证书无效。请登录后下载新证书。</string>
     <string name="save_battery">省电模式</string>
     <string name="subtitle_save_battery"> VPN 热点开启时禁用。</string>
     <string name="save_battery_message">您的手机锁屏时，后台数据连接处于休眠状态。</string>
@@ -209,12 +206,10 @@
     <string name="select_provider">选择提供商</string>
     <string name="provider_description_riseup">Riseup 为解放社会变革的人民和团体提供线上交流工具，透过控制自己的安全通讯方式来创造民主替代方案并实践自决方案。</string>
     <string name="next">下一步</string>
-    <string name="add_provider_description">Bitmask 连接未公开的可信任提供者。 在下面输入提供者的网址。</string>
     <string name="qr_scanner_prompt">扫描二维码</string>
     <string name="provider_description_calyx">Calyx 为非营利教育研究组织，致力研究、测试、开发和实施隐私技术和工具，促进网路和行动通讯产业的言论自由、表达自由、公民参与和隐私权。</string>
     <string name="title_circumvention_setup">需要进行审查规避？</string>
     <string name="circumvention_setup_description">如果居住在网路审查的地区，可以使用我们的审查规避工具来存取所有网路服务。 但这些选项会减慢连线速度！</string>
-    <string name="circumvention_setup_hint">%s会自动尝试使用各种规避技术来连接互联网，高级设定下可对此作微调。</string>
     <string name="use_standard_vpn">使用标准 %s</string>
     <string name="use_circumvention_tech">使用审查规避技术（慢速）</string>
     <string name="description_configure_provider">连接到供应商%1$s取得必要的设定资讯。 这仅发生在首次设定。</string>
@@ -223,11 +218,6 @@
     <string name="tor_status">Tor 状态</string>
     <string name="snowflake_status">Snowflake 状态</string>
     <string name="snowflake_started">Snowflake 客户端已启动</string>
-    <string name="snowflake_negotiating_rendezvous_http">正在与 Snowflake 代理协商握手（HTTP）</string>
-    <string name="snowflake_negotiating_rendezvous_amp_cache">正在与 Snowflake 代理协商握手（AMP 缓存）</string>
-    <string name="snowflake_socks_error">Snowflake SOCKS 错误</string>
-    <string name="snowflake_broker_success">Snowflake 代理握手成功</string>
-    <string name="snowflake_sending_data">通过 Snowflake 发送数据</string>
     <string name="title_upcoming_connection_request">即将到来的连接请求</string>
     <string name="title_upcoming_notifications_request">即将到来的通知请求</string>
     <string name="title_setup_success">一切就绪！</string>
@@ -235,5 +225,4 @@
     <string name="permission_rejected">权限请求被拒绝。</string>
     <string name="login_not_supported">应用程序当前的版本不支援登入，须为此供应商更新 VPN 凭证。</string>
     <string name="select_language">选择语言</string>
-    <string name="scan_qr_code">扫描二维码</string>
 </resources>

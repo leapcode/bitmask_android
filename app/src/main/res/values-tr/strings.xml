@@ -1,9 +1,9 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">Yeniden dene</string>
     <string name="repository_url_text">Kaynak kodlar https://0xacab.org/leap/bitmask_android adresinde bulunabilir.</string>
     <string name="leap_tracker">Hata izleme sistemi https://0xacab.org/leap/bitmask_android/issues adresinde bulunabilir.</string>
-    <string name="translation_project_text">Çevirileri minnettarlıkla kabul ederiz. Transifex projemizi https://www.transifex.com/projects/p/bitmask/ adresinde bulabilirsiniz.</string>
+    <string name="translation_project_text">Çevirileri minnettarlıkla kabul ederiz. Çeviri projemizi https://localizationlab.weblate.cloud/projects/bitmask/ adresinde bulabilirsiniz.</string>
     <string name="switch_provider_menu_option">Hizmet sağlayıcı değiştir</string>
     <string name="info">bilgiler</string>
     <string name="show_connection_details">Bağlantı bilgilerini görüntüle</string>
@@ -59,7 +59,6 @@
     <string name="certificate_error">Bu güvenilir bir %s hizmet sağlayıcısı değil.</string>
     <string name="service_is_down_error">Hizmet çalışmıyor.</string>
     <string name="configuring_provider">Hizmet sağlayıcı yapılandırılıyor</string>
-    <string name="incorrectly_downloaded_certificate_message">Anonim sertifikanız indirilmedi</string>
     <string name="downloading_certificate_message">VPN sertifikası indiriliyor</string>
     <string name="updating_certificate_message">VPN sertifikası güncelleniyor</string>
     <string name="login.riseup.warning">Riseup kullanıcıların VPN hizmetini kullanabilmesi için ayrı bir hesap oluşturmaları gerekir</string>
@@ -105,9 +104,8 @@
     <string name="warning_expired_provider_cert">Kaydedilmiş hizmet sağlayıcı sertifikasının süresi dolmuş. %s güncellemeyi (önerilir) ya da ticari bir CA sertifikası kullanarak hizmet sağlayıcı sertifikasını güncellemeyi seçebilirsiniz.</string>
     <string name="downloading_vpn_certificate_failed">VPN sertifikası indirilemedi. Yeniden deneyin ya da başka bir hizmet sağlayıcı seçin.</string>
     <string name="vpn_certificate_is_invalid">VPN sertifikanızı yenileme zamanınız geldi. Bağlantınızı güvende tutmak için yeni bir sertifika indirin. Bu güncelleme belirli aralıklarla yapılan normal bir işlemdir.</string>
-    <string name="vpn_certificate_user_message">VPN sertifikası geçersiz. Lütfen yeni bir sertifika indirmek için oturum açın.</string>
     <string name="save_battery">Güç tasarrufu</string>
-    <string name="subtitle_save_battery">VPN erişim noktası açıkken devre dışı</string>
+    <string name="subtitle_save_battery">VPN erişim noktası açıkken etkisiz</string>
     <string name="save_battery_message">Telefonunuz etkin olmadığında, arka plan veri bağlantıları hazırda beklemeye geçer.</string>
     <string name="always_on_vpn">Her zaman açık VPN</string>
     <string name="subtitle_always_on_vpn">Android sistem ayarlarını aç</string>
@@ -117,7 +115,7 @@
     <string name="show_experimental">Deneysel özellikler görüntülensin</string>
     <string name="hide_experimental">Deneysel özellikler gizlensin</string>
     <string name="experimental_features">Deneysel özellikler</string>
-    <string name="tethering_enabled_message">Lütfen önce <![CDATA[<b>sistem ayarlarından</b>]]> mobil erişim noktasını etkinleştirdiğinizden emin olun.</string>
+    <string name="tethering_enabled_message">Lütfen önce <![CDATA[<b>sistem ayarlarından</b>]]> mobil erişim noktasını açtığınızdan emin olun.</string>
     <string name="tethering_message">VPN bağlantısını diğer aygıtlarla şununla paylaş:</string>
     <string name="tethering_wifi">Wi-Fi erişim noktası</string>
     <string name="tethering_usb">USB paylaşımı</string>
@@ -127,7 +125,7 @@
     <string name="always_on_blocking_vpn_user_message">Gizliliğinizi en iyi şekilde korumak için, \"VPN kullanmayan bağlantılar engellensin\" seçeneğini de etkinleştirmelisiniz.</string>
     <string name="donate_title">Bağış yapın</string>
     <string name="donate_default_message">Hem son kullanıcılar hem de hizmet sağlayıcılar için kolay ve güvenli iletişime önem veriyorsanız, lütfen bağış yapın.</string>
-    <string name="donate_message">LEAP hibe ve bağışlara güveniyor. Hem son kullanıcılar hem de hizmet sağlayıcılar için kolay ve güvenli iletişime önem veriyorsanız, lütfen bağış yapın.</string>
+    <string name="donate_message">LEAP gücünü hibe ve bağışlardan alıyor. Hem son kullanıcılar hem de hizmet sağlayıcılar için kolay ve güvenli iletişime önem veriyorsanız, lütfen bağış yapın.</string>
     <string name="donate_button_remind_later">Beni hatırla</string>
     <string name="donate_button_donate">Bağış yapın</string>
     <string name="obfuscated_connection">Karartılmış bağlantı kullanılıyor.</string>
@@ -136,8 +134,8 @@
     <string name="nav_drawer_subtitle_obfuscated_connection">VPN süzgeçleri aşılsın</string>
     <string name="warning_exclude_apps_message">Uygulamaları VPN bağlantısı dışında tutarken dikkatli olun. Bu durum kimliğinizin açığa çıkmasına ve güvenliğinizin tehlikeye düşmesine neden olabilir.</string>
     <plurals name="subtitle_exclude_apps">
-        <item quantity="one">%d korunmayan uygulama</item>
-        <item quantity="other">%d korunmayan uygulama</item>
+        <item quantity="one">%d uygulama korunmuyor</item>
+        <item quantity="other">%d uygulama korunmuyor</item>
     </plurals>
     <string name="warning_no_more_gateways_use_pt">%s bağlantı kuramadı. VPN bağlantıları engelleniyor olabilir. Karartılmış bağlantıları kullanarak bağlantı kurmayı denemek ister misiniz?</string>
     <string name="warning_no_more_gateways_no_pt">%s bağlantı kuramadı. Yeniden denemek ister misiniz?</string>
@@ -184,7 +182,7 @@
     <string name="log_done">Çalışıyor</string>
     <string name="channel_name_tor_service">%s köprü hizmeti</string>
     <string name="channel_description_tor_service">%s yapılandırması sırasında köprü kullanımı hakkında bilgi verir.</string>
-    <string name="error_tor_timeout">Köprüler başlatılamadı. Yeniden denemeyi ya da %s yapılandırması için karartılmamış güvenli bağlantı kullanmayı seçebilirsiniz.</string>
+    <string name="error_tor_timeout">Köprüler başlatılamadı. Yeniden denemek ya da %s yapılandırması için karartılmamış güvenli bağlantı ile ilerlemek ister misiniz?</string>
     <string name="retry_unobfuscated">Karartmadan yeniden dene</string>
     <string name="hide">Gizle</string>
     <string name="error_network_connection">%s İnternet bağlantısına yok. Lütfen Wi-Fi ve hücresel veri ayarlarınızı denetleyin.</string>
@@ -194,20 +192,21 @@
     <string name="vpn_settings">VPN ayarları</string>
     <string name="prefer_udp">Olabiliyorsa UDP kullanılsın</string>
     <string name="prefer_udp_subtitle">UDP akışlar için daha iyi ve daha hızlı olabilir, ancak tüm ağlarda çalışmaz.</string>
-    <string name="disabled_while_bridges_on">Köprüler kullanılırken devre dışıdır.</string>
-    <string name="hint_bridges">Şu an yalnızca köprüleri destekleyen konumlar seçilebilir</string>
-    <string name="option_disable_bridges">Köprüleri devre dışı bırak</string>
-    <string name="eip_state_insecure">Güvenli olmayan bağlantı</string>
+    <string name="disabled_while_bridges_on">Köprüler kullanılırken etkisiz.</string>
+    <string name="hint_bridges">Şu anda yalnızca köprüleri destekleyen konumlar seçilebilir.</string>
+    <string name="option_disable_bridges">Köprüleri etkisizleştir</string>
+    <string name="eip_state_insecure">Bağlantı güvenli değil</string>
     <string name="connection_not_connected">Bilgileriniz İnternet hizmeti sağlayıcınıza ya da yerel ağınıza sızıyor olabilir.</string>
-    <string name="eip_state_no_network">Çalışan bir İnternet bağlantınız yok. Geri geldiğinde, bağlantınız otomatik olarak kurulacak.</string>
+    <string name="eip_state_no_network">Çalışan bir internet bağlantınız yok. Geri geldiğinizde, bağlantınız otomatik olarak kurulacak.</string>
     <string name="eip_state_blocking">%1$s tüm İnternet trafiğini engelliyor.</string>
-    <string name="disabled_while_udp_on">UDP açıkken devre dışı.</string>
+    <string name="disabled_while_udp_on">UDP açıkken etkisiz.</string>
     <string name="advanced_settings">Gelişmiş ayarlar</string>
     <string name="cancel_connection">Bağlantıyı kes</string>
     <string name="unknown_location">Konum bilinmiyor</string>
     <string name="splash_footer">LEAP tarafından geliştirildi</string>
     <string name="welcome">Hoş geldiniz!</string>
     <string name="select_provider">Hizmet sağlayıcınızı seçin</string>
+    <string name="select_provider_description">VPN kullandığınızda, İnternet hizmeti sağlayıcınıza duyduğunuz güveni VPN hizmeti sağlayıcınıza aktarmış olursunuz. %1$s ve %2$s hizmet sağlayıcılarının geçmişi, gizliliği korumaları ve savunmaları açısından temizdir. Bir hizmet sağlayıcı ekliyorsanız veya bir davet kodu kullanıyorsanız, hizmet sağlayıcıyı tanıdığınızdan ve güvendiğinizden emin olun.</string>
     <string name="provider_description_riseup">Riseup özgürleştirici toplumsal değişim üzerine çalışan kişi ve gruplara çevrim içi iletişim araçları sağlıyor. Projemiz, demokratik alternatifleri oluşturmayı ve kendi denetimimiz altında güvenli iletişim araçları geliştirmeyi amaçlıyor.</string>
     <string name="next">Sonraki</string>
     <string name="add_provider_description">Bitmask, herkese açık olarak listelenmeyen hizmet sağlayıcılara bağlanmanızı sağlar. Eklediğiniz hizmet sağlayıcıyı bildiğinizden ve güvendiğinizden emin olun.</string>
@@ -218,7 +217,7 @@
     <string name="provider_description_calyx">Calyx, İnternet ve mobil iletişim endüstrisinde konuşma özgürlüğü, ifade özgürlüğü, sivil katılım ve gizlilik haklarını özendirmek için gizlilik teknolojileri üzerine çalışan, bunları sınayan, geliştiren ve gerçekleştiren kâr amacı gütmeyen bir eğitim ve araştırma örgütüdür.</string>
     <string name="title_circumvention_setup">Engellemeyi aşmanız mı gerekiyor?</string>
     <string name="circumvention_setup_description">İnternet\'in engellendiği bir yerde yaşıyorsanız, tüm İnternet hizmetlerine erişmek için engellemeyi aşma seçeneklerimizi kullanabilirsiniz. Bu seçenekler bağlantınızı yavaşlatır!</string>
-    <string name="circumvention_setup_hint">%s otomatik olarak çeşitli engellemeyi aşma teknolojileri kullanarak sizi İnternet\'e ulaştırmaya çalışır. Gelişmiş ayarlar bölümünden ince ayarları yapabilirsiniz.</string>
+    <string name="circumvention_setup_hint">%s Tor gibi otomatik olarak çeşitli engellemeyi aşma teknolojileri kullanarak size internet erişimi sağlamayı dener. Gelişmiş ayarlar bölümünden ince ayarları yapabilirsiniz.</string>
     <string name="use_standard_vpn">Standart %s kullanılsın</string>
     <string name="use_circumvention_tech">Engellemeyi aşma teknolojisi kullanılsın (daha yavaş)</string>
     <string name="description_configure_provider">%1$s, hizmet sağlayıcınızla bağlantı kurmak için gerekli yapılandırma bilgilerini alıyor. Bu işlem yalnızca ilk kurulum sırasında yapılır.</string>
@@ -227,11 +226,6 @@
     <string name="tor_status">Tor durumu</string>
     <string name="snowflake_status">Snowflake durumu</string>
     <string name="snowflake_started">Snowflake istemcisi başlatıldı</string>
-    <string name="snowflake_negotiating_rendezvous_http">Snowflake vekil sunucusuna erişilmeye çalışılıyor (http)</string>
-    <string name="snowflake_negotiating_rendezvous_amp_cache">Snowflake vekil sunucusuna erişilmeye çalışılıyor (amp ön belleği)</string>
-    <string name="snowflake_socks_error">Snowflake SOCKS hatası</string>
-    <string name="snowflake_broker_success">Snowflake vekil sunucusuna erişildi</string>
-    <string name="snowflake_sending_data">Veriler Snowflake ile gönderiliyor</string>
     <string name="title_upcoming_connection_request">Gelen bağlantı isteği</string>
     <string name="title_upcoming_request">İstenecek izinler</string>
     <string name="title_upcoming_request_summary">Sonraki panolarda Android sizden Bağlantı isteği ve Bildirim isteği ile izninizi isteyecek.</string>
@@ -241,14 +235,13 @@
     <string name="title_upcoming_notifications_request">Gelen bildirim isteği</string>
     <string name="title_setup_success">Hazırsınız!</string>
     <string name="setup_success_description">Bağlanmak için aşağıdaki düğmeye tıklayın</string>
-    <string name="permission_rejected">İzin isteği reddedildi</string>
+    <string name="permission_rejected">İzin isteği reddedildi.</string>
     <string name="login_not_supported">Bu hizmet sağlayıcı için VPN sertifikanızı güncellemeniz gerektiğinden geçerli uygulama sürümü oturum açmayı desteklemiyor. </string>
     <string name="select_language">Dil seçin</string>
     <string name="syntax_check">Yazım denetimi:</string>
     <string name="validation_status_success">İyi</string>
     <string name="validation_status_failure">Kötü</string>
     <string name="enter_invite_code">Davet kodunu yazın</string>
-    <string name="scan_qr_code">Kare kodu tara</string>
     <string name="invalid_code">Kod geçersiz</string>
     <string name="automatic_bridge">Otomatik (önerilen)</string>
     <string name="automatic_bridge_description">Bağlantı kullanılabilecek en iyi köprüler ve iletişim kuralları ile kurulmaya çalışılacak.</string>
@@ -262,5 +255,17 @@
     <string name="tunnelling">Tünelleme</string>
     <string name="tunnelling_description">Sansür uygulayıcılar açık internete erişimi engelleyebilir. Engellemeleri aşmak için bir seçenek seçin.</string>
     <string name="port_hopping">Bağlantı noktası değiştirme</string>
-    <string name="port_hopping_description">Sansür uygulayıcılar açık internete erişimi engellemek için trafik analizini kullanırlar. Bağlantı noktası değiştirme bunu onlar için zorlaştırır.</string>
+    <string name="port_hopping_description">"Sansür uygulayıcılar açık internete erişimi engellemek için trafik analizini kullanırlar. Bağlantı noktası değiştirme bunu onlar için zorlaştırır. "</string>
+    <string name="error_invite_title">Ne yazık ki, bu davet kodunda bir yanlışlık var:</string>
+    <string name="error_invite">Davet kodu geçersiz: %1$s</string>
+    <string name="error_invite_copy">Davet kodunu kopyala</string>
+    <string name="error_invite_hint">Destek isteğinde bulunmak için davet kodunu kopyalayıp hizmet sağlayıcınızla paylaşabilirsiniz.</string>
+    <string name="error_invite_unknown_type">%1$s davet kodu türü bilinmiyor.</string>
+    <string name="error_invite_address_format">davet vekil sunucusunun adresi IpAdresi:BaglantiNoktasi biçiminde değil.</string>
+    <string name="error_invite_certificate_length">sertifikanın karakter sayısı doğru değil (%1$s).</string>
+    <string name="error_invite_certificate_missing">davet vekil sunucusunun sertifikası eksik.</string>
+    <string name="error_invite_fqdn_length">davet kodunda tam belirtilmiş etki alanı adı bulunmalı. Ancak %1$s alındı.</string>
+    <string name="error_invite_fqdn_missing">tam belirtilmiş etki alanı adı eksik.</string>
+    <string name="error_invite_auth_missing">kimlik doğrulama kodu eksik.</string>
+    <string name="error_invite_fqdn_invalid">%1$s davet kodunda geçersiz karakterler var</string>
 </resources>

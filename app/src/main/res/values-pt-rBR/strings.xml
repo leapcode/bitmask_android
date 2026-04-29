@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">Tentar novamente</string>
     <string name="repository_url_text">Código fonte disponível em https://0xacab.org/leap/bitmask_android</string>
@@ -59,7 +59,6 @@
     <string name="certificate_error">Esse não é um provedor confiável %s.</string>
     <string name="service_is_down_error">O Serviço está fora do ar</string>
     <string name="configuring_provider">Configurando o provedor</string>
-    <string name="incorrectly_downloaded_certificate_message">O download de seu certificado anônimo não foi efetuado.</string>
     <string name="downloading_certificate_message">Baixando o certificado VPN</string>
     <string name="updating_certificate_message">Atualizando o certificado VPN</string>
     <string name="login.riseup.warning">Usuários do Riseup necessitarão criar uma conta separada para usar o serviço de VPN</string>
@@ -105,7 +104,6 @@
     <string name="warning_expired_provider_cert">O certificado do provedor está expirado. Você pode atualizar %s (recomendado) ou atualizar o certificado do provedor utilizando um certificado CA comercial. </string>
     <string name="downloading_vpn_certificate_failed">Download do certificado VPN falhou. Tente novamente ou escolha outro provedor.</string>
     <string name="vpn_certificate_is_invalid">É hora de atualizar seu certificado VPN. Faça o download de um novo certificado para manter sua conexão segura. Esta é uma atualização de rotina.</string>
-    <string name="vpn_certificate_user_message">O certificado VPN é inválido. Por favor, faça login e baixe um novo.</string>
     <string name="save_battery">Economizar energia</string>
     <string name="subtitle_save_battery">Desabilitado enquanto o Ponto de acesso VPN estiver ligado</string>
     <string name="save_battery_message">Conexões de dados em segundo plano vão hibernar quando o seu telefone estiver inativo.</string>
@@ -209,6 +207,7 @@
     <string name="splash_footer">Desenvolvido pela LEAP</string>
     <string name="welcome">Bem-vindo!</string>
     <string name="select_provider">Selecione seu provedor</string>
+    <string name="select_provider_description">Ao usar uma VPN, você está transferindo sua confiança do seu provedor de serviços de Internet para o seu provedor de VPN.%1$se %2$s deve ter um histórico claro de proteção de privacidade e defesa de direitos. Se você estiver adicionando um provedor ou usando um código de convite, certifique-se de conhecer e confiar no provedor.</string>
     <string name="provider_description_riseup">Riseup fornece ferramentas de comunicação online para pessoas e grupos que trabalham em mudanças sociais libertadoras. Somos um projeto para criar alternativas democráticas e praticar a autodeterminação, controlando os nossos próprios meios de comunicação seguros.</string>
     <string name="next">Próximo</string>
     <string name="add_provider_description">O Bitmask permite que você se conecte a provedores que não estão listados publicamente. Certifique-se de conhecer e confiar no provedor que você está adicionando.</string>
@@ -219,7 +218,7 @@
     <string name="provider_description_calyx">Calyx é uma organização sem fins lucrativos de educação e pesquisa dedicada a estudar, testar, desenvolver e implementar tecnologias e ferramentas de privacidade para promover a liberdade de expressão, a liberdade de expressão, o envolvimento cívico e os direitos de privacidade na Internet e na indústria de comunicações móveis.</string>
     <string name="title_circumvention_setup">Você exige evasão da censura?</string>
     <string name="circumvention_setup_description">Se você mora em um local onde a Internet é censurada, você pode usar nossas opções de evasão de censura para acessar todos os serviços da Internet. Essas opções irão desacelerar sua conexão!</string>
-    <string name="circumvention_setup_hint">%s tentará conectá-lo automaticamente à Internet usando uma variedade de tecnologias de evasão. Você pode ajustar isso nas configurações avançadas.</string>
+    <string name="circumvention_setup_hint">%stentará automaticamente conectá-lo à internet usando uma variedade de tecnologias de circunvenção, incluindo Tor. Você pode ajustar isso nas configurações avançadas. </string>
     <string name="use_standard_vpn">Usar padrão %s</string>
     <string name="use_circumvention_tech">Use tecnologia de evasão (mais lenta)</string>
     <string name="description_configure_provider">Para se conectar ao seu provedor, o %1$s está buscando todas as informações de configuração necessárias. Isso só acontece durante a primeira configuração.</string>
@@ -228,11 +227,6 @@
     <string name="tor_status">Estado do Tor</string>
     <string name="snowflake_status">Status do floco de neve</string>
     <string name="snowflake_started">Cliente Snowflake iniciado</string>
-    <string name="snowflake_negotiating_rendezvous_http">Negociando encontro de proxy do Snowflake (http)</string>
-    <string name="snowflake_negotiating_rendezvous_amp_cache">Negociando encontro de proxy Snowflake (cache de amplificador)</string>
-    <string name="snowflake_socks_error">Erro de floco de neve SOCKS</string>
-    <string name="snowflake_broker_success">Encontro do proxy Snowflake bem-sucedido</string>
-    <string name="snowflake_sending_data">Enviando dados via Snowflake</string>
     <string name="title_upcoming_connection_request">Próxima solicitação de conexão</string>
     <string name="title_upcoming_request">Próximas solicitações</string>
     <string name="title_upcoming_request_summary">Nos próximos painéis, o Android pedirá sua permissão na forma de uma Solicitação de Conexão e Solicitação de Notificação.</string>
@@ -249,7 +243,6 @@
     <string name="validation_status_success">Bom</string>
     <string name="validation_status_failure">Mau</string>
     <string name="enter_invite_code">Digite o código de convite</string>
-    <string name="scan_qr_code">Ler QR Code</string>
     <string name="invalid_code">Código inválido</string>
     <string name="automatic_bridge">Automático (recomendado)</string>
     <string name="automatic_bridge_description">A conexão será tentada usando as melhores pontes e protocolos disponíveis.</string>
@@ -264,4 +257,16 @@
     <string name="tunnelling_description">Os censores podem bloquear o acesso à internet aberta. Escolha uma opção de evasão para contornar blocos.</string>
     <string name="port_hopping">Port Hopping</string>
     <string name="port_hopping_description">Os censores usam a análise de tráfego para bloquear o acesso à internet aberta. Port Hopping pode tornar isso mais difícil para eles.</string>
+    <string name="error_invite_title">Ops, há algo de errado com este código de convite:</string>
+    <string name="error_invite">Código de convite inválido: %1$s</string>
+    <string name="error_invite_copy">Copiar código de convite</string>
+    <string name="error_invite_hint">Você pode copiar e compartilhar o código com seu provedor para solicitar suporte.</string>
+    <string name="error_invite_unknown_type">o tipo de código de convite %1$s é desconhecido.</string>
+    <string name="error_invite_address_format">O endereço de proxy do convite não segue o formato ipaddr:porta.</string>
+    <string name="error_invite_certificate_length">o certificado tem o número errado de caracteres (%1$s).</string>
+    <string name="error_invite_certificate_missing">O certificado de proxy do convite está ausente.</string>
+    <string name="error_invite_fqdn_length">o código de convite deve conter um nome de domínio totalmente qualificado, mas recebeu .%1$s.</string>
+    <string name="error_invite_fqdn_missing">o nome de domínio totalmente qualificado está ausente.</string>
+    <string name="error_invite_auth_missing">o token de autenticação está ausente.</string>
+    <string name="error_invite_fqdn_invalid">o código de convite contém caracteres inválidos %1$s</string>
 </resources>

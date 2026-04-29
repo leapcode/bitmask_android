@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">Reintentar</string>
     <string name="repository_url_text">Código fuente disponible en https://0xacab.org/leap/bitmask_android</string>
@@ -59,7 +59,6 @@
     <string name="certificate_error">Este no es un proveedor %s de confianza.</string>
     <string name="service_is_down_error">El servicio está caído.</string>
     <string name="configuring_provider">Configurando proveedor.</string>
-    <string name="incorrectly_downloaded_certificate_message">Tu certificado anónimo no fue descargado</string>
     <string name="downloading_certificate_message">Descargando certificado de RPV</string>
     <string name="updating_certificate_message">Actualizando certificado de RPV</string>
     <string name="login.riseup.warning">Usuarios de Riseup necesitarán crear una cuenta separada para usar el servicio de RPV.</string>
@@ -101,8 +100,6 @@
     <string name="warning_corrupted_provider_cert">El certificado almacenado de este proveedor es inválido. Podés actualizar %s (recomendado) o actualizar el certificado del proveedor usando una autoridad de certificación comercial. </string>
     <string name="warning_expired_provider_cert">El certificado almacenado de este proveedor ha caducado. Podés actualizar %s (recomendado) o actualizar el certificado de proveedor usando una autoridad de certificación comercial.</string>
     <string name="downloading_vpn_certificate_failed">La descarga del certificado de RPV falló. Intentá de nuevo o elegí otro proveedor.</string>
-    <string name="vpn_certificate_is_invalid">El certificado de RPV es inválido. Intentá descargar uno nuevo.</string>
-    <string name="vpn_certificate_user_message">El certificado de RPV es inválido. Por favor iniciá sesión para descargar uno nuevo.</string>
     <string name="save_battery">Ahorrando batería</string>
     <string name="subtitle_save_battery">Deshabilitado mientras está activo como punto de acceso a VPN</string>
     <string name="save_battery_message">Conexiones de datos en segundo plano hibernarán cuando tu teléfono esté inactivo.</string>

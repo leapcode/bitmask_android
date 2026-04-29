@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">再試行</string>
     <string name="repository_url_text">ソースコードは https://0xacab.org/leap/bitmask_android で入手可能です</string>
@@ -59,7 +59,6 @@
     <string name="certificate_error">これは、信頼できる%sプロバイダーではありません。</string>
     <string name="service_is_down_error">サービスがダウンしています。</string>
     <string name="configuring_provider">プロバイダーを構成中</string>
-    <string name="incorrectly_downloaded_certificate_message">匿名の証明書はダウンロードされませんでした</string>
     <string name="downloading_certificate_message">VPN証明書のダウンロード中</string>
     <string name="updating_certificate_message">VPN証明書のアップデート中</string>
     <string name="login.riseup.warning">通知 ユーザーはVPNサービスを使用するために別のアカウントを作成する必要があります</string>
@@ -105,7 +104,6 @@
     <string name="warning_expired_provider_cert">保存されたプロバイダーの証明書が有効期限切れです。 商用CA証明書を使用して%sを更新する（推奨）か、プロバイダー証明書を更新することができます。</string>
     <string name="downloading_vpn_certificate_failed">VPN証明書のダウンロードに失敗しました。 もう一度やり直すか、別のプロバイダーを選択してください。</string>
     <string name="vpn_certificate_is_invalid">VPN証明書を更新する時間です。接続を安全にするために、新しい証明書をダウンロードしてください。これは、通常の繰り返し行われる処理です。</string>
-    <string name="vpn_certificate_user_message">VPN証明書が不正です。 ログインして新しくダウンロードし直してください。</string>
     <string name="save_battery">電池節約</string>
     <string name="subtitle_save_battery">VPNホットスポットがオンの間無効にします</string>
     <string name="save_battery_message">お使いの携帯電話を使用していない時に、バックグラウンドのデータ接続は休止状態になります。</string>
@@ -207,6 +205,7 @@
     <string name="splash_footer">LEAPによって開発されました</string>
     <string name="welcome">ようこそ!</string>
     <string name="select_provider">プロバイダーを選択</string>
+    <string name="select_provider_description">VPNを使用するとインターネットサービスプロバイダーからVPNプロバイダーへ、信頼されなければならない組織が移ります。 %1$s と %2$s は、プライバシーの保護と擁護の明瞭な歴史があります。招待コードを使用してプロバイダーを追加する場合は、知っていて信頼できるプロバイダーであることを確実にしてください。</string>
     <string name="provider_description_riseup">プロバイダーRiseupは、解放的社会変革に粘り強く取り組む事業団体です。我々は新方式の民主主義を創り、通信の安全を意図して自己制御による自己決定を実践します。</string>
     <string name="next">次へ</string>
     <string name="add_provider_description">Bitmaskは、公開一覧に記載されていないプロバイダーに接続できます。追加するプロバイダーは、あなたが知っていて、信頼しているものであることを確かめてください。</string>
@@ -217,7 +216,7 @@
     <string name="provider_description_calyx">Calyxは、プライバシー技術を検討、試験、開発及び実装し、言論の自由、表現の自由、市民の参画及びインターネットと携帯電話通信事業でプライバシー権を助長する道具の製作に取り組む、教育と研究の非営利団体です。</string>
     <string name="title_circumvention_setup">検閲の回避策が必要ですか？</string>
     <string name="circumvention_setup_description">インターネットが検閲された地域にお住まいであれば、全てのインターネットサービスを利用するために検閲回避策を使用できます。これらの策を使用すると、接続が低速になります。</string>
-    <string name="circumvention_setup_hint">%sは自動的に様々な検閲回避技術を使用して、インターネットへ接続を試みます。詳細設定内でこれを細かく調整できます。</string>
+    <string name="circumvention_setup_hint">%sは、 Tor を含む自動的に様々な検閲回避技術を使用して、インターネットへ接続を試みます。詳細設定内でこれを細かく調整できます。</string>
     <string name="use_standard_vpn">標準の%sを使用</string>
     <string name="use_circumvention_tech">検閲回避技術を使用（低速）</string>
     <string name="description_configure_provider">プロバイダーに接続するために、%1$sは必要な全ての設定情報を取得します。これは最初のセットアップ時にのみ発生します。</string>
@@ -226,30 +225,46 @@
     <string name="tor_status">Tor の状態</string>
     <string name="snowflake_status">Snowflake の状態</string>
     <string name="snowflake_started">Snowflake クライアントを開始しました</string>
-    <string name="snowflake_negotiating_rendezvous_http">Snowflakeプロキシ接触接続情報交換中（http）</string>
-    <string name="snowflake_negotiating_rendezvous_amp_cache">Snowflakeプロキシ接触接続情報交換中（amp cache）</string>
-    <string name="snowflake_socks_error">Snowflake SOCKSエラー</string>
-    <string name="snowflake_broker_success">Snowflakeプロキシ接触成功</string>
-    <string name="snowflake_sending_data">Snowflake 経由でデータを送信中</string>
     <string name="title_upcoming_connection_request">今度は接続要求だ</string>
+    <string name="title_upcoming_request">今度は要求</string>
+    <string name="title_upcoming_request_summary">次の小枠内で、Androidは接続要求と通知要求の欄にて、権限を尋ねます。</string>
+    <string name="title_upcoming_connection_request_summary_custom">接続要求を承認することは、 %s の中核機能を使用するために必須です。</string>
+    <string name="title_upcoming_connection_request_summary">接続要求については、BitmaskはVPNの最良の実践に固執し、利用者のデータと識別情報を保護の、検証可能な歴史がある信頼できる協力者のプロバイダーとのみ提携していることを知ることが重要です。しかしながら、非公開のプロバイダーに手動で接続するには、信頼しているものであることを確かめてください。</string>
+    <string name="title_upcoming_notification_request_summary">通知要求を承認することで、アプリをバックグラウンドで実行可能にし、また、Androidの通知センター内からデータ使用量を確認可能にします。</string>
     <string name="title_upcoming_notifications_request">今度は通知要求だ</string>
     <string name="title_setup_success">全て設定しました!</string>
     <string name="setup_success_description">接続するには、下のボタンをクリック</string>
     <string name="permission_rejected">権限の要求が拒否されました。</string>
     <string name="login_not_supported">現在のアプリのバージョンは、このプロバイダー用のVPN証明書を更新するのに必要なログインに対応しません。</string>
     <string name="select_language">言語の選択</string>
-    <string name="validation_status_success">良</string>
+    <string name="syntax_check">構文確認:</string>
+    <string name="validation_status_success">正当</string>
+    <string name="validation_status_failure">不当</string>
     <string name="enter_invite_code">招待文字列を入力</string>
-    <string name="scan_qr_code">QR コードをスキャン</string>
     <string name="invalid_code">無効なコード</string>
     <string name="automatic_bridge">自動（推奨）</string>
     <string name="automatic_bridge_description">接続は、利用可能な最良のブリッジとプロトコルの使用を試行します。</string>
     <string name="manual_bridge">手動設定</string>
     <string name="manual_bridge_description">非公開のブリッジと特定のプロトコルを選択します</string>
     <string name="censorship_circumvention_description">手動設定には、技術の理解が必要です。慎重に続行してください。</string>
+    <string name="discovery">発見</string>
     <string name="discovery_description">検閲官は、プロバイダーからの極めて重要な設定情報の発見を遮断できます。遮断を回避するために、検閲回避法を選択してください。</string>
+    <string name="automatically_select">自動選択</string>
+    <string name="invite_proxy">招待プロキシ</string>
     <string name="tunnelling">トンネリング</string>
     <string name="tunnelling_description">検閲官は、開放的インターネットへのアクセスを遮断できます。遮断を回避するために、検閲回避法を選択してください。</string>
     <string name="port_hopping">ポート探索（ポートホッピング）</string>
     <string name="port_hopping_description">検閲官は、開放的インターネットへのアクセスを遮断するために、転送の分析を使用します。ポート探索（ポートホッピング）は転送の分析を難しくすることができます。</string>
+    <string name="error_invite_title">おや、この招待コードに何か誤りがあります:</string>
+    <string name="error_invite">無効な招待コード: %1$s</string>
+    <string name="error_invite_copy">招待コードをコピー</string>
+    <string name="error_invite_hint">補助を要求するために、あなたのプロバイダーのコードをコピーして共有できます。</string>
+    <string name="error_invite_unknown_type">招待コードの種類 %1$s は未知です。</string>
+    <string name="error_invite_address_format">招待プロキシアドレスは、 「ipアドレス:ポート」の形式に従っていません。</string>
+    <string name="error_invite_certificate_length">証明書は文字数(%1$s)の誤りがあります。</string>
+    <string name="error_invite_certificate_missing">招待プロキシの証明書が欠落しています。</string>
+    <string name="error_invite_fqdn_length">招待コードには完全修飾ドメイン名が含まれていなければなりませんが、 %1$s を受け取りました。</string>
+    <string name="error_invite_fqdn_missing">完全修飾ドメイン名が欠落しています。</string>
+    <string name="error_invite_auth_missing">認証トークンが欠落しています。</string>
+    <string name="error_invite_fqdn_invalid">招待コードは %1$s 内に不正な文字が含まれています。</string>
 </resources>

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="retry">Повтор</string>
     <string name="repository_url_text">Исходный код доступен на https://0xacab.org/leap/bitmask_android</string>
@@ -60,7 +60,6 @@ https://0xacab.org/leap/bitmask_android/issues</string>
     <string name="certificate_error">%s не надёжный провайдер.</string>
     <string name="service_is_down_error">Сервис недоступен.</string>
     <string name="configuring_provider">Настройка провайдера</string>
-    <string name="incorrectly_downloaded_certificate_message">Ваш анонимный сертификат не был загружен</string>
     <string name="downloading_certificate_message">Скачивание сертификата VPN</string>
     <string name="updating_certificate_message">Обновление сертификата VPN</string>
     <string name="login.riseup.warning">Пользователям Riseup потребуется создать отдельную учётную запись для использования VPN</string>
@@ -106,7 +105,6 @@ https://0xacab.org/leap/bitmask_android/issues</string>
     <string name="warning_expired_provider_cert">Срок действия сохранённого сертификата провайдера истёк. Можно либо обновить %s (рекомендуется), либо обновить сертификат провайдера с помощью коммерческого сертификата ЦС.</string>
     <string name="downloading_vpn_certificate_failed">Загрузка сертификата VPN не выполнена. Попробуйте ещё раз или выберите другого провайдера.</string>
     <string name="vpn_certificate_is_invalid">Пришло время обновить сертификат VPN. Загрузите новый сертификат, чтобы обеспечить безопасность соединения. Это рутинное обновление.</string>
-    <string name="vpn_certificate_user_message">Сертификат VPN недействителен. Войдите для загрузки нового.</string>
     <string name="save_battery">Экономия батареи</string>
     <string name="subtitle_save_battery">Отключено при использовании точки доступа VPN</string>
     <string name="save_battery_message">Фоновые подключения перейдут в спящий режим на время неактивности вашего устройства.</string>
@@ -221,7 +219,6 @@ https://0xacab.org/leap/bitmask_android/issues</string>
     <string name="provider_description_calyx">Calyx — некоммерческая образовательная и исследовательская организация, занимающаяся изучением, тестированием, разработкой и внедрением технологий и инструментов обеспечения конфиденциальности для продвижения свободы слова, свободы самовыражения, гражданской активности и прав на неприкосновенность частной жизни в интернете и в индустрии мобильной связи.</string>
     <string name="title_circumvention_setup">Вам требуется обход цензуры?</string>
     <string name="circumvention_setup_description">Если вы живёте там, где интернет цензурируется, то можете использовать наши средства обхода цензуры для доступа ко всем услугам интернета. Это замедлит подключение!</string>
-    <string name="circumvention_setup_hint">%s автоматически попытается подключить вас к интернету, используя различные технологии обхода. Параметры можно изменить в настройках.</string>
     <string name="use_standard_vpn">Использовать стандарт %s</string>
     <string name="use_circumvention_tech">Использовать технологию обхода (медленнее)</string>
     <string name="description_configure_provider">Для подключения к вашему провайдеру %1$s получает всю необходимую информацию о конфигурации. Это происходит только при первичной настройке.</string>
@@ -230,11 +227,6 @@ https://0xacab.org/leap/bitmask_android/issues</string>
     <string name="tor_status">Статус Tor</string>
     <string name="snowflake_status">Статус Snowflake</string>
     <string name="snowflake_started">Клиент Snowflake запущен</string>
-    <string name="snowflake_negotiating_rendezvous_http">Согласование прокси Snowflake (http)</string>
-    <string name="snowflake_negotiating_rendezvous_amp_cache">Согласование прокси Snowflake (amp cache)</string>
-    <string name="snowflake_socks_error">Ошибка SOCKS Snowflake</string>
-    <string name="snowflake_broker_success">Прокси Snowflake успешно согласованы</string>
-    <string name="snowflake_sending_data">Отправка данных через Snowflake</string>
     <string name="title_upcoming_connection_request">Запрос на предстоящее подключение</string>
     <string name="title_upcoming_request">Предстоящие запросы</string>
     <string name="title_upcoming_request_summary">На следующих панелях Android запросит у вас разрешение в виде запроса на подключение и запроса на уведомление.</string>
@@ -252,7 +244,6 @@ https://0xacab.org/leap/bitmask_android/issues</string>
     <string name="validation_status_success">Хорошо</string>
     <string name="validation_status_failure">Недопустимый</string>
     <string name="enter_invite_code">Введите код приглашения</string>
-    <string name="scan_qr_code">Сканировать QR-код</string>
     <string name="invalid_code"> Неверный код</string>
     <string name="automatic_bridge">Автоматически (рекомендуется)</string>
     <string name="automatic_bridge_description">Подключение будет осуществляться с использованием наилучших доступных мостов и протоколов.</string>
