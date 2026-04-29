@@ -13,6 +13,26 @@ eyes to have a second look before publishing to weblate. Because there usually i
 very tight release schedule or only a short time window before release, this avoids too
 many untranslated strings. A beta release can also have new strings and give feedback.
 
+## Fetch updated strings
+
+In the scripts directory scripts/fetch-play-metadata.py all changes from the translators
+will be picked up. At first you need to (shallow) clone the bitmask branch from the l10n
+repository, into another directory *above* this one:
+
+`git clone --depth 1 https://0xacab.org/leap/l10n.git -b bitmask`
+
+Then run the above mentioned script:
+
+`python3 scripts/fetch-play-metadata.py`
+
+This will pull in the changed strings, but also
+
+1. Update strings that are at least 75% translated
+1. List translations that have less strings translated, maybe you want to ask for a push
+on those if there are important ones
+1. Lastly: you get an overview of action items. They might be missing in the current
+app/src/main/res/ diretory. If there are only few translated strings, ignore it.
+
 # Metadata: F-Droid compatible fastlane metadata directory
 
 The src/<flavor>/fastlane/metadata folder contains the generated metadata for f-droid builds for both Bitmask and a custom flavored client.
