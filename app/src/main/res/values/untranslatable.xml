@@ -50,29 +50,29 @@
     <string name="no_location" translatable="false">---</string>
 
     <string-array name="supported_languages" translatable="false">
+        <item>ar</item>
         <item>cs</item>
-        <item>lt</item>
-        <item>tr</item>
-        <item>pt-BR</item>
+        <item>de</item>
         <item>el</item>
         <item>en</item>
-        <item>nl</item>
-        <item>de</item>
-        <item>zh-TW</item>
-        <item>ru</item>
-        <item>ar</item>
         <item>es</item>
-        <item>es-CU</item>
-        <item>zh</item>
-        <item>ja</item>
-        <item>fr</item>
-        <item>fi</item>
         <item>es-AR</item>
+        <item>es-CU</item>
         <item>fa-IR</item>
+        <item>fi</item>
+        <item>fr</item>
         <item>he</item>
-        <item>uk</item>
         <item>hu</item>
+        <item>ja</item>
+        <item>lt</item>
+        <item>nl</item>
+        <item>pt-BR</item>
+        <item>ru</item>
+        <item>tr</item>
+        <item>uk</item>
         <item>vi</item>
+        <item>zh</item>
+        <item>zh-TW</item>
     </string-array>
     <string name="tunnelling_obfs4" translatable="false">Obfs4</string>
     <string name="tunnelling_obfs4_kcp" translatable="false">Obfs4+KCP</string>
