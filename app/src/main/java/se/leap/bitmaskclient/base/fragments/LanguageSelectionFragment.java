@@ -1,7 +1,12 @@
 package se.leap.bitmaskclient.base.fragments;
 
+import static android.content.res.Resources.getSystem;
+import static androidx.core.app.LocaleManagerCompat.getSystemLocales;
+import static androidx.core.os.ConfigurationCompat.getLocales;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,19 +22,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.utils.StringUtils;
 import se.leap.bitmaskclient.base.views.SimpleCheckBox;
 import se.leap.bitmaskclient.databinding.FLanguageSelectionBinding;
 import se.leap.bitmaskclient.databinding.VSelectTextListItemBinding;
 
 public class LanguageSelectionFragment extends BottomSheetDialogFragment {
-    static final String TAG = LanguageSelectionFragment.class.getSimpleName();
+    public static final String TAG = LanguageSelectionFragment.class.getSimpleName();
     static final String SYSTEM_LOCALE = "systemLocale";
     private FLanguageSelectionBinding binding;
 
@@ -63,29 +68,35 @@ public class LanguageSelectionFragment extends BottomSheetDialogFragment {
     }
 
     private void initRecyclerView(List<String> supportedLanguages) {
-        Locale defaultLocale = AppCompatDelegate.getApplicationLocales().get(0);
-        if (defaultLocale == null) {
-            defaultLocale = LocaleListCompat.getDefault().get(0);
-        }
-        // NOTE: Sort the supported languages by their display names.
-        // This would make updating supported languages easier as we don't have to tip toe around the order
-        Collections.sort(supportedLanguages, (lang1, lang2) -> {
-            String displayName1 = Locale.forLanguageTag(lang1).getDisplayName(Locale.ENGLISH);
-            String displayName2 = Locale.forLanguageTag(lang2).getDisplayName(Locale.ENGLISH);
-            return displayName1.compareTo(displayName2);
+        Locale currentLocale = getCurrentLocale();
+
+        // new list so it doesn't crash on fixed size
+        List<String> languagesWithSystem = new ArrayList<>(supportedLanguages);
+
+        // Sort by the language's native name (endonym)
+        languagesWithSystem.sort((lang1, lang2) -> {
+            Locale loc1 = Locale.forLanguageTag(lang1);
+            Locale loc2 = Locale.forLanguageTag(lang2);
+
+            String name1 = loc1.getDisplayName(loc1);
+            String name2 = loc2.getDisplayName(loc2);
+
+            return name1.compareToIgnoreCase(name2);
         });
+
+        // using add(0) because addFirst() causes a NoSuchMethodError on Android 7
+        languagesWithSystem.add(0, "");
+
         binding.languages.setAdapter(
-                new LanguageSelectionAdapter(supportedLanguages, this::updateLocale, defaultLocale)
+                new LanguageSelectionAdapter(languagesWithSystem, this::updateLocale, currentLocale)
         );
         binding.languages.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
+    // use current locale or fallback to system default
     public static Locale getCurrentLocale() {
-        Locale defaultLocale = AppCompatDelegate.getApplicationLocales().get(0);
-        if (defaultLocale == null) {
-            defaultLocale = LocaleListCompat.getDefault().get(0);
-        }
-        return defaultLocale;
+        LocaleListCompat appLocales = AppCompatDelegate.getApplicationLocales();
+        return appLocales.isEmpty() ? LocaleListCompat.getDefault().get(0) : appLocales.get(0);
     }
 
     /**
@@ -102,7 +113,7 @@ public class LanguageSelectionFragment extends BottomSheetDialogFragment {
     }
 
     /**
-     * Adapter for the language selection recycler view.
+     * Adapter for language selection recycler view.
      */
     static class LanguageSelectionAdapter extends RecyclerView.Adapter<LanguageSelectionAdapter.LanguageViewHolder> {
 
@@ -126,18 +137,84 @@ public class LanguageSelectionFragment extends BottomSheetDialogFragment {
         @Override
         public void onBindViewHolder(@NonNull LanguageViewHolder holder, int position) {
             String languageTag = languages.get(position);
-            holder.languageName.setText(Locale.forLanguageTag(languageTag).getDisplayName(Locale.ENGLISH));
-            if (languages.contains(selectedLocale.toLanguageTag())) {
-                holder.selected.setChecked(selectedLocale.toLanguageTag().equals(languageTag));
+
+            // using system lang or not
+            boolean isSystemSet = AppCompatDelegate.getApplicationLocales().isEmpty();
+
+            if (languageTag.isEmpty()) {
+                // handle empty string (system default)
+                Locale systemLocale = null;
+
+                try {
+                    // Use LocaleManagerCompat to reliably bypass app-level locale overrides
+                    LocaleListCompat trueSystemLocales = getSystemLocales(holder.itemView.getContext());
+                    if (!trueSystemLocales.isEmpty()) {
+                        systemLocale = trueSystemLocales.get(0);
+                    }
+                } catch (Exception e) {
+                    // Fallback for older AndroidX library versions
+                }
+
+                if (systemLocale == null) {
+                    systemLocale = getLocales(getSystem().getConfiguration()).get(0);
+                }
+
+                String systemLabel = systemLocale != null ?
+                        getLocalizedSystemLabel(holder.itemView.getContext(), systemLocale) :
+                        "";
+
+                holder.languageName.setText(systemLabel);
+                holder.selected.setChecked(isSystemSet);
+
             } else {
-                holder.selected.setChecked(selectedLocale.getLanguage().equals(languageTag));
+                // standard language
+                Locale targetLocale = Locale.forLanguageTag(languageTag);
+
+                // Pass targetLocale into getDisplayName to get the native name (endonym)
+                String displayName = targetLocale.getDisplayName(targetLocale);
+
+                // Capitalize the first letter
+                if (!displayName.isEmpty()) {
+                    displayName = StringUtils.capitalize(displayName, targetLocale);
+                }
+
+                holder.languageName.setText(displayName);
+
+                // no double-check items if system default is active
+                if (isSystemSet) {
+                    holder.selected.setChecked(false);
+                } else {
+                    // match exact tag or just the language code
+                    if (languages.contains(selectedLocale.toLanguageTag())) {
+                        holder.selected.setChecked(selectedLocale.toLanguageTag().equals(languageTag));
+                    } else {
+                        holder.selected.setChecked(selectedLocale.getLanguage().equals(languageTag));
+                    }
+                }
             }
+
             holder.itemView.setOnClickListener(v -> clickListener.onLanguageClick(languageTag));
         }
 
         @Override
         public int getItemCount() {
             return languages.size();
+        }
+
+        // Language name in system language, suffix translated to current app language
+        private String getLocalizedSystemLabel(Context context, Locale systemLocale) {
+            // 1. Force the suffix to fetch strings in the APP'S current language (selectedLocale)
+            Configuration appConfig = new Configuration(context.getResources().getConfiguration());
+            appConfig.setLocale(selectedLocale);
+            Context appLocalizedContext = context.createConfigurationContext(appConfig);
+
+            String suffix = appLocalizedContext.getString(R.string.system_default);
+
+            // 2. The language name uses its endonym (true system language's own name)
+            String languageName = systemLocale.getDisplayName(systemLocale);
+            languageName = StringUtils.capitalize(languageName, systemLocale);
+
+            return String.format("%s\n(%s)", languageName, suffix);
         }
 
         /**
@@ -155,7 +232,6 @@ public class LanguageSelectionFragment extends BottomSheetDialogFragment {
             }
         }
     }
-
 
     /**
      * Interface for the language click listener

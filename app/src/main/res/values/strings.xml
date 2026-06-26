@@ -239,6 +239,7 @@
     <string name="permission_rejected">Permission request rejected.</string>
     <string name="login_not_supported">The current app version doesn\'t support logins, which you need to update your VPN certificate for this provider.</string>
     <string name="select_language">Select Language</string>
+    <string name="system_default">System default</string>
     <string name="syntax_check">Syntax Check:</string>
     <string name="validation_status_success">Good</string>
     <string name="validation_status_failure">Bad</string>

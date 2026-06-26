@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 LEAP Encryption Access Project and contributers
+ * Copyright (c) 2026 LEAP Encryption Access Project and contributers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,11 @@
 package se.leap.bitmaskclient.base.fragments;
 
 
+import static android.content.res.Resources.getSystem;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static androidx.core.os.ConfigurationCompat.getLocales;
+import static se.leap.bitmaskclient.base.fragments.LanguageSelectionFragment.getCurrentLocale;
 import static se.leap.bitmaskclient.base.models.Constants.DONATION_URL;
 import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
@@ -46,6 +49,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -64,6 +68,7 @@ import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.StringUtils;
 import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
 import se.leap.bitmaskclient.base.views.IconTextEntry;
@@ -319,12 +324,29 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         });
     }
 
-
     private void initLanguageSettingsEntry() {
         IconTextEntry languageSwitcher = drawerView.findViewById(R.id.language_switcher);
 
-        Locale currentLocale = LanguageSelectionFragment.getCurrentLocale();
-        languageSwitcher.setSubtitle(currentLocale.getDisplayName(Locale.ENGLISH));
+        if (AppCompatDelegate.getApplicationLocales().isEmpty()) {
+            // system locale
+            Locale systemLocale = getLocales(getSystem().getConfiguration()).get(0);
+            // getDisplayLanguage() gets "English" instead of "English (United States)"
+            String languageName = systemLocale != null ?
+                    systemLocale.getDisplayLanguage(systemLocale) :
+                    "";
+            languageName = StringUtils.capitalize(languageName, systemLocale);
+
+            // Don't add "System default" suffix here, no multi line possible
+            languageSwitcher.setSubtitle(languageName);
+        } else {
+            // Standard user-selected language
+            Locale currentLocale = getCurrentLocale();
+
+            // Use getDisplayLanguage() for consistency
+            String languageName = currentLocale.getDisplayLanguage(currentLocale);
+            languageName = StringUtils.capitalize(languageName,currentLocale);
+            languageSwitcher.setSubtitle(languageName);
+        }
 
         languageSwitcher.setOnClickListener(v -> {
             FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
@@ -347,7 +369,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 closeDrawer();
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
                 startActivity(browserIntent);
-
             });
         }
     }

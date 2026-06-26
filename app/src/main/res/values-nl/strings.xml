@@ -248,4 +248,5 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
     <string name="invite_code_provider_description">Met Bitmask kun je verbinding maken met providers via een privé-uitnodigingscode.</string>
     <string name="title_upcoming_request_summary">Hierna volgen twee schermen waarin Android je om toestemming vraagt voor de VPN-verbinding en notificaties.</string>
     <string name="title_upcoming_connection_request_summary_custom">Accepteer het verbindingsverzoek om %s te kunnen gebruiken.</string>
+    <string name="system_default">Systeemtaal</string>
 </resources>
