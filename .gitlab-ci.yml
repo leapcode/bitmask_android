@@ -73,8 +73,6 @@ screenshot:
   image: "0xacab.org:4567/leap/bitmask_android/android-fastlane:latest"
   stage: test
   when: manual
-  tags:
-    - birch
   variables:
     LC_ALL: "en_US.UTF-8"
     LANG: "en_US.UTF-8"
