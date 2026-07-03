@@ -8,6 +8,6 @@
 الأسئلة الشائعة
 
 * عن leap.se: مجموعة تعشق مفهوم الحق في الخصوصية، منذ عام 2011.
-* تحظى الترجمات على مشروعنا على Transifex بتقدير عالِ https://app.transifex.com/otf/bitmask/dashboard/
+* تحظى الترجمات على مشروعنا على Weblate بتقدير عالِ https://localizationlab.weblate.cloud/projects/bitmask/
 
 إذا واجهتك مشاكل أو تريد الحصول على نسخ متطورة؛ من فضلك؛ تحدث إلينا عبر https://matrix.to/#/#leap:libera.chat أو اكتب تقريرًا عن ثغرة أو مشكلة عبر https://0xacab.org/leap/bitmask_android/

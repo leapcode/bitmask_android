@@ -7,6 +7,6 @@ Bitmask yra atvirojo kodo VPN kliento programėlė, platinama pagal GPLv3 licenc
 DUK:
 
 * Kas: leap.se – kolektyvas, kuriam nuo 2011-ųjų metų patinka teisės laisvai šnabždėtis koncepcija.
-* Vertimai mūsų „Transifex“ projekte yra labai vertinami https://app.transifex.com/otf/bitmask/dashboard/
+* Vertimai mūsų „Weblate“ projekte yra labai vertinami https://localizationlab.weblate.cloud/projects/bitmask/
 
 Jei susiduriate su problemomis ar norite turėti pačias naujausias versijas, prisijunkite prie mūsų pokalbio https://matrix.to/#/#leap:libera.chat arba pateikite pranešimą apie klaidą: https://0xacab.org/leap/bitmask_android/

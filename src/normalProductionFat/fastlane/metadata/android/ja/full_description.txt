@@ -7,6 +7,6 @@ BitmaskはGPLv3ライセンスの下で許諾される、オープンソースVP
 よくある質問
 
 ・誰: leap.se 、権利をささやくことを愛する集団、2011年頃から
-・Transifexでの翻訳に拝謝します https://app.transifex.com/otf/bitmask/dashboard/
+・Weblateでの翻訳に拝謝します https://localizationlab.weblate.cloud/projects/bitmask/
 
 もしも、問題を経験されたか、先端版の人柱になることを希望するならば、 我々の談話室 https://matrix.to/#/#leap:libera.chat に参加するか、バグ報告を https://0xacab.org/leap/bitmask_android/ でお書きください。

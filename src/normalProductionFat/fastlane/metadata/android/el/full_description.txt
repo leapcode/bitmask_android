@@ -7,6 +7,6 @@
 Συχνές ερωτήσεις:
 
 * ποιος: το leap.se, μια συλλογική προσπάθεια που αγαπά την έννοια του δικαιώματος της ιδιωτικότητας, περίπου από το 2011.
-* Οι μεταφράσεις εκτιμούνται ιδιαίτερα για το έργο Transifex https://app.transifex.com/otf/bitmask/dashboard/
+* Οι μεταφράσεις εκτιμούνται ιδιαίτερα για το έργο Weblate https://localizationlab.weblate.cloud/projects/bitmask/
 
 Εάν αντιμετωπίζετε προβλήματα ή θέλετε να έχετε μια ειδική έκδοση, επικοινωνήστε μαζί μας στο https://matrix.to/#/#leap:libera.chat ή υποβάλλετε ένα ζήτημα στο: https://0xacab.org/leap/bitmask_android/

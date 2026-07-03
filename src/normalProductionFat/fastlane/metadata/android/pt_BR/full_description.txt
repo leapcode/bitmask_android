@@ -5,6 +5,6 @@ E pronto!Bitmask é um cliente VPN de código aberto, distribuído sob a licenç
 FAQ:
 
 * who: leap.se, um coletivo que adora o conceito do direito de sussurrar, existente desde 2011.
-* Traduções muito apreciadas em nosso projeto Transifex https://app.transifex.com/otf/bitmask/dashboard/
+* Traduções muito apreciadas em nosso projeto Weblate https://localizationlab.weblate.cloud/projects/bitmask/
 
 Se você tiver problemas ou quiser ter versões mais recentes, entre em nosso chat https://matrix.to/#/#leap:libera.chat ou escreva um relatório de bug: https://0xacab.org/leap/bitmask_android/

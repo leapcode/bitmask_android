@@ -7,6 +7,6 @@ Bitmask — VPN-клієнт з відкритим вихідним кодом, 
 FAQ:
 
 * хто: leap.se, колектив, який любить концепцію права на нашіптування, існує з 2011 року.
-* Переклади дуже вітаються в нашому проєкті Transifex https://app.transifex.com/otf/bitmask/dashboard/
+* Переклади дуже вітаються в нашому проєкті Weblate https://localizationlab.weblate.cloud/projects/bitmask/
 
 Якщо у вас виникли проблеми або ви хочете мати найновіші версії, приєднайтеся до нашого чату https://matrix.to/#/#leap:libera.chat або напишіть звіт про помилку: https://0xacab.org/leap/bitmask_android/
