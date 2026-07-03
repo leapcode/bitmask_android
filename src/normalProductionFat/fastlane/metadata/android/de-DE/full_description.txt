@@ -7,6 +7,6 @@ Bitmask ist ein Open-Source-VPN-Client, der unter der GPLv3-Lizenz vertrieben wi
 FAQ:
 
 * Wer: leap.se, ein Kollektiv, das Meinungsfreiheit liebt und seit 2011 existiert.
-* Übersetzungen sind bei unserem Transifex-Projekt https://app.transifex.com/otf/bitmask/dashboard/ sehr willkommen.
+* Übersetzungen sind bei unserem Weblate-Projekt https://localizationlab.weblate.cloud/projects/bitmask/ sehr willkommen.
 
 Wenn du Probleme feststellst oder eine Vorabversion haben möchtest, melde dich bitte in unserem Chat https://matrix.to/#/#leap:libera.chat oder schreibe einen Fehlerbericht: https://0xacab.org/leap/bitmask_android/
