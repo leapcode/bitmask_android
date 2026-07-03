@@ -1,0 +1,13 @@
+Bitmask 是一款具有自动配置功能的 VPN 客户端。它有多种技术可以规避审查、网络屏蔽或避免监控。选择兼容的服务提供商后，它将通过您信任的服务提供商加密并安全地路由您的所有网络流量。
+
+一切就绪，您可以开始使用了！
+
+Bitmask 是开源 VPN 客户端，遵循 GPLv3 许可分发。请参阅 https://0xacab.org/leap/bitmask_android
+
+常见问题：
+
+* 开发者：leap.se，一个自 2011 年起致力于“低语权”理念的团队。
+* 非常欢迎您在我们的 Weblate 项目中协助翻译：https://localizationlab.weblate.cloud/projects/bitmask/ 
+
+如果您遇到问题或想获取最新的开发版本，请加入我们的 Matrix 聊天：https://matrix.to/#/#leap:systemli.org
+提交错误报告请前往：https://0xacab.org/leap/bitmask_android/

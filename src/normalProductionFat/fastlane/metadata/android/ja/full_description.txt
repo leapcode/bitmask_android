@@ -1,0 +1,12 @@
+Bitmaskは自動設定付きVPNクライアントです。検閲迂回、通信遮断、監視回避の、いくつかの技術があります。互換性のあるサービス提供元を選択した後は、すべての通信転送が、信頼されたサービス提供元を経由して、安全に暗号化され、安全に経路決定されます。
+
+これで準備完了。行きましょう!
+
+BitmaskはGPLv3ライセンスの下で許諾される、オープンソースVPNクライアントです。 https://0xacab.org/leap/bitmask_android をご覧ください。
+
+よくある質問
+
+・誰: leap.se 、権利をささやくことを愛する集団、2011年頃から
+・Transifexでの翻訳に拝謝します https://app.transifex.com/otf/bitmask/dashboard/
+
+もしも、問題を経験されたか、先端版の人柱になることを希望するならば、 我々の談話室 https://matrix.to/#/#leap:libera.chat に参加するか、バグ報告を https://0xacab.org/leap/bitmask_android/ でお書きください。
