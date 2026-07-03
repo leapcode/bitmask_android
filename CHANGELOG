@@ -1,3 +1,41 @@
+1.6.1 CoopVPN soft launch release
+features:
+
+bugfixes:
+feature:
+- improved search in app selection screen
+- improved in-app language picker
+- improved CoopVPN Beta provider
+
+maintenance:
+- updated translations
+- localized f-droid app store presence
+
+bugfixes:
+- fixed possible crashes when starting the VPN
+- fixed various other potential crashes
+- fixed flickering notification buttons
+- fixed censorship circumvention settings switches behavior
+
+1.6.0 Beta release
+features:
+- improved error handling if scanning of invite codes fails
+- added CoopVPN Beta as preconfigured provider
+
+bugfixes:
+- fixed app crashes in during provider setup
+- fixed duplicated Bitmask entries in Androids task history
+- improved automatic gateway selection by fixing timezone parsing
+- removed Calyx as preconfigured Provider
+- fixed provider name localization
+
+maintenance:
+- Updated target API to Android 15
+- support for Androids new edge-to-edge design
+- updated localizations (<3 to Localization Lab and all contributors)
+- minor provider setup improvements
+- updated tor and pluggable transports library IPtProxy
+
 1.5.3 Obfuscation update release
 features:
 - provide support for quic as obfuscation protocol
