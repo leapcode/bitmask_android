@@ -35,7 +35,7 @@ cd $BASE_DIR
 setHeadsupNotifications 0
 if [[ -z $BUILD_CUSTOM ]]; then
    echo -e "${GREEN}--     Screenshotting Bitmask       ---${NC}"
-   fastlane --verbose  android bitmask_screenshots
+   VERBOSE_SCREENSHOTS=false fastlane --verbose  android bitmask_screenshots --env default
 else
    echo -e "${GREEN}--    Screenshotting custom build   ---${NC}"
    fastlane android custom_build_screenshots --env custom
