@@ -39,6 +39,22 @@ Build debug and test APK for screenshots
 
 Build debug and test APK for screenshots
 
+### android create_framed_screenshots
+
+```sh
+[bundle exec] fastlane android create_framed_screenshots
+```
+
+Create framed screenshots
+
+### android set_animations
+
+```sh
+[bundle exec] fastlane android set_animations
+```
+
+set device animations
+
 ### android bitmask_screenshots
 
 ```sh
