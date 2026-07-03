@@ -55,16 +55,52 @@ platform :android do
         )
     end
 
+    desc "Create framed screenshots"
+    lane :create_framed_screenshots do |options|
+        flavor = options[:flavor] || "normal"
+        metadata_path = File.expand_path("../../src/#{flavor}ProductionFat/fastlane/metadata", __FILE__)
+        Dir.chdir(metadata_path) do
+            frameit(
+                white: true,
+                force_device_type: "Google Pixel 5",
+                path: "."
+            )
+            # rename screenshots, replacing unframed pendants
+            sh(
+              "find . -path '*/images/phoneScreenshots/*_framed.png' -print0 2>/dev/null | " \
+              "xargs -0 -I{} sh -c 'f=\"{}\"; " \
+              "nf=\"${f%_framed.png}.png\"; " \
+              "mv \"$f\" \"$nf\"'"
+            )
+           end
+        puts "Created framed screenshots"
+    end
+
+    desc "set device animations"
+    lane :set_animations do |options|
+        animated = options[:animated]
+        system("adb shell settings put global window_animation_scale #{animated}")
+        system("adb shell settings put global transition_animation_scale #{animated}")
+        system("adb shell settings put global animator_duration_scale #{animated}")
+        puts "set device animations to #{animated}"
+    end
+
   lane :bitmask_screenshots do
     # Prepare builds for Automatic UI Tests
     build_bitmask_for_screengrab
-    capture_android_screenshots
-    Dir.chdir("../src/normalProductionFat/fastlane/metadata") do
-         frameit(
-             white: true,
-             path: "."
-         )
-    end
+
+    # disable animations
+    set_animations(animated: 0)
+
+    verbose_screenshots = ENV["VERBOSE_SCREENSHOTS"] || "false"
+    capture_android_screenshots(
+        launch_arguments: ["verbose_screenshots #{verbose_screenshots}"]
+    )
+
+    # Re-enable animations
+    set_animations(animated: 1)
+
+    create_framed_screenshots(flavor: "normal")
     # deliver
   end
 
@@ -72,13 +108,7 @@ platform :android do
      # Prepare builds for Automatic UI Tests
      build_custom_for_screengrab
      capture_android_screenshots
-     Dir.chdir("../src/customProductionFat/fastlane/metadata") do
-         frameit(
-             white: true,
-             path: "."
-         )
-     end
-
+     create_framed_screenshots(flavor: "custom")
      # deliver
    end
 
