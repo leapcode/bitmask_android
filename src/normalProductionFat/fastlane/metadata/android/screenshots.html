@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>fastlane/screengrab</title>
+    <meta charset="UTF-8">
+    <style type="text/css">
+      * {
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: 300;
+      }
+      .language {
+
+      }
+      .deviceName {
+        display: block;
+        font-size: 30px;
+        padding-bottom: 24px;
+        padding-top: 45px;
+      }
+      .screenshot {
+        cursor: pointer;
+        border: 1px #EEE solid;
+        z-index: 0;
+      }
+      th {
+        text-align: left;
+      }
+      td {
+        text-align: center;
+        min-width: 200px;
+      }
+      #overlay {
+        position:fixed;
+        top:0;
+        left:0;
+        background:rgba(0,0,0,0.8);
+        z-index:5;
+        width:100%;
+        height:100%;
+        display:none;
+        cursor: zoom-out;
+        text-align: center;
+      }
+      #imageDisplay {
+        height: auto;
+        width: auto;
+        z-index: 10;
+        cursor: pointer;
+      }
+      #imageInfo {
+        background: none repeat scroll 0 0 rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        color: white;
+        margin: 20px;
+        padding: 10px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 250px;
+        z-index: -1;
+      }
+      #imageInfo:hover {
+        z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="ar" class="language">ar</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="ar-phoneScreenshots" class="deviceName" href="#ar-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./ar/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="1">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="2">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="3">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="4">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="5">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="6">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="7">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="8">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="9">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="10">
+          </a>
+        </td>
+        <td>
+          <a href="./ar/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ar/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="ar phoneScreenshots" data-counter="11">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="cs" class="language">cs</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="cs-phoneScreenshots" class="deviceName" href="#cs-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./cs/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="12">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="13">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="14">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="15">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="16">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="17">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="18">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="19">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="20">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="21">
+          </a>
+        </td>
+        <td>
+          <a href="./cs/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./cs/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="cs phoneScreenshots" data-counter="22">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="de-DE" class="language">de-DE</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="de-DE-phoneScreenshots" class="deviceName" href="#de-DE-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="23">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="24">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="25">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="26">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="27">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="28">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="29">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="30">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="31">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="32">
+          </a>
+        </td>
+        <td>
+          <a href="./de-DE/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./de-DE/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="de-DE phoneScreenshots" data-counter="33">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="el" class="language">el</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="el-phoneScreenshots" class="deviceName" href="#el-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./el/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="34">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="35">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="36">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="37">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="38">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="39">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="40">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="41">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="42">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="43">
+          </a>
+        </td>
+        <td>
+          <a href="./el/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./el/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="el phoneScreenshots" data-counter="44">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="en" class="language">en</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="en-phoneScreenshots" class="deviceName" href="#en-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./en/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="45">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="46">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="47">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="48">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="49">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="50">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="51">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="52">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="53">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="54">
+          </a>
+        </td>
+        <td>
+          <a href="./en/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="en phoneScreenshots" data-counter="55">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="en-US" class="language">en-US</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="en-US-phoneScreenshots" class="deviceName" href="#en-US-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="56">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="57">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="58">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="59">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="60">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="61">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="62">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="63">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="64">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="65">
+          </a>
+        </td>
+        <td>
+          <a href="./en-US/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./en-US/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="en-US phoneScreenshots" data-counter="66">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="es" class="language">es</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="es-phoneScreenshots" class="deviceName" href="#es-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./es/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="67">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="68">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="69">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="70">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="71">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="72">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="73">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="74">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="75">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="76">
+          </a>
+        </td>
+        <td>
+          <a href="./es/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="es phoneScreenshots" data-counter="77">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="es-AR" class="language">es-AR</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="es-AR-phoneScreenshots" class="deviceName" href="#es-AR-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="78">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="79">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="80">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="81">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="82">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="83">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="84">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="85">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="86">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="87">
+          </a>
+        </td>
+        <td>
+          <a href="./es-AR/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-AR/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="es-AR phoneScreenshots" data-counter="88">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="es-CU" class="language">es-CU</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="es-CU-phoneScreenshots" class="deviceName" href="#es-CU-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="89">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="90">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="91">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="92">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="93">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="94">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="95">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="96">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="97">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="98">
+          </a>
+        </td>
+        <td>
+          <a href="./es-CU/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./es-CU/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="es-CU phoneScreenshots" data-counter="99">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="fr" class="language">fr</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="fr-phoneScreenshots" class="deviceName" href="#fr-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./fr/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="100">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="101">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="102">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="103">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="104">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="105">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="106">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="107">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="108">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="109">
+          </a>
+        </td>
+        <td>
+          <a href="./fr/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./fr/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="fr phoneScreenshots" data-counter="110">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="it" class="language">it</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="it-phoneScreenshots" class="deviceName" href="#it-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./it/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="111">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="112">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="113">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="114">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="115">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="116">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="117">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="118">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="119">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="120">
+          </a>
+        </td>
+        <td>
+          <a href="./it/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./it/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="it phoneScreenshots" data-counter="121">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="ja" class="language">ja</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="ja-phoneScreenshots" class="deviceName" href="#ja-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./ja/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="122">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="123">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="124">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="125">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="126">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="127">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="128">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="129">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="130">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="131">
+          </a>
+        </td>
+        <td>
+          <a href="./ja/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ja/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="ja phoneScreenshots" data-counter="132">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="lt" class="language">lt</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="lt-phoneScreenshots" class="deviceName" href="#lt-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./lt/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="133">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="134">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="135">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="136">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="137">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="138">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="139">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="140">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="141">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="142">
+          </a>
+        </td>
+        <td>
+          <a href="./lt/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./lt/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="lt phoneScreenshots" data-counter="143">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="nl-NL" class="language">nl-NL</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="nl-NL-phoneScreenshots" class="deviceName" href="#nl-NL-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="144">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="145">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="146">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="147">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="148">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="149">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="150">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="151">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="152">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="153">
+          </a>
+        </td>
+        <td>
+          <a href="./nl-NL/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./nl-NL/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="nl-NL phoneScreenshots" data-counter="154">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="pt-BR" class="language">pt-BR</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="pt-BR-phoneScreenshots" class="deviceName" href="#pt-BR-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="155">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="156">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="157">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="158">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="159">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="160">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="161">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="162">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="163">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="164">
+          </a>
+        </td>
+        <td>
+          <a href="./pt-BR/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./pt-BR/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="pt-BR phoneScreenshots" data-counter="165">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="ru" class="language">ru</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="ru-phoneScreenshots" class="deviceName" href="#ru-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./ru/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="166">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="167">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="168">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="169">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="170">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="171">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="172">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="173">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="174">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="175">
+          </a>
+        </td>
+        <td>
+          <a href="./ru/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./ru/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="ru phoneScreenshots" data-counter="176">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="tr" class="language">tr</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="tr-phoneScreenshots" class="deviceName" href="#tr-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./tr/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="177">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="178">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="179">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="180">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="181">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="182">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="183">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="184">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="185">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="186">
+          </a>
+        </td>
+        <td>
+          <a href="./tr/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./tr/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="tr phoneScreenshots" data-counter="187">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="uk" class="language">uk</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="uk-phoneScreenshots" class="deviceName" href="#uk-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./uk/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="188">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="189">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="190">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="191">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="192">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="193">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="194">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="195">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="196">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="197">
+          </a>
+        </td>
+        <td>
+          <a href="./uk/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./uk/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="uk phoneScreenshots" data-counter="198">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="zh-Hans" class="language">zh-Hans</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="zh-Hans-phoneScreenshots" class="deviceName" href="#zh-Hans-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="199">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="200">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="201">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="202">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="203">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="204">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="205">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="206">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="207">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="208">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hans/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hans/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="zh-Hans phoneScreenshots" data-counter="209">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h1 id="zh-Hant" class="language">zh-Hant</h1>
+    <hr>
+    <table>
+      <tr>
+        <th colspan="11">
+          <a id="zh-Hant-phoneScreenshots" class="deviceName" href="#zh-Hant-phoneScreenshots">phoneScreenshots</a>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/01_VPN_connected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/01_VPN_connected.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="210">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/02_VPN_connecting.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/02_VPN_connecting.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="211">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/03_VPN_disconnected.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/03_VPN_disconnected.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="212">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/040_provider_selection.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/040_provider_selection.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="213">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/043_setup_custom_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/043_setup_custom_provider.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="214">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/044_setup_invite_code_provider.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/044_setup_invite_code_provider.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="215">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/05_navigationDrawer.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/05_navigationDrawer.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="216">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/06_settingsFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/06_settingsFragment.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="217">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/07_GatewaySelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/07_GatewaySelectionFragment.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="218">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/08_LanguageSelectionFragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/08_LanguageSelectionFragment.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="219">
+          </a>
+        </td>
+        <td>
+          <a href="./zh-Hant/images/phoneScreenshots/09_App_Exclusion_Fragment.png" target="_blank" class="screenshotLink">
+            <img class="screenshot" src="./zh-Hant/images/phoneScreenshots/09_App_Exclusion_Fragment.png" style="width: 100%;" alt="zh-Hant phoneScreenshots" data-counter="220">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <div id="overlay">
+      <img id="imageDisplay" src="" alt="" />
+      <div id="imageInfo"></div>
+    </div>
+    <script type="text/javascript">
+      var overlay        = document.getElementById('overlay');
+      var imageDisplay   = document.getElementById('imageDisplay');
+      var imageInfo      = document.getElementById('imageInfo');
+      var screenshotLink = document.getElementsByClassName('screenshotLink');
+
+      function doClick(el) {
+        if (document.createEvent) {
+          var evObj = document.createEvent('MouseEvents', true);
+          evObj.initMouseEvent("click", false, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+          el.dispatchEvent(evObj);
+        } else if (document.createEventObject) { //IE
+          var evObj = document.createEventObject();
+          el.fireEvent('onclick', evObj);
+        }
+      }
+
+      for (index = 0; index < screenshotLink.length; ++index) {
+        screenshotLink[index].addEventListener('click', function(e) {
+          e.preventDefault();
+
+          var img = e.target;
+          if (e.target.tagName == 'A') {
+            img = e.target.children[0];
+          }
+
+          // beautify
+          var tmpImg = new Image();
+          tmpImg.src = img.src;
+          imageDisplay.style.height     = 'auto';
+          imageDisplay.style.width     = 'auto';
+          if (window.innerHeight < tmpImg.height) {
+            imageDisplay.style.height = document.documentElement.clientHeight+'px';
+          } else if (window.innerWidth < tmpImg.width) {
+            imageDisplay.style.width = document.documentElement.clientWidth;+'px';
+          } else {
+            imageDisplay.style.paddingTop = parseInt((window.innerHeight - tmpImg.height) / 2)+'px';
+          }
+
+          imageDisplay.src             = img.src;
+          imageDisplay.alt             = img.alt;
+          imageDisplay.dataset.counter = img.dataset.counter;
+
+          imageInfo.innerHTML          = '<h3>'+img.alt+'</h3>';
+          imageInfo.innerHTML         += decodeURI(img.src.split("/").pop());
+          imageInfo.innerHTML         += '<br />'+tmpImg.height+'&times;'+tmpImg.width+'px';
+
+          overlay.style.display        = "block";
+        });
+      }
+
+      imageDisplay.addEventListener('click', function(e) {
+        e.stopPropagation(); // !
+
+        overlay.style.display = "none";
+
+        img_counter = parseInt(e.target.dataset.counter) + 1;
+        try {
+          link = document.body.querySelector('img[data-counter="'+img_counter+'"]').parentNode;
+        } catch (e) {
+          try {
+            link = document.body.querySelector('img[data-counter="0"]').parentNode;
+          } catch (e) {
+            return false;
+          }
+        }
+        doClick(link);
+      });
+
+      overlay.addEventListener('click', function(e) {
+        overlay.style.display = "none";
+      })
+
+      function keyPressed(e) {
+        e = e || window.event;
+        var charCode = e.keyCode || e.which;
+        switch(charCode) {
+          case 27: // Esc
+            overlay.style.display = "none";
+            break;
+          case 34: // Page Down
+          case 39: // Right arrow
+          case 54: // Keypad right
+          case 76: // l
+          case 102: // Keypad right
+            e.preventDefault();
+            doClick(imageDisplay);
+            break;
+          case 33: // Page up
+          case 37: // Left arrow
+          case 52: // Keypad left
+          case 72: // h
+          case 100: // Keypad left
+            e.preventDefault();
+            document.getElementById('imageDisplay').dataset.counter -= 2; // hacky
+            doClick(imageDisplay);
+            break;
+         }
+      };
+      document.body.addEventListener('keydown', keyPressed);
+    </script>
+  </body>
+</html>
