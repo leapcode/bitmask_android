@@ -11,7 +11,7 @@ use_timestamp_suffix(false)
 
 # locales currently available in the language picker
 # check how much is translated. When 'connect' isn't translated, don't bother!
-locales(['ar', 'cs', 'en', 'de', 'el', 'es', 'es-AR', 'es-CU', 'fa-IR', 'fi', 'fr', 'he', 'hu', 'ja', 'lt', 'nl', 'pt-BR', 'ru', 'tr', 'uk', 'vi', 'zh', 'zh-TW'])
+locales(['ar', 'cs', 'de-DE', 'el', 'en-US', 'es', 'es-AR', 'es-CU', 'fr', 'it', 'ja', 'lt', 'nl-NL', 'pt-BR', 'ru', 'tr', 'uk', 'zh-Hans', 'zh-Hant'])
 
 # clear all previously generated screenshots in your local output directory before creating new ones
 clear_previous_screenshots(true)
