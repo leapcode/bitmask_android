@@ -38,6 +38,12 @@ for json in $SRC_GLOB; do
   [ -e "$json" ] || break
   lang="$(basename "$json" .json)"
   echo "updating meta data for language $lang"
+
+  if [ ${lang} == "en" ]; then
+    echo "moving default english localizations (en) to $OUT_BASE/en-US"
+    lang="en-US"
+  fi
+
   out_dir="$OUT_BASE/$lang"
   mkdir -p "$out_dir"
 
