@@ -249,4 +249,8 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
     <string name="title_upcoming_request_summary">Hierna volgen twee schermen waarin Android je om toestemming vraagt voor de VPN-verbinding en notificaties.</string>
     <string name="title_upcoming_connection_request_summary_custom">Accepteer het verbindingsverzoek om %s te kunnen gebruiken.</string>
     <string name="system_default">Systeemtaal</string>
+    <string name="title_upcoming_connection_request_summary">Voor het verbindingsverzoek is het belangrijk om te weten dat Bitmask alleen samenwerkt met vertrouwde providers die de hoogste standaarden voor VPN\'s hanteren en een aantoonbare geschiedenis hebben in het beschermen van de gegevens en identiteiten van gebruikers. Als je echter handmatig verbinding maakt met een niet-openbare provider, zorg er dan voor dat je deze vertrouwt.</string>
+    <string name="title_upcoming_notification_request_summary">Als je meldingen toestaat, kan de app op de achtergrond blijven draaien. Zo kun je ook je dataverbruik bekijken in het meldingenpaneel.</string>
+    <string name="syntax_check">Syntaxcontrole:</string>
+    <string name="automatic_bridge_description">Er wordt geprobeerd verbinding te maken via de best beschikbare bridges en protocollen.</string>
 </resources>
