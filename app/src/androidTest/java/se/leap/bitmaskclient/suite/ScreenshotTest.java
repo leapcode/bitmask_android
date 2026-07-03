@@ -12,8 +12,8 @@ import se.leap.bitmaskclient.ProviderSetupTest;
 @LargeTest
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        ProviderSetupTest.class,
         BitmaskTest.class,
+        ProviderSetupTest.class,
 })
 public class ScreenshotTest {
 }

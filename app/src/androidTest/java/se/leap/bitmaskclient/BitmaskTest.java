@@ -1,7 +1,11 @@
 package se.leap.bitmaskclient;
 
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertNotNull;
+import static utils.ProviderSetupUtils.isVerboseScreenshots;
 
 import android.Manifest;
 import android.app.Activity;
@@ -10,12 +14,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.view.Gravity;
 
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.assertion.ViewAssertions;
 import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.espresso.contrib.DrawerMatchers;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.RootMatchers;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -34,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.StartActivity;
 import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
@@ -66,71 +71,138 @@ public class BitmaskTest {
     public void test01_vpnStartTest() throws InterruptedException, UiObjectNotFoundException {
         startMainActivity();
 
-        Screengrab.screenshot("VPN_connecting");
-        ViewInteraction mainButtonStop = CustomInteractions.tryResolve(
-                Espresso.onView(Matchers.allOf(
-                        ViewMatchers.withId(R.id.button),
+        ViewInteraction mainButton = null;
+        if (!VpnStatus.isVPNActive()) {
+            mainButton = CustomInteractions.tryResolve(
+                    onView(Matchers.allOf(
+                            withId(R.id.button)//,
+                            /*ViewMatchers.withTagValue(Matchers.is("button_circle_start"))*/)),
+                    ViewAssertions.matches(ViewMatchers.isDisplayed()),
+                    20);
+            // turn VPN on
+            mainButton.perform(ViewActions.click());
+
+            // resolve connecting state
+            CustomInteractions.tryResolve(
+                    onView(Matchers.allOf(
+                            withId(R.id.button),
+                            ViewMatchers.withTagValue(Matchers.is("button_circle_cancel")))),
+                    ViewAssertions.matches(ViewMatchers.isDisplayed()),
+                    3, "attempt to resolve connecting state");
+        }
+
+        mainButton = CustomInteractions.tryResolve(
+                onView(Matchers.allOf(
+                        withId(R.id.button),
                         ViewMatchers.withTagValue(Matchers.is("button_circle_stop")))),
                 ViewAssertions.matches(ViewMatchers.isDisplayed()),
-                20);
-        Screengrab.screenshot("VPN_connected");
+                20, "attempt to resolve connected state");
+        Screengrab.screenshot("01_VPN_connected");
 
-        mainButtonStop.perform(ViewActions.click());
-        Screengrab.screenshot("VPN_ask_disconnect");
+        // turn VPN off
+        mainButton.perform(ViewActions.click());
+        if (isVerboseScreenshots()) {
+            Screengrab.screenshot("031_VPN_ask_disconnect");
+        }
 
-        Espresso.onView(ViewMatchers.withText(android.R.string.yes))
+        onView(ViewMatchers.withText(android.R.string.yes))
                 .inRoot(RootMatchers.isDialog())
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
                 .perform(ViewActions.click());
-        Screengrab.screenshot("VPN_disconnected");
+        Screengrab.screenshot("03_VPN_disconnected");
+    }
+
+    @Test
+    public void test02_vpnConnectingStateTest() throws InterruptedException, UiObjectNotFoundException {
+        startMainActivity();
+
+        ViewInteraction mainButton = CustomInteractions.tryResolve(
+                onView(Matchers.allOf(
+                        withId(R.id.button),
+                        ViewMatchers.withTagValue(Matchers.is("button_circle_start")))),
+                ViewAssertions.matches(ViewMatchers.isDisplayed()),
+                20);
+        // turn VPN on
+        mainButton.perform(ViewActions.click());
+
+        // resolve connecting state
+        CustomInteractions.tryResolve(
+                onView(Matchers.allOf(
+                        withId(R.id.button),
+                        ViewMatchers.withTagValue(Matchers.is("button_circle_cancel")))),
+                ViewAssertions.matches(ViewMatchers.isDisplayed()),
+                3, "attempt to resolve connecting state");
+        Screengrab.screenshot("02_VPN_connecting");
+
+        CustomInteractions.tryResolve(
+                onView(Matchers.allOf(
+                        withId(R.id.button),
+                        ViewMatchers.withTagValue(Matchers.is("button_circle_stop")))),
+                ViewAssertions.matches(ViewMatchers.isDisplayed()),
+                20, "attempt to resolve connected state");
     }
 
     @Test
     public void test02_SettingsFragmentScreenshots() {
         startMainActivity();
-        Espresso.onView(ViewMatchers.withId(R.id.drawer_layout))
+        onView(withId(R.id.drawer_layout))
                 .check(ViewAssertions.matches(DrawerMatchers.isClosed(Gravity.LEFT))) // Left Drawer should be closed.
                 .perform(DrawerActions.open()); // Open Drawer
 
-        Screengrab.screenshot("navigationDrawer");
+        Screengrab.screenshot("05_navigationDrawer");
 
         // Start the screen of your activity.
-        Espresso.onView(ViewMatchers.withId(R.id.advancedSettings))
+        onView(withId(R.id.advancedSettings))
                 .perform(ViewActions.click());
 
-        Screengrab.screenshot("settingsFragment");
+        Screengrab.screenshot("06_settingsFragment");
     }
 
     @Test
     public void test03_LocationSelectionFragmentScreenshots() {
         startMainActivity();
-        Espresso.onView(ViewMatchers.withId(R.id.drawer_layout))
+        onView(withId(R.id.drawer_layout))
                 .check(ViewAssertions.matches(DrawerMatchers.isClosed(Gravity.LEFT))) // Left Drawer should be closed.
                 .perform(DrawerActions.open()); // Open Drawer
 
-        Espresso.onView(ViewMatchers.withId(R.id.manualGatewaySelection))
+        onView(withId(R.id.manualGatewaySelection))
                 .perform(ViewActions.click());
 
-        Screengrab.screenshot("GatewaySelectionFragment");
+        Screengrab.screenshot("07_GatewaySelectionFragment");
     }
 
     @Test
-    public void test04_AppExclusionFragmentScreenshots() {
+    public void test04_LanguageSelectionFragmentScreenshots() {
         startMainActivity();
-        Espresso.onView(ViewMatchers.withId(R.id.drawer_layout))
+        onView(withId(R.id.drawer_layout))
                 .check(ViewAssertions.matches(DrawerMatchers.isClosed(Gravity.LEFT))) // Left Drawer should be closed.
                 .perform(DrawerActions.open()); // Open Drawer
 
-        Espresso.onView(ViewMatchers.withId(R.id.advancedSettings)).perform(ViewActions.click());
+        onView(withId(R.id.language_switcher))
+                .perform(ViewActions.click());
 
-        Espresso.onView(ViewMatchers.withId(R.id.exclude_apps)).perform(ViewActions.click());
+        Screengrab.screenshot("08_LanguageSelectionFragment");
+    }
+
+    @Test
+    public void test05_AppExclusionFragmentScreenshots() {
+        startMainActivity();
+        onView(withId(R.id.drawer_layout))
+                .check(ViewAssertions.matches(DrawerMatchers.isClosed(Gravity.LEFT))) // Left Drawer should be closed.
+                .perform(DrawerActions.open()); // Open Drawer
+
+        onView(withId(R.id.advancedSettings)).perform(ViewActions.click());
+        onView(withId(R.id.exclude_apps)).perform(ViewActions.click());
 
         CustomInteractions.tryResolve(
-                Espresso.onData(Matchers.anything()).inAdapterView(ViewMatchers.withId(android.R.id.list)).atPosition(2),
+                onView(Matchers.allOf(
+                        withId(R.id.list),
+                        withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
+                )).perform(RecyclerViewActions.scrollToPosition(0)),
                 ViewAssertions.matches(ViewMatchers.isDisplayed()),
-                5);
+                30, "waiting until app list appears");
 
-        Screengrab.screenshot("App_Exclusion_Fragment");
+        Screengrab.screenshot("09_App_Exclusion_Fragment");
     }
 
     private void startMainActivity() {
@@ -146,7 +218,7 @@ public class BitmaskTest {
         if (setupActivity != null) {
             ProviderSetupUtils.runProviderSetup(device, false, false, InstrumentationRegistry.getInstrumentation().getTargetContext());
         }
-        Activity mainActivity = instrumentation.waitForMonitorWithTimeout(mainActivityMonitor, 1000);
+        Activity mainActivity = instrumentation.waitForMonitorWithTimeout(mainActivityMonitor, 1000L);
         assertNotNull(mainActivity);
     }
 }

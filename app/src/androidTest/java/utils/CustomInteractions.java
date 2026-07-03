@@ -18,7 +18,11 @@ public class CustomInteractions {
         return tryResolve(viewInteraction, assertion, 10);
     }
 
-    public static @Nullable ViewInteraction tryResolve(ViewInteraction viewInteraction, ViewAssertion assertion, int maxTries) {
+        public static @Nullable ViewInteraction tryResolve(ViewInteraction viewInteraction, ViewAssertion assertion, int maxTries) {
+            return tryResolve(viewInteraction, assertion, maxTries, "");
+        }
+
+        public static @Nullable ViewInteraction tryResolve(ViewInteraction viewInteraction, ViewAssertion assertion, int maxTries, String message) {
         ViewInteraction resolvedViewInteraction = null;
         int attempt = 0;
         boolean hasFound = false;
@@ -30,7 +34,7 @@ public class CustomInteractions {
                 }
                 hasFound = true;
             } catch (NoMatchingViewException exception) {
-                System.out.println("NoMatchingViewException - attempt: " + attempt + ". " + exception.getLocalizedMessage());
+                System.out.println("NoMatchingViewException " + message +" - attempt: " + attempt + ". " + exception.getLocalizedMessage());
                 attempt++;
                 if (attempt == maxTries) {
                     throw exception;
