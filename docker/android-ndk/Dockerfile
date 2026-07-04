@@ -58,8 +58,8 @@ RUN sdkmanager --list
 RUN sdkmanager "cmake;4.1.2"
 
 # Install Go environment
-ENV GO_VERSION=go1.24.12.linux-amd64
-ENV EXPECTED_FP=bddf8e653c82429aea7aec2520774e79925d4bb929fe20e67ecc00dd5af44c50
+ENV GO_VERSION=go1.26.2.linux-amd64
+ENV EXPECTED_FP=990e6b4bbba816dc3ee129eaeaf4b42f17c2800b88a2166c265ac1a200262282
 ENV GO_DOWNLOAD_URL=https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz
 ENV GOROOT=/usr/local/go
 ENV GOBIN=/usr/local/go/bin
