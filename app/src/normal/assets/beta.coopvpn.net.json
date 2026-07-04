@@ -5,19 +5,37 @@
     "5"
   ],
   "ask_for_donations": false,
-  "ca_cert_fingerprint": "",
+  "ca_cert_fingerprint": "305B4428E0D70AC3BBCC96501239BC86A9B9720309D89AB80C9EDE532AE7FE56",
   "ca_cert_uri": "",
   "default_language": "en",
   "description": {
-    "en": "CoopVPN Beta is an emerging VPN provider working closely with the LEAP team. This is an early access release intended for testing and feedback."
+    "de": "CoopVPN Beta ist ein neu entstehender VPN-Anbieter, der eng mit dem LEAP-Team zusammenarbeitet. Dies ist ein Early-Access-Release, das für Tests und Feedback gedacht ist.",
+    "en": "CoopVPN Beta is an emerging VPN provider working closely with the LEAP team. This is an early access release intended for testing and feedback.",
+    "es": "CoopVPN Beta es un proveedor VPN emergente que trabaja en estrecha colaboración con el equipo LEAP. Esta es una versión de acceso anticipado destinada a pruebas y comentarios.",
+    "fr": "CoopVPN Beta est un fournisseur VPN émergent qui collabore étroitement avec l'équipe LEAP. Il s'agit d'une version en accès anticipé destinée aux tests et aux retours d'expérience.",
+    "it": "CoopVPN Beta è un emerging VPN provider che collabora strettamente con il team LEAP. Si tratta di una versione in early access pensata per test e feedback.",
+    "pt": "CoopVPN Beta é um provedor VPN emergente que trabalha em estreita colaboração com a equipe LEAP. Esta é uma versão de acesso antecipado destinada a testes e feedback.",
+    "ru": "CoopVPN Beta — это новый VPN-провайдер, тесно сотрудничающий с командой LEAP. Это ранний доступ к релизу, предназначенный для тестирования и обратной связи."
   },
   "domain": "beta.coopvpn.net",
   "donate_period": "",
   "languages": [
-    "en"
+    "en",
+    "de",
+    "fr",
+    "es",
+    "ru",
+    "it",
+    "pt"
   ],
   "name": {
-    "en": "CoopVPN Beta"
+    "de": "CoopVPN Beta",
+    "en": "CoopVPN Beta",
+    "es": "CoopVPN Beta",
+    "fr": "CoopVPN Beta",
+    "it": "CoopVPN Beta",
+    "pt": "CoopVPN Beta",
+    "ru": "CoopVPN Beta"
   },
   "service": {
     "allow_anonymous": true,
