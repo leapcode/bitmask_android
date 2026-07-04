@@ -1,8 +1,9 @@
+1.6.2 CoopVPN soft launch release v2
+bugfixes:
+- updated conscrypt dependency to avoid crashes
+
 1.6.1 CoopVPN soft launch release
 features:
-
-bugfixes:
-feature:
 - improved search in app selection screen
 - improved in-app language picker
 - improved CoopVPN Beta provider
