@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import mobilemodels.BitmaskMobileCore;
+import mobilemodels.BootstrapProgressObserver;
 import se.leap.bitmaskclient.base.models.Provider;
 
 /**
@@ -181,6 +182,11 @@ public class TestSetupHelper {
             @Override
             public void setUseTls(boolean b) {
 
+            }
+
+            @Override
+            public String runBootstrap(boolean b, BootstrapProgressObserver observer) {
+                return "";
             }
         };
     }
