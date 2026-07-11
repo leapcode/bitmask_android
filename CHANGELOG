@@ -1,3 +1,7 @@
+1.6.3 CoopVPN soft launch release v3
+bugfixes:
+- updated golang version, fixes failure and crashes during provider setup
+
 1.6.2 CoopVPN soft launch release v2
 bugfixes:
 - updated conscrypt dependency to avoid crashes
