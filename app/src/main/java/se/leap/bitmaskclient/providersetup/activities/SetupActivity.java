@@ -378,6 +378,9 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
     @Override
     public void onError(String reasonToFail) {
         binding.viewPager.setCurrentItem(0, false);
+        if (reasonToFail == null) {
+            return;
+        }
         try {
             FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(ProviderSetupFailedDialog.TAG);
             DialogFragment newFragment;

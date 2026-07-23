@@ -145,7 +145,11 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
             handleResult(ProviderSetupObservable.getResultCode(), ProviderSetupObservable.getResultData(), true);
         } else {
             Provider provider = setupActivityCallback.getSelectedProvider();
-            if (provider != null && provider.hasIntroducer()) {
+            if (provider == null) {
+                setupActivityCallback.onError(null);
+                return;
+            }
+            if (provider.hasIntroducer()) {
                 // enable automatic selection of bridges
                 useSnowflake(false);
                 setUseTunnel(TUNNELING_AUTOMATICALLY);
@@ -155,7 +159,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
             ProviderSetupObservable.startSetup();
             Bundle parameters = new Bundle();
             parameters.putString(Constants.COUNTRYCODE, PreferenceHelper.getBaseCountry());
-            ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, parameters, setupActivityCallback.getSelectedProvider());
+            ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, parameters, provider);
         }
     }
 
