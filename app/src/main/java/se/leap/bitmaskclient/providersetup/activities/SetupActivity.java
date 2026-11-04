@@ -409,12 +409,14 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     @Override
     public void cancelSettingUpProvider() {
+        ProviderSetupObservable.reset();
         cancel();
     }
 
     @Override
     public void updateProviderDetails() {
         if (provider != null) {
+            ProviderSetupObservable.reset();
             provider.reset();
             deleteProviderDetailsFromPreferences(provider.getDomain());
             binding.viewPager.setCurrentItem(adapter.getFragmentPostion(CONFIGURE_PROVIDER_FRAGMENT));
