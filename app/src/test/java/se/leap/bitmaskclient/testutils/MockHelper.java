@@ -214,6 +214,9 @@ public class MockHelper {
         });
     }
 
+    public static CertificateHelper mockCertificateHelper() {
+        return mockCertificateHelper("825fe0695d0134e7b7c80dd624cf33780d8e5e7fbd782ca0c8a87e24e108b468");
+    }
     public static CertificateHelper mockCertificateHelper(String mockedFingerprint) {
         return new CertificateHelper((certificate, encoding) -> mockedFingerprint);
     }

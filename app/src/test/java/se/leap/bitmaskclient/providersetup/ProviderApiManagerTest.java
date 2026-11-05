@@ -1,7 +1,7 @@
 package se.leap.bitmaskclient.providersetup;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
@@ -18,11 +18,10 @@ import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockPr
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR_API_V4;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBuildConfigHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockCertificateHelper;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockContext;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockPreferenceHelper;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockPrivateKeyHelper;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResources;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResultReceiver;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getConfiguredProvider;
@@ -182,7 +181,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_noNetwork_NetworkError() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = getConfiguredProvider();
 
-        CertificateHelper certHelper = mockCertificateHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        CertificateHelper certHelper = mockCertificateHelper();
         ProviderApiConnector mockedApiConnector = mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockResources, new ProviderApiManagerTest.TestProviderApiServiceCallback(null, false));
         Bundle expectedResult = new Bundle();
@@ -208,7 +207,7 @@ public class ProviderApiManagerTest {
         SharedPreferences sharedPreferences = new MockSharedPreferences();
         sharedPreferences.edit().putBoolean(USE_BRIDGES, true).putBoolean(USE_SNOWFLAKE, true).commit();
         PreferenceHelper preferenceHelper = mockPreferenceHelper(provider, sharedPreferences);
-        CertificateHelper certHelper = mockCertificateHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        CertificateHelper certHelper = mockCertificateHelper();
         ProviderApiConnector mockedApiConnector = mockProviderApiConnector(NO_ERROR_API_V4);
 
         providerApiManager = new ProviderApiManager(mockResources, new ProviderApiManagerTest.TestProviderApiServiceCallback());
@@ -231,7 +230,7 @@ public class ProviderApiManagerTest {
         SharedPreferences sharedPreferences = new MockSharedPreferences();
         sharedPreferences.edit().putBoolean(USE_BRIDGES, true).putBoolean(USE_SNOWFLAKE, true).commit();
         PreferenceHelper preferenceHelper = mockPreferenceHelper(provider, sharedPreferences);
-        CertificateHelper certHelper = mockCertificateHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        CertificateHelper certHelper = mockCertificateHelper(" 825fe0695d0134e7b7c80dd624cf33780d8e5e7fbd782ca0c8a87e24e108b468");
         PrivateKeyHelper privateKeyHelper = mockPrivateKeyHelper();
         ProviderApiConnector mockedApiConnector = mockProviderApiConnector(NO_ERROR_API_V4);
 
@@ -254,7 +253,7 @@ public class ProviderApiManagerTest {
         SharedPreferences sharedPreferences = new MockSharedPreferences();
         sharedPreferences.edit().putBoolean(USE_BRIDGES, true).putBoolean(USE_SNOWFLAKE, true).commit();
         PreferenceHelper preferenceHelper = mockPreferenceHelper(provider, sharedPreferences);
-        CertificateHelper certHelper = mockCertificateHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        CertificateHelper certHelper = mockCertificateHelper();
         ProviderApiConnector mockedApiConnector = mockProviderApiConnector(NO_ERROR_API_V4);
 
         providerApiManager = new ProviderApiManager(mockResources, new ProviderApiManagerTest.TestProviderApiServiceCallback(new IllegalStateException("Nothing works always."), true));
