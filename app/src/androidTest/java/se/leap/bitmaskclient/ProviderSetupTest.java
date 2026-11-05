@@ -76,7 +76,10 @@ public class ProviderSetupTest {
     @Test
     public void test01_setupProviderDefault() {
         // Assume the branding is not "custom" to skip this test when it is.
-        Assume.assumeFalse("custom".equals(BuildConfig.FLAVOR_branding));
+        if ("custom".equals(BuildConfig.FLAVOR_branding)) {
+            System.out.println("Skipping test01_setupProviderDefault for a custom branded build");
+            return;
+        }
         startSetupActivity();
         ProviderSetupUtils.runProviderSelection(true);
     }
