@@ -51,9 +51,7 @@
     <string name="setup_error_title">Configuratiefout</string>
     <string name="setup_error_configure_button">Configureren</string>
     <string name="setup_error_close_button">Aflsluiten</string>
-    <string name="setup_error_text">Er is een probleem opgetreden om %s te configureren met je gekozen provider.
-
-Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start een provider in te stellen.</string>
+    <string name="setup_error_text">Er is een fout opgetreden om %s te configureren met je gekozen provider.\n\nJe kunt de configuratie opnieuw uitvoeren of afsluiten en een provider configureren bij de volgende start.</string>
     <string name="setup_error_text_custom">Er was een probleem bij het configureren van %s.\n\nJe kan opnieuw configureren of afsluiten.</string>
     <string name="server_unreachable_message">Server is onbereikbaar, probeer later opnieuw.</string>
     <string name="error.security.pinnedcertificate">Beveiligingsprobleem, upgrade de app of kies een andere provider.</string>
@@ -248,9 +246,26 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
     <string name="invite_code_provider_description">Met Bitmask kun je verbinding maken met providers via een privé-uitnodigingscode.</string>
     <string name="title_upcoming_request_summary">Hierna volgen twee schermen waarin Android je om toestemming vraagt voor de VPN-verbinding en notificaties.</string>
     <string name="title_upcoming_connection_request_summary_custom">Accepteer het verbindingsverzoek om %s te kunnen gebruiken.</string>
-    <string name="system_default">Systeemtaal</string>
     <string name="title_upcoming_connection_request_summary">Voor het verbindingsverzoek is het belangrijk om te weten dat Bitmask alleen samenwerkt met vertrouwde providers die de hoogste standaarden voor VPN\'s hanteren en een aantoonbare geschiedenis hebben in het beschermen van de gegevens en identiteiten van gebruikers. Als je echter handmatig verbinding maakt met een niet-openbare provider, zorg er dan voor dat je deze vertrouwt.</string>
     <string name="title_upcoming_notification_request_summary">Als je meldingen toestaat, kan de app op de achtergrond blijven draaien. Zo kun je ook je dataverbruik bekijken in het meldingenpaneel.</string>
     <string name="syntax_check">Syntaxcontrole:</string>
     <string name="automatic_bridge_description">Er wordt geprobeerd verbinding te maken via de best beschikbare bridges en protocollen.</string>
+    <string name="manual_bridge_description">Kies privébridges en specifieke protocollen</string>
+    <string name="censorship_circumvention_description">Handmatige configuratie vereist technische kennis. Wees voorzichtig.</string>
+    <string name="discovery">Configuratie ophalen</string>
+    <string name="discovery_description">Censuur kan het ophalen van essentiële configuratiegegevens van je provider blokkeren. Kies een omzeilingsmethode om deze blokkade te omzeilen.</string>
+    <string name="invite_proxy">Uitnodigingsproxy</string>
+    <string name="tunnelling">Tunneling</string>
+    <string name="tunnelling_description">Censuur kan de toegang tot het open internet blokkeren. Kies een omzeilingsmethode om deze blokkades te omzeilen.</string>
+    <string name="port_hopping">Poorthoppen</string>
+    <string name="port_hopping_description">"Censuur gebruikt verkeersanalyse om de toegang tot het open internet te blokkeren. Poorthoppen maakt dit moeilijker. "</string>
+    <string name="error_invite_hint">Je kunt de code kopiëren en met je provider delen als je hulp nodig hebt.</string>
+    <string name="error_invite_unknown_type">onbekend uitnodigingscodetype: %1$s.</string>
+    <string name="error_invite_certificate_length">Het certificaat heeft een onjuist aantal tekens (%1$s).</string>
+    <string name="error_invite_certificate_missing">het certificaat van de uitnodigingsproxy ontbreekt.</string>
+    <string name="error_invite_fqdn_missing">de volledige domeinnaam ontbreekt.</string>
+    <string name="error_invite_auth_missing">het authenticatietoken ontbreekt.</string>
+    <string name="error_invite_fqdn_invalid">de uitnodigingscode bevat ongeldige tekens in %1$s</string>
+    <string name="error_invite_address_format">het adres van de uitnodigingsproxy moet de vorm IP-adres:poort hebben.</string>
+    <string name="error_invite_fqdn_length">de uitnodigingscode moet een volledige domeinnaam bevatten; %1$s aangetroffen.</string>
 </resources>
