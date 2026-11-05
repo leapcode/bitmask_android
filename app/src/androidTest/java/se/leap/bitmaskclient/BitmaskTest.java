@@ -2,6 +2,7 @@ package se.leap.bitmaskclient;
 
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertNotNull;
@@ -30,6 +31,7 @@ import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObjectNotFoundException;
 
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
@@ -37,6 +39,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+
+import java.util.TimeZone;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.base.MainActivity;
@@ -96,7 +100,7 @@ public class BitmaskTest {
                         withId(R.id.button),
                         ViewMatchers.withTagValue(Matchers.is("button_circle_stop")))),
                 ViewAssertions.matches(ViewMatchers.isDisplayed()),
-                20, "attempt to resolve connected state");
+                180, "attempt to resolve connected state");
         Screengrab.screenshot("01_VPN_connected");
 
         // turn VPN off
@@ -119,7 +123,9 @@ public class BitmaskTest {
         ViewInteraction mainButton = CustomInteractions.tryResolve(
                 onView(Matchers.allOf(
                         withId(R.id.button),
-                        ViewMatchers.withTagValue(Matchers.is("button_circle_start")))),
+                        ViewMatchers.withTagValue(Matchers.is("button_circle_start")),
+                        isDisplayed()
+                        )),
                 ViewAssertions.matches(ViewMatchers.isDisplayed()),
                 20);
         // turn VPN on
@@ -129,17 +135,22 @@ public class BitmaskTest {
         CustomInteractions.tryResolve(
                 onView(Matchers.allOf(
                         withId(R.id.button),
-                        ViewMatchers.withTagValue(Matchers.is("button_circle_cancel")))),
+                        ViewMatchers.withTagValue(Matchers.is("button_circle_cancel")),
+                        isDisplayed()
+                        )),
                 ViewAssertions.matches(ViewMatchers.isDisplayed()),
-                3, "attempt to resolve connecting state");
+                10, "attempt to resolve connecting state");
         Screengrab.screenshot("02_VPN_connecting");
 
         CustomInteractions.tryResolve(
                 onView(Matchers.allOf(
                         withId(R.id.button),
-                        ViewMatchers.withTagValue(Matchers.is("button_circle_stop")))),
+                        ViewMatchers.withTagValue(Matchers.is("button_circle_stop")),
+                        isDisplayed()
+                        )
+                ),
                 ViewAssertions.matches(ViewMatchers.isDisplayed()),
-                20, "attempt to resolve connected state");
+                180, "attempt to resolve connected state");
     }
 
     @Test

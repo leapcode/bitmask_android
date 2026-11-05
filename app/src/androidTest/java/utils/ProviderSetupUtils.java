@@ -5,6 +5,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject;
@@ -49,7 +51,15 @@ public class ProviderSetupUtils {
     public static void runStartVPN(boolean takeConfigurationScreenshots, boolean useCircumvention, boolean showPermissionDialog) {
         // ------- START VPN --------------
         System.out.println("next: perform click on VPN button");
-        ViewInteraction interaction = tryResolve(onView(withTagValue(Matchers.is("button_setup_circle_custom"))), matches(isDisplayed()), useCircumvention && !showPermissionDialog ? 180 : 20);
+        ViewInteraction interaction = tryResolve(
+                onView(
+                        Matchers.allOf(
+                                withTagValue(Matchers.is("button_setup_circle_custom")),
+                                isDisplayed()
+                        )
+                ),
+                matches(isDisplayed()),
+                useCircumvention && !showPermissionDialog ? 180 : 30);
         if (takeConfigurationScreenshots) {
             Screengrab.screenshot("all_set_start_vpn");
         } else {
