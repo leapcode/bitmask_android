@@ -1,3 +1,7 @@
+1.7.1 RiseupVPN bugfix release
+maintenance:
+- updated target SDK to 36 (Android 16)
+
 1.7.0 RiseupVPN bugfix release
 bugfixes:
 - fix possible crashes during provider setup
