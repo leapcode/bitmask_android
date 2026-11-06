@@ -1,3 +1,13 @@
+1.7.0 RiseupVPN bugfix release
+bugfixes:
+- fix possible crashes during provider setup
+- fix provider setup stalled at 1% after error handling
+- updated preshipped CA certificate and fingerprints for Riseup
+
+maintenance:
+- updated translations
+- update golang version to 1.26.10
+
 1.6.3 CoopVPN soft launch release v3
 bugfixes:
 - updated golang version, fixes failure and crashes during provider setup
