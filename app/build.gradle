@@ -36,7 +36,7 @@ android {
     versionName "1.7.0"
     compileSdk 35
     minSdkVersion 24
-    targetSdkVersion 35
+    targetSdkVersion 36
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 

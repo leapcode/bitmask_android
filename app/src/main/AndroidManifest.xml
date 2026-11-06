@@ -31,7 +31,12 @@
         android:appCategory="productivity"
         android:logo="@mipmap/ic_launcher"
         android:theme="@style/BitmaskTheme"
+        android:enableOnBackInvokedCallback="false"
         android:localeConfig="@xml/locales_config">
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="true" />
+
         <activity
             android:name=".providersetup.activities.SetupActivity"
             android:launchMode="singleTop"
